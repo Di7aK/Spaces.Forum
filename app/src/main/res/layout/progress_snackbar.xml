@@ -1,0 +1,16 @@
+<FrameLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:layout_gravity="center_vertical"
+	android:gravity="center_vertical">
+
+	<com.rey.material.widget.ProgressView
+		android:id="@+id/progress_pv_circular_determinate"
+		android:layout_width="32dp"
+		android:layout_height="32dp"
+		android:gravity="center_vertical"
+		app:v_styleId="@array/pv_circular_in_colors"/>
+
+</FrameLayout>

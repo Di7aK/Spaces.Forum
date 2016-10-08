@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Spaces.Forum</string>
+	<string name="spaces">Spaces</string>
+    <string name="font_fontFamily_medium">sans-serif</string>
+	
+	<string name="auth">Авторизация</string>
+	<string name="login">Логин</string>
+	<string name="password">Пароль</string>
+	<string name="btn_login">Вход</string>
+	
+
+    <array name="progress_colors_light">
+        <item>#FF03A9F4</item>
+        <item>#FFD8433C</item>
+        <item>#FFF2AF3A</item>
+        <item>#FF279B5E</item>
+    </array>
+	
+	<array name="in_colors_light">
+        <item>#4B03A9F4</item>
+        <item>#3303A9F4</item>
+        <item>#1903A9F4</item>
+    </array>
+
+</resources>

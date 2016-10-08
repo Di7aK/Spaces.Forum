@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="width_match_parent_max_200">
+        <item name="android:layout_width">200dp</item>
+    </style>
+</resources>
