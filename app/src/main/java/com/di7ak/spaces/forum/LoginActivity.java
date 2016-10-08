@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 		eLogin.setEnabled(false);
 		ePassword.setEnabled(false);
 		canceled = false;
-		/*
+		
 		bar.setAction("Отмена", new View.OnClickListener() {
 
 				@Override
@@ -67,21 +67,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 					ePassword.setEnabled(true);
 				}
 			});
-			*/
+			
 		Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) bar.getView();
 
-/*		TextView textView = (TextView) layout.findViewById(android.support.design.R.id.snackbar_text);
-		textView.setVisibility(View.INVISIBLE);
-*/
 		View snackView = getLayoutInflater().inflate(R.layout.progress_snackbar, layout, false);
 		ProgressView pv = (ProgressView)snackView.findViewById(R.id.progress_pv_circular_determinate);
 		pv.start();
 
-/*		TextView textViewTop = (TextView) snackView.findViewById(R.id.text);
-		textViewTop.setText("Авторизация");
-		textViewTop.setTextColor(Color.WHITE);
-*/
-		layout.addView(snackView);
+		layout.addView(snackView, 0);
 		bar.show();
 		new Thread(new Runnable() {
 
