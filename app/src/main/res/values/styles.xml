@@ -99,4 +99,12 @@
         <item>@style/LightInColorCircularProgressView</item>
     </array>
 	
+    <array name="listview">
+        <item>@style/LightListView</item>
+    </array>
+	
+	<style name="LightListView" >
+        <item name="android:background">@color/background_floating_material_light</item>
+    </style>
+	
 </resources>

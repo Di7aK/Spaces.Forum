@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	style="@style/Material.Drawable.Ripple.Wave.Light"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+	android:orientation="horizontal"
+	android:gravity="center_vertical">
+	
+	<com.di7ak.spaces.forum.widget.RoundedImageView
+		android:id="@+id/iv_avatar"
+		android:layout_width="40dp"
+		android:layout_height="40dp"
+		android:padding="16dp"
+		android:src="@drawable/ic_launcher" />
+
+	<com.rey.material.widget.TextView 
+		android:id="@+id/tv_name"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:padding="16dp"
+		android:textSize="20sp"
+		android:textColor="#FF000000"/>
+
+</LinearLayout>
