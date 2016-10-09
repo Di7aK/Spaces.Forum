@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import com.di7ak.spaces.forum.R;
+import android.content.Intent;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 	public static final String EXTRA_TOKEN_TYPE = "ru.spaces.EXTRA_TOKEN_TYPE";
@@ -20,6 +21,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 	EditText eLogin, ePassword;
 	Button btnLogin;
 	CoordinatorLayout rootView;
+	AccountAuthenticatorResponse mAccountAuthenticatorResponse;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +34,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		btnLogin.setOnClickListener(this);
+		
+		mAccountAuthenticatorResponse = 
+				getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
+		
+		if(mAccountAuthenticatorResponse != null) {
+			mAccountAuthenticatorResponse.onRequestContinued();
+		}
 	}
 
 	@Override
@@ -51,11 +60,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 	boolean canceled;
 	public void auth(final String login, final String password) {
-		Snackbar bar = Snackbar.make(rootView, "Авторизация", Snackbar.LENGTH_INDEFINITE);
 		btnLogin.setEnabled(false);
 		eLogin.setEnabled(false);
 		ePassword.setEnabled(false);
 		canceled = false;
+		
+		Snackbar bar = Snackbar.make(rootView, "Авторизация", Snackbar.LENGTH_INDEFINITE);
 		
 		bar.setAction("Отмена", new View.OnClickListener() {
 
@@ -69,13 +79,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 			});
 			
 		Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) bar.getView();
-
 		View snackView = getLayoutInflater().inflate(R.layout.progress_snackbar, layout, false);
 		ProgressView pv = (ProgressView)snackView.findViewById(R.id.progress_pv_circular_determinate);
 		pv.start();
-
 		layout.addView(snackView, 0);
+		
 		bar.show();
+		
 		new Thread(new Runnable() {
 
 				@Override
@@ -86,6 +96,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 						AccountManager am = AccountManager.get(getApplicationContext());
 						Account account = new Account(session.login, "ru.spaces");
 						am.addAccountExplicitly(account, password, new Bundle());
+						Intent res = new Intent();
+						res.putExtra(AccountManager.KEY_ACCOUNT_NAME, account.name);
+						res.putExtra(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+						res.putExtra(AccountManager.KEY_AUTHTOKEN, session.sid);
+						if(mAccountAuthenticatorResponse != null) {
+							mAccountAuthenticatorResponse.onResult(res.getExtras());
+						}
+						setResult(RESULT_OK, res);
 						finish();
 					} catch (SpacesException e) {
 						final String message = e.getMessage();
@@ -95,7 +113,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 								@Override
 								public void run() {
 									Snackbar bar = Snackbar.make(rootView, message, Snackbar.LENGTH_INDEFINITE);
-									if (code < 0) {
+									if (code == -1) {
 										bar.setAction("Повторить", new View.OnClickListener() {
 
 												@Override
@@ -113,6 +131,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 					}
 				}
 			}).start();
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if(mAccountAuthenticatorResponse != null) {
+			mAccountAuthenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED,
+													  "canceled");
+		}
+		finish();
 	}
 
 }
