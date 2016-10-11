@@ -7,18 +7,21 @@ import android.text.*;
 import com.di7ak.spaces.forum.api.*;
 import org.json.*;
 import java.io.*;
+import android.app.Activity;
 
 public class Authenticator extends AbstractAccountAuthenticator {
+	private static final String ACCOUNT_TYPE = "ru.spaces";
+	private static final String TOKEN_FULL_ACCESS = "full_access";
+
 	private final Context context;
-	
+
 	public Authenticator(Context context) {
 		super(context);
 		this.context = context;
 	}
-	
+
 	@Override
 	public Bundle editProperties(AccountAuthenticatorResponse p1, String p2) {
-		// TODO: Implement this method
 		return null;
 	}
 
@@ -38,7 +41,6 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
 	@Override
 	public Bundle confirmCredentials(AccountAuthenticatorResponse p1, Account p2, Bundle p3) throws NetworkErrorException {
-		// TODO: Implement this method
 		return null;
 	}
 
@@ -88,6 +90,48 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		// TODO: Implement this method
 		return null;
 	}
-	
-	
+
+	public static void getSession(Activity activity, final OnResult onResult) {
+		AccountManager am = AccountManager.get(activity);
+		Account[] accounts = am.getAccountsByType(ACCOUNT_TYPE);
+        if (accounts.length == 0) {
+            am.addAccount(ACCOUNT_TYPE, TOKEN_FULL_ACCESS, null, null, activity,
+                new AccountManagerCallback<Bundle>() {
+                    @Override
+                    public void run(AccountManagerFuture<Bundle> future) {
+                        try {
+                            Bundle result = future.getResult();
+							Session session = new Session();
+                            session.sid = result.getString(AccountManager.KEY_AUTHTOKEN);
+							onResult.onAuthenticatorResult(session);
+                        } catch (Exception e) {
+                            onResult.onAuthenticatorResult(null);
+                        }
+                    }
+                }, null
+			);
+        } else {
+			am.getAuthToken(accounts[0], LoginActivity.EXTRA_TOKEN_TYPE, new Bundle(), true,
+                new AccountManagerCallback<Bundle>() {
+                    @Override
+                    public void run(AccountManagerFuture<Bundle> future) {
+                        try {
+                            Bundle result = future.getResult();
+							Session session = new Session();
+                            session.sid = result.getString(AccountManager.KEY_AUTHTOKEN);
+							onResult.onAuthenticatorResult(session);
+                        } catch (Exception e) {
+							onResult.onAuthenticatorResult(null);
+                        }
+                    }
+                }, null
+			);
+		}
+	}
+
+	public interface OnResult {
+		public void onAuthenticatorResult(Session session);
+	}
+
+
 }

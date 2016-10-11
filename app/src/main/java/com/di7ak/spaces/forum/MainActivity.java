@@ -1,24 +1,26 @@
 package com.di7ak.spaces.forum;
 
+import android.accounts.*;
+import android.support.v4.app.*;
+import java.util.*;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import com.di7ak.spaces.forum.api.Session;
+import com.di7ak.spaces.forum.fragments.CommFragment;
+import java.io.IOException;
 
-import java.util.ArrayList;
-import java.util.List;
-import com.di7ak.spaces.forum.fragments.*;
-import android.widget.*;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Authenticator.OnResult {
 	
 	private Toolbar toolbar;
 	private TabLayout tabLayout;
 	private ViewPager viewPager;
+	private CommFragment myComm;
+	private Session session;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +37,24 @@ public class MainActivity extends AppCompatActivity {
 		
 		tabLayout = (TabLayout) findViewById(R.id.tabs);
 		tabLayout.setupWithViewPager(viewPager);
+		
+		Authenticator.getSession(this, this);
+	}
+	
+	@Override
+	public void onAuthenticatorResult(Session session) {
+		if(session == null) finish();
+		else {
+			this.session = session;
+			myComm.loadMyComm(session);
+		}
 	}
 	
 	private void setupViewPager(ViewPager viewPager) {
 		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-		adapter.addFragment(new CommFragment(), "Мои Сообщества");
-		adapter.addFragment(new CommFragment(), "Общий форум");
+		myComm = new CommFragment();
+		adapter.addFragment(myComm, "Мои Сообщества");
+		adapter.addFragment(new CommFragment(), "Популярные");
 		adapter.addFragment(new CommFragment(), "Категории");
 		viewPager.setAdapter(adapter);
 	}
