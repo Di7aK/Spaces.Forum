@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import jp.wasabeef.recyclerview.animators.ScaleInAnimator;
 import android.support.v7.widget.RecyclerView;
 
-public class CommFragment extends Fragment {
+public class PopularCommFragment extends Fragment {
 	MaterialListView mListView;
 	Session session;
 	List<Comm> comms;
@@ -25,14 +25,14 @@ public class CommFragment extends Fragment {
 	int currentPage = 1;
 	int pages = 1;
 
-	public CommFragment() {
+	public PopularCommFragment() {
 		super();
 		comms = new ArrayList<Comm>();
 	}
 
 	public void setSession(Session session) {
 		this.session = session;
-		if (getActivity() != null) loadMyComm();
+		if (getActivity() != null) loadPopularComm();
 	}
 
 	@Override
@@ -54,17 +54,17 @@ public class CommFragment extends Fragment {
 					if (!recyclerView.canScrollVertically(1)) {
 						if(!bar.isShown() && currentPage < pages) {
 						currentPage ++;
-						loadMyComm();
+						loadPopularComm();
 						}
 					}
 				}
 			});
 		showComms(comms);
-		if (session != null && comms.size() == 0) loadMyComm();
+		if (session != null && comms.size() == 0) loadPopularComm();
 		return v;
 	}
 
-	public void loadMyComm() {
+	public void loadPopularComm() {
 		bar = Snackbar.make(getActivity().getWindow().getDecorView(), "Получение списка", Snackbar.LENGTH_INDEFINITE);
 
 		Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) bar.getView();
@@ -80,7 +80,7 @@ public class CommFragment extends Fragment {
 				@Override
 				public void run() {
 					try {
-						CommResult result = Comm.get(session, currentPage);
+						CommResult result = Comm.getPopular(session, currentPage);
 						comms.addAll(result.comms);
 						pages = result.pages;
 						showComms(result.comms);
@@ -98,7 +98,7 @@ public class CommFragment extends Fragment {
 
 												@Override
 												public void onClick(View v) {
-													loadMyComm();
+													loadPopularComm();
 												}
 											});
 									}
@@ -124,7 +124,7 @@ public class CommFragment extends Fragment {
 							.withProvider(new CardProvider())
 							.setLayout(R.layout.comm_item)
 							.setTitle(comm.name)
-							.setDescription(Integer.toString(comm.count) + " новых тем")
+							.setDescription(comm.description)
 							.setDrawable(comm.avatar)
 							.endConfig()
 							.build();

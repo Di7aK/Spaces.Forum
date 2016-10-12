@@ -10,8 +10,8 @@ import java.io.*;
 import android.app.Activity;
 
 public class Authenticator extends AbstractAccountAuthenticator {
-	private static final String ACCOUNT_TYPE = "ru.spaces";
-	private static final String TOKEN_FULL_ACCESS = "full_access";
+	public static final String ACCOUNT_TYPE = "ru.spaces";
+	public static final String TOKEN_FULL_ACCESS = "ru.spaces.full_access";
 
 	private final Context context;
 
@@ -29,7 +29,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType,
 							 String[] requiredFeatures, Bundle options) {
 		final Intent intent = new Intent(context, LoginActivity.class);
-		intent.putExtra(LoginActivity.EXTRA_TOKEN_TYPE, accountType);
+		intent.putExtra(TOKEN_FULL_ACCESS, accountType);
 		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
 		final Bundle bundle = new Bundle();
 		if (options != null) {
@@ -66,7 +66,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		} else {
 			final Intent intent = new Intent(context, LoginActivity.class);
 			intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-			intent.putExtra(LoginActivity.EXTRA_TOKEN_TYPE, authTokenType);
+			intent.putExtra(TOKEN_FULL_ACCESS, authTokenType);
 			final Bundle bundle = new Bundle();
 			bundle.putParcelable(AccountManager.KEY_INTENT, intent);
 		}
@@ -111,12 +111,12 @@ public class Authenticator extends AbstractAccountAuthenticator {
                 }, null
 			);
         } else {
-			am.getAuthToken(accounts[0], LoginActivity.EXTRA_TOKEN_TYPE, new Bundle(), true,
+			am.getAuthToken(accounts[0], TOKEN_FULL_ACCESS, new Bundle(), true,
                 new AccountManagerCallback<Bundle>() {
                     @Override
                     public void run(AccountManagerFuture<Bundle> future) {
                         try {
-                            Bundle result = future.getResult();
+							Bundle result = future.getResult();
 							Session session = new Session();
                             session.sid = result.getString(AccountManager.KEY_AUTHTOKEN);
 							onResult.onAuthenticatorResult(session);

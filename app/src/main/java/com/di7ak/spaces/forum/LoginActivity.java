@@ -15,8 +15,6 @@ import com.di7ak.spaces.forum.R;
 import android.content.Intent;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
-	public static final String EXTRA_TOKEN_TYPE = "ru.spaces.EXTRA_TOKEN_TYPE";
-
 	Toolbar toolbar;
 	EditText eLogin, ePassword;
 	Button btnLogin;
@@ -94,7 +92,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 						Session session = Auth.login(login, password);
 						if (canceled) return;
 						AccountManager am = AccountManager.get(getApplicationContext());
-						Account account = new Account(session.login, "ru.spaces");
+						Account account = new Account(session.login, Authenticator.ACCOUNT_TYPE);
 						am.addAccountExplicitly(account, password, new Bundle());
 						Intent res = new Intent();
 						res.putExtra(AccountManager.KEY_ACCOUNT_NAME, account.name);
