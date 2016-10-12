@@ -13,15 +13,14 @@ import android.support.v7.widget.Toolbar;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.fragments.CommFragment;
 import java.io.IOException;
-import com.di7ak.spaces.forum.fragments.PopularCommFragment;
+import com.di7ak.spaces.forum.api.Comm;
 
 public class MainActivity extends AppCompatActivity implements Authenticator.OnResult {
 	
 	private Toolbar toolbar;
 	private TabLayout tabLayout;
 	private ViewPager viewPager;
-	private CommFragment myComm;
-	private PopularCommFragment popularComm;
+	private CommFragment myComm, popularComm;
 	private Session session;
 	
 	@Override
@@ -35,10 +34,7 @@ public class MainActivity extends AppCompatActivity implements Authenticator.OnR
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		viewPager = (ViewPager) findViewById(R.id.viewpager);
-		setupViewPager(viewPager);
-		
 		tabLayout = (TabLayout) findViewById(R.id.tabs);
-		tabLayout.setupWithViewPager(viewPager);
 		
 		Authenticator.getSession(this, this);
 	}
@@ -48,18 +44,17 @@ public class MainActivity extends AppCompatActivity implements Authenticator.OnR
 		if(session == null) finish();
 		else {
 			this.session = session;
-			myComm.setSession(session);
-			popularComm.setSession(session);
+			myComm = new CommFragment(session, Comm.TYPE_MYCOMM);
+			popularComm = new CommFragment(session, Comm.TYPE_POPULAR);
+			setupViewPager(viewPager);
+			tabLayout.setupWithViewPager(viewPager);
 		}
 	}
 	
 	private void setupViewPager(ViewPager viewPager) {
 		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-		myComm = new CommFragment();
-		popularComm = new PopularCommFragment();
 		adapter.addFragment(myComm, "Мои Сообщества");
 		adapter.addFragment(popularComm, "Популярные");
-		adapter.addFragment(new CommFragment(), "Категории");
 		viewPager.setAdapter(adapter);
 	}
 	

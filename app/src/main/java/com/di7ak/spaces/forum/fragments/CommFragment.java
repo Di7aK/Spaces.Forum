@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 import jp.wasabeef.recyclerview.animators.ScaleInAnimator;
 import android.support.v7.widget.RecyclerView;
+import java.util.TimerTask;
 
 public class CommFragment extends Fragment {
 	MaterialListView mListView;
@@ -24,15 +25,15 @@ public class CommFragment extends Fragment {
 	Snackbar bar;
 	int currentPage = 1;
 	int pages = 1;
+	int type;
+	int retryCount = 0;
+	int maxRetryCount = 2;
 
-	public CommFragment() {
+	public CommFragment(Session session, int type) {
 		super();
 		comms = new ArrayList<Comm>();
-	}
-
-	public void setSession(Session session) {
 		this.session = session;
-		if (getActivity() != null) loadMyComm();
+		this.type = type;
 	}
 
 	@Override
@@ -53,18 +54,18 @@ public class CommFragment extends Fragment {
 				public final void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 					if (!recyclerView.canScrollVertically(1)) {
 						if(!bar.isShown() && currentPage < pages) {
-						currentPage ++;
-						loadMyComm();
+							currentPage ++;
+							loadComm();
 						}
 					}
 				}
 			});
-		showComms(comms);
-		if (session != null && comms.size() == 0) loadMyComm();
+		if (comms.size() == 0) loadComm();
+		else showComms(comms);
 		return v;
 	}
 
-	public void loadMyComm() {
+	public void loadComm() {
 		bar = Snackbar.make(getActivity().getWindow().getDecorView(), "Получение списка", Snackbar.LENGTH_INDEFINITE);
 
 		Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) bar.getView();
@@ -80,14 +81,23 @@ public class CommFragment extends Fragment {
 				@Override
 				public void run() {
 					try {
-						CommResult result = Comm.get(session, currentPage);
+						CommResult result = Comm.get(session, currentPage, type);
 						comms.addAll(result.comms);
 						pages = result.pages;
 						showComms(result.comms);
+						retryCount = 0;
 					} catch (SpacesException e) {
 						final String message = e.getMessage();
 						final int code = e.code;
-						getActivity().runOnUiThread(new Runnable() {
+						if(code == -1 && retryCount < maxRetryCount) {
+							retryCount ++;
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException ie) {}
+							loadComm();
+						} else {
+							retryCount = 0;
+							getActivity().runOnUiThread(new Runnable() {
 
 								@Override
 								public void run() {
@@ -98,13 +108,14 @@ public class CommFragment extends Fragment {
 
 												@Override
 												public void onClick(View v) {
-													loadMyComm();
+													loadComm();
 												}
 											});
 									}
 									bar.show();
 								}
 							});
+						}
 					}
 				}
 			}).start();
@@ -112,29 +123,38 @@ public class CommFragment extends Fragment {
 	}
 
 	public void showComms(final List<Comm> comms) {
+		if(getActivity() == null) return;
 		getActivity().runOnUiThread(new Runnable() {
 
 				@Override
 				public void run() {
 					if (bar != null) bar.dismiss();
-					List<Card> cards = new ArrayList<Card>();
+					
 					for (Comm comm : comms) {
 						Card card = new Card.Builder(getContext())
-							//.setDismissible()
 							.withProvider(new CardProvider())
 							.setLayout(R.layout.comm_item)
 							.setTitle(comm.name)
-							.setDescription(Integer.toString(comm.count) + " новых тем")
+							.setDescription(comm.description == null ? getCountText(comm.count) : comm.description)
 							.setDrawable(comm.avatar)
 							.endConfig()
 							.build();
 
 						mListView.getAdapter().add(mListView.getAdapter().getItemCount(), card, false);
-						//cards.add(card);
 					}
-					//mListView.getAdapter().addAll(cards);
 				}
 			});
+	}
+	
+	private String getCountText(int count) {
+		if(count == 0) return "нет новых тем";
+		String countString = Integer.toString(count);
+		String text = " новых тем";
+		if(countString.endsWith("1")) text = " новая тема";
+		else if(countString.endsWith("2") ||
+				countString.endsWith("3") ||
+				countString.endsWith("4")) text = " новые темы";
+		return countString + text;
 	}
 
 }
