@@ -23,12 +23,12 @@ import android.content.Intent;
 import android.support.v7.widget.CardView;
 import com.rey.material.widget.ProgressView;
 import android.widget.TextView;
-import android.widget.ScrollView;
+import android.support.v4.widget.NestedScrollView;
 
-public class ForumFragment extends Fragment implements View.OnScrollChangeListener {
+public class ForumFragment extends Fragment implements NestedScrollView.OnScrollChangeListener {
 	LinearLayout topicList;
 	CardView cardView;
-	ScrollView scrollView;
+	NestedScrollView scrollView;
 	Session session;
 	List<Topic> topics;
 	Snackbar bar;
@@ -57,7 +57,7 @@ public class ForumFragment extends Fragment implements View.OnScrollChangeListen
 		View v = inflater.inflate(R.layout.forum_fragment, parrent, false);
 		topicList = (LinearLayout) v.findViewById(R.id.topic_list);
 		cardView = (CardView) v.findViewById(R.id.card_view);
-		scrollView = (ScrollView) v.findViewById(R.id.scroll_view);
+		scrollView = (NestedScrollView) v.findViewById(R.id.scroll_view);
 		cardView.setVisibility(View.INVISIBLE);
 		
 		scrollView.setOnScrollChangeListener(this);
@@ -68,8 +68,8 @@ public class ForumFragment extends Fragment implements View.OnScrollChangeListen
 	}
 	
 	@Override
-	public void onScrollChange(View p1, int p2, int p3, int p4, int p5) {
-		if(scrollView.canScrollVertically(1)) {
+	public void onScrollChange(NestedScrollView p1, int p2, int p3, int p4, int p5) {
+		if(cardView.getHeight() - p3 < 30) {
 			if (!bar.isShown() && currentPage < pages) {
 				currentPage ++;
 				loadTopics();
