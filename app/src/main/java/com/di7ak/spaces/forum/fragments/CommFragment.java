@@ -17,8 +17,11 @@ import java.util.ArrayList;
 import jp.wasabeef.recyclerview.animators.ScaleInAnimator;
 import android.support.v7.widget.RecyclerView;
 import java.util.TimerTask;
+import com.dexafree.materialList.listeners.RecyclerItemClickListener;
+import android.support.annotation.NonNull;
+import android.content.Intent;
 
-public class CommFragment extends Fragment {
+public class CommFragment extends Fragment implements RecyclerItemClickListener.OnItemClickListener {
 	MaterialListView mListView;
 	Session session;
 	List<Comm> comms;
@@ -45,7 +48,7 @@ public class CommFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup parrent, Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.comm_fragment, parrent, false);
 		mListView = (MaterialListView) v.findViewById(R.id.material_listview);
-		
+
 		mListView.setItemAnimator(new ScaleInAnimator());
         mListView.getItemAnimator().setAddDuration(300);
         mListView.getItemAnimator().setRemoveDuration(300);
@@ -53,16 +56,31 @@ public class CommFragment extends Fragment {
 				@Override
 				public final void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 					if (!recyclerView.canScrollVertically(1)) {
-						if(!bar.isShown() && currentPage < pages) {
+						if (!bar.isShown() && currentPage < pages) {
 							currentPage ++;
 							loadComm();
 						}
 					}
 				}
 			});
+		mListView.addOnItemTouchListener(this);
+
 		if (comms.size() == 0) loadComm();
 		else showComms(comms);
 		return v;
+	}
+
+	@Override
+	public void onItemClick(@NonNull Card card, int position) {
+		Intent intent = new Intent(getContext(), ForumActivity.class);
+		intent.putExtra("name", comms.get(position).name);
+		intent.putExtra("cid", comms.get(position).cid);
+		startActivity(intent);
+	}
+
+	@Override
+	public void onItemLongClick(@NonNull Card card, int position) {
+		//Log.d("LONG_CLICK", "" + card.getTag());
 	}
 
 	public void loadComm() {
@@ -89,7 +107,7 @@ public class CommFragment extends Fragment {
 					} catch (SpacesException e) {
 						final String message = e.getMessage();
 						final int code = e.code;
-						if(code == -1 && retryCount < maxRetryCount) {
+						if (code == -1 && retryCount < maxRetryCount) {
 							retryCount ++;
 							try {
 								Thread.sleep(100);
@@ -99,22 +117,22 @@ public class CommFragment extends Fragment {
 							retryCount = 0;
 							getActivity().runOnUiThread(new Runnable() {
 
-								@Override
-								public void run() {
-									bar.dismiss();
-									bar = Snackbar.make(getActivity().getWindow().getDecorView(), message, Snackbar.LENGTH_INDEFINITE);
-									if (code == -1) {
-										bar.setAction("Повторить", new View.OnClickListener() {
+									@Override
+									public void run() {
+										bar.dismiss();
+										bar = Snackbar.make(getActivity().getWindow().getDecorView(), message, Snackbar.LENGTH_INDEFINITE);
+										if (code == -1) {
+											bar.setAction("Повторить", new View.OnClickListener() {
 
-												@Override
-												public void onClick(View v) {
-													loadComm();
-												}
-											});
+													@Override
+													public void onClick(View v) {
+														loadComm();
+													}
+												});
+										}
+										bar.show();
 									}
-									bar.show();
-								}
-							});
+								});
 						}
 					}
 				}
@@ -123,13 +141,13 @@ public class CommFragment extends Fragment {
 	}
 
 	public void showComms(final List<Comm> comms) {
-		if(getActivity() == null) return;
+		if (getActivity() == null) return;
 		getActivity().runOnUiThread(new Runnable() {
 
 				@Override
 				public void run() {
 					if (bar != null) bar.dismiss();
-					
+					LayoutInflater li = getActivity().getLayoutInflater();
 					for (Comm comm : comms) {
 						Card card = new Card.Builder(getContext())
 							.withProvider(new CardProvider())
@@ -145,15 +163,15 @@ public class CommFragment extends Fragment {
 				}
 			});
 	}
-	
+
 	private String getCountText(int count) {
-		if(count == 0) return "нет новых тем";
+		if (count == 0) return "нет новых тем";
 		String countString = Integer.toString(count);
 		String text = " новых тем";
-		if(countString.endsWith("1")) text = " новая тема";
-		else if(countString.endsWith("2") ||
-				countString.endsWith("3") ||
-				countString.endsWith("4")) text = " новые темы";
+		if (countString.endsWith("1")) text = " новая тема";
+		else if (countString.endsWith("2") ||
+				 countString.endsWith("3") ||
+				 countString.endsWith("4")) text = " новые темы";
 		return countString + text;
 	}
 

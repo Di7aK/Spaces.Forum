@@ -10,6 +10,7 @@
 	<string name="password">Пароль</string>
 	<string name="btn_login">Вход</string>
 	
+	<string name="forum">Форум</string>
 
     <array name="progress_colors_light">
         <item>#FF03A9F4</item>
