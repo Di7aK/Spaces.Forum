@@ -15,7 +15,7 @@ public class Forum {
 	public static final int TYPE_NEW = 6;
 	public static final int TYPE_LAST = 5;
 	public static final int TYPE_POPULAR = 3;
-	
+
 	public static ForumResult getTopics(Session session, Comm comm, int page, int type) throws SpacesException {
 		ForumResult result = new ForumResult();
 		result.topics = new ArrayList<Topic>();
@@ -40,30 +40,38 @@ public class Forum {
 				response.append(inputLine);
 			}
 			in.close();
-			
+
 			JSONObject json = new JSONObject(parseJsonString(response.toString()));
 			int code = json.getInt("code");
 			if (code != 0) throw new SpacesException(code);
-			JSONObject temp = json.getJSONObject("paginationWidget");
-			result.currentPage = temp.getInt("current_page");
-			result.lastPage = temp.getInt("last_page");
-			temp = json.getJSONObject("topicWidget");
-			JSONArray topics = temp.getJSONArray("topics");
-			Topic topic;
-			for(int i = 0; i < topics.length(); i ++) {
-				temp = topics.getJSONObject(i);
-				topic = new Topic();
-				if(temp.has("topicUser")) topic.topicUser = temp.getString("topicUser");
-				if(temp.has("date")) topic.date = temp.getString("date");
-				if(temp.has("subject")) topic.subject = temp.getString("subject");
-				if(temp.has("newTopic")) topic.newTopic = temp.getInt("newTopic") == 1;
-				if(temp.has("commentsCnt")) topic.commentsCount = temp.getInt("commentsCnt");
-				if(temp.has("lastUser")) topic.lastUser = temp.getString("lastUser");
-				if(temp.has("lastCommentDate")) topic.lastCommentDate = temp.getString("lastCommentDate");
-				if(temp.has("id")) topic.id = temp.getString("id");
-				if(temp.has("AttachCount")) topic.attachCount = temp.getInt("AttachCount");
-				if(temp.has("locked")) topic.locked = temp.getInt("locked") == 1;
-				result.topics.add(topic);
+			JSONObject temp;
+			if (json.has("paginationWidget")) {
+				temp = json.getJSONObject("paginationWidget");
+				result.currentPage = temp.getInt("current_page");
+				result.lastPage = temp.getInt("last_page");
+			} else {
+				result.currentPage = page;
+				result.lastPage = page;
+			}
+			if (json.has("topicWidget")) {
+				temp = json.getJSONObject("topicWidget");
+				JSONArray topics = temp.getJSONArray("topics");
+				Topic topic;
+				for (int i = 0; i < topics.length(); i ++) {
+					temp = topics.getJSONObject(i);
+					topic = new Topic();
+					if (temp.has("topicUser")) topic.topicUser = temp.getString("topicUser");
+					if (temp.has("date")) topic.date = temp.getString("date");
+					if (temp.has("subject")) topic.subject = temp.getString("subject");
+					if (temp.has("newTopic")) topic.newTopic = temp.getInt("newTopic") == 1;
+					if (temp.has("commentsCnt")) topic.commentsCount = temp.getInt("commentsCnt");
+					if (temp.has("lastUser")) topic.lastUser = temp.getString("lastUser");
+					if (temp.has("lastCommentDate")) topic.lastCommentDate = temp.getString("lastCommentDate");
+					if (temp.has("id")) topic.id = temp.getString("id");
+					if (temp.has("AttachCount")) topic.attachCount = temp.getInt("AttachCount");
+					if (temp.has("locked")) topic.locked = temp.getInt("locked") == 1;
+					result.topics.add(topic);
+				}
 			}
 		} catch (IOException e) {
 			throw new SpacesException(-1);
@@ -73,12 +81,12 @@ public class Forum {
 		}
 		return result;
 	}
-	
+
 	private static String parseJsonString(String from) {
 		int start = from.indexOf("data(");
 		start += 5;
 		int offset = from.lastIndexOf(")</");
 		return from.substring(start, offset);
 	}
-	
+
 }

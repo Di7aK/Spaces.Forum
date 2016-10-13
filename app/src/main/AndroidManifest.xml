@@ -26,6 +26,15 @@
             </intent-filter>
         </activity>
 		<activity
+            android:name=".ForumActivity"
+            android:label="@string/forum" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.NONE" />
+            </intent-filter>
+        </activity>
+		<activity
             android:name=".LoginActivity"
             android:label="@string/auth" >
             <intent-filter>
