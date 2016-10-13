@@ -14,7 +14,7 @@ import org.json.JSONArray;
 public class Forum {
 	public static final int TYPE_NEW = 6;
 	public static final int TYPE_LAST = 5;
-	public static final int TYPE_POPULAR = 3;
+	public static final int TYPE_POPULAR = 7;
 
 	public static ForumResult getTopics(Session session, Comm comm, int page, int type) throws SpacesException {
 		ForumResult result = new ForumResult();
@@ -76,7 +76,6 @@ public class Forum {
 		} catch (IOException e) {
 			throw new SpacesException(-1);
 		} catch (JSONException e) {
-			android.util.Log.d("lol", e.toString());
 			throw new SpacesException(-2);
 		}
 		return result;

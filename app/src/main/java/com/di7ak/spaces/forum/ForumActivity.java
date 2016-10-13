@@ -23,7 +23,7 @@ public class ForumActivity extends AppCompatActivity implements Authenticator.On
 	private Toolbar toolbar;
 	private TabLayout tabLayout;
 	private ViewPager viewPager;
-	private ForumFragment newTopics, popularTopics;
+	private ForumFragment newTopics, popularTopics, lastTopics;
 	private Session session;
 	private Comm comm;
 	
@@ -57,6 +57,8 @@ public class ForumActivity extends AppCompatActivity implements Authenticator.On
 			
 			newTopics = new ForumFragment(session, comm, Forum.TYPE_NEW);
 			popularTopics = new ForumFragment(session, comm, Forum.TYPE_POPULAR);
+			lastTopics = new ForumFragment(session, comm, Forum.TYPE_LAST);
+			
 			setupViewPager(viewPager);
 			tabLayout.setupWithViewPager(viewPager);
 		}
@@ -65,6 +67,7 @@ public class ForumActivity extends AppCompatActivity implements Authenticator.On
 	private void setupViewPager(ViewPager viewPager) {
 		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 		adapter.addFragment(newTopics, "Новые");
+		adapter.addFragment(lastTopics, "Последние");
 		adapter.addFragment(popularTopics, "Популярные");
 		viewPager.setAdapter(adapter);
 	}

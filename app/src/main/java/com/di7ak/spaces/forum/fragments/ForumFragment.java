@@ -4,12 +4,12 @@ import android.view.*;
 import com.dexafree.materialList.card.*;
 import com.di7ak.spaces.forum.*;
 import com.di7ak.spaces.forum.api.*;
-import com.rey.material.widget.*;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.widget.LinearLayout;
 import com.dexafree.materialList.view.MaterialListView;
 import java.util.List;
 import java.util.ArrayList;
@@ -20,9 +20,15 @@ import java.util.TimerTask;
 import com.dexafree.materialList.listeners.RecyclerItemClickListener;
 import android.support.annotation.NonNull;
 import android.content.Intent;
+import android.support.v7.widget.CardView;
+import com.rey.material.widget.ProgressView;
+import android.widget.TextView;
+import android.widget.ScrollView;
 
-public class ForumFragment extends Fragment implements RecyclerItemClickListener.OnItemClickListener {
-	MaterialListView mListView;
+public class ForumFragment extends Fragment implements View.OnScrollChangeListener {
+	LinearLayout topicList;
+	CardView cardView;
+	ScrollView scrollView;
 	Session session;
 	List<Topic> topics;
 	Snackbar bar;
@@ -48,38 +54,27 @@ public class ForumFragment extends Fragment implements RecyclerItemClickListener
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup parrent, Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.comm_fragment, parrent, false);
-		mListView = (MaterialListView) v.findViewById(R.id.material_listview);
-
-		mListView.setItemAnimator(new ScaleInAnimator());
-        mListView.getItemAnimator().setAddDuration(300);
-        mListView.getItemAnimator().setRemoveDuration(300);
-		mListView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-				@Override
-				public final void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-					if (!recyclerView.canScrollVertically(1)) {
-						if (!bar.isShown() && currentPage < pages) {
-							currentPage ++;
-							loadTopics();
-						}
-					}
-				}
-			});
-		mListView.addOnItemTouchListener(this);
-
+		View v = inflater.inflate(R.layout.forum_fragment, parrent, false);
+		topicList = (LinearLayout) v.findViewById(R.id.topic_list);
+		cardView = (CardView) v.findViewById(R.id.card_view);
+		scrollView = (ScrollView) v.findViewById(R.id.scroll_view);
+		cardView.setVisibility(View.INVISIBLE);
+		
+		scrollView.setOnScrollChangeListener(this);
+		
 		if (topics.size() == 0) loadTopics();
 		else showTopics(topics);
 		return v;
 	}
-
+	
 	@Override
-	public void onItemClick(@NonNull Card card, int position) {
-		
-	}
-
-	@Override
-	public void onItemLongClick(@NonNull Card card, int position) {
-		//Log.d("LONG_CLICK", "" + card.getTag());
+	public void onScrollChange(View p1, int p2, int p3, int p4, int p5) {
+		if(scrollView.canScrollVertically(1)) {
+			if (!bar.isShown() && currentPage < pages) {
+				currentPage ++;
+				loadTopics();
+			}
+		}
 	}
 
 	public void loadTopics() {
@@ -146,20 +141,26 @@ public class ForumFragment extends Fragment implements RecyclerItemClickListener
 				@Override
 				public void run() {
 					if (bar != null) bar.dismiss();
-					
+					if(cardView.getVisibility() == View.INVISIBLE) cardView.setVisibility(View.VISIBLE);
+					LayoutInflater li = getActivity().getLayoutInflater();
+					View v;
 					for (Topic topic : topics) {
-						Card card = new Card.Builder(getContext())
-							.withProvider(new CardProvider())
-							.setLayout(R.layout.comm_item)
-							.setTitle(topic.topicUser)
-							.setDescription(topic.subject)
-							.endConfig()
-							.build();
-
-						mListView.getAdapter().add(mListView.getAdapter().getItemCount(), card, false);
+						v = li.inflate(R.layout.topic_item, null);
+						((TextView)v.findViewById(R.id.subject)).setText(topic.subject);
+						((TextView)v.findViewById(R.id.description)).setText(createDescription(topic));
+						topicList.addView(v);
 					}
 				}
 			});
 	}
 
+	private String createDescription(Topic topic) {
+		StringBuilder build = new StringBuilder();
+		build.append("Автор: ").append(topic.topicUser)
+			.append(", создано: ").append(topic.date)
+			.append(", последний комментарий: ").append(topic.lastUser)
+			.append(" ").append(topic.lastCommentDate);
+		return build.toString();
+	}
+	
 }
