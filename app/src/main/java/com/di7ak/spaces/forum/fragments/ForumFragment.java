@@ -68,8 +68,8 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 	}
 	
 	@Override
-	public void onScrollChange(NestedScrollView p1, int p2, int p3, int p4, int p5) {
-		if(cardView.getHeight() - p3 < 30) {
+	public void onScrollChange(NestedScrollView v, int p2, int p3, int p4, int p5) {
+		if(p3 + 50 > (v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight())) {
 			if (!bar.isShown() && currentPage < pages) {
 				currentPage ++;
 				loadTopics();
