@@ -24,6 +24,7 @@ import android.support.v7.widget.CardView;
 import com.rey.material.widget.ProgressView;
 import android.widget.TextView;
 import android.support.v4.widget.NestedScrollView;
+import android.content.res.Configuration;
 
 public class ForumFragment extends Fragment implements NestedScrollView.OnScrollChangeListener {
 	LinearLayout topicList;
@@ -154,13 +155,12 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 			});
 	}
 
+	private static final String PATTERN_PORTRAIT = "Автор: %1$s %2$s,  последний: %3$s %4$s";
+	private static final String PATTERN_LANDSPACE = "Автор: %1$s, создано: %2$s, последний комментарий: %3$s %4$s";
+	
 	private String createDescription(Topic topic) {
-		StringBuilder build = new StringBuilder();
-		build.append("Автор: ").append(topic.topicUser)
-			.append(", создано: ").append(topic.date)
-			.append(", последний комментарий: ").append(topic.lastUser)
-			.append(" ").append(topic.lastCommentDate);
-		return build.toString();
+		String pattern = getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ? PATTERN_PORTRAIT : PATTERN_LANDSPACE;
+		return String.format(pattern, topic.topicUser, topic.date, topic.lastUser, topic.lastCommentDate);
 	}
 	
 }

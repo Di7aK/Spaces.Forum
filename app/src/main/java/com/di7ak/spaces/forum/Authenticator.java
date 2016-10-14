@@ -28,10 +28,10 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	@Override
 	public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType,
 							 String[] requiredFeatures, Bundle options) {
-		final Intent intent = new Intent(context, LoginActivity.class);
-		intent.putExtra(TOKEN_FULL_ACCESS, accountType);
+		Intent intent = new Intent(context, LoginActivity.class);
+		intent.putExtra(TOKEN_FULL_ACCESS, ACCOUNT_TYPE);
 		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-		final Bundle bundle = new Bundle();
+		Bundle bundle = new Bundle();
 		if (options != null) {
 			bundle.putAll(options);
 		}
@@ -47,8 +47,8 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	@Override
 	public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType,
 							   Bundle options) throws NetworkErrorException {
-		final Bundle result = new Bundle();
-		final AccountManager am = AccountManager.get(context.getApplicationContext());
+		Bundle result = new Bundle();
+		AccountManager am = AccountManager.get(context.getApplicationContext());
 		String authToken = am.peekAuthToken(account, authTokenType);
 		if (TextUtils.isEmpty(authToken)) {
 			final String password = am.getPassword(account);
@@ -67,8 +67,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 			final Intent intent = new Intent(context, LoginActivity.class);
 			intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
 			intent.putExtra(TOKEN_FULL_ACCESS, authTokenType);
-			final Bundle bundle = new Bundle();
-			bundle.putParcelable(AccountManager.KEY_INTENT, intent);
+			result.putParcelable(AccountManager.KEY_INTENT, intent);
 		}
 		return result;
 	}
@@ -91,7 +90,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return null;
 	}
 
-	public static void getSession(Activity activity, final OnResult onResult) {
+	public static void getSession(final Activity activity, final OnResult onResult) {
 		AccountManager am = AccountManager.get(activity);
 		Account[] accounts = am.getAccountsByType(ACCOUNT_TYPE);
         if (accounts.length == 0) {
@@ -99,14 +98,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
                 new AccountManagerCallback<Bundle>() {
                     @Override
                     public void run(AccountManagerFuture<Bundle> future) {
-                        try {
-                            Bundle result = future.getResult();
-							Session session = new Session();
-                            session.sid = result.getString(AccountManager.KEY_AUTHTOKEN);
-							onResult.onAuthenticatorResult(session);
-                        } catch (Exception e) {
-                            onResult.onAuthenticatorResult(null);
-                        }
+                        getSession(activity, onResult);
                     }
                 }, null
 			);

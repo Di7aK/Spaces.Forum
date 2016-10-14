@@ -37,6 +37,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 				getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
 		
 		if(mAccountAuthenticatorResponse != null) {
+			android.util.Log.d("lol", "laaaal");
 			mAccountAuthenticatorResponse.onRequestContinued();
 		}
 	}

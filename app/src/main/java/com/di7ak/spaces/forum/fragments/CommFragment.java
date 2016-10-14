@@ -168,10 +168,12 @@ public class CommFragment extends Fragment implements RecyclerItemClickListener.
 		if (count == 0) return "нет новых тем";
 		String countString = Integer.toString(count);
 		String text = " новых тем";
-		if (countString.endsWith("1")) text = " новая тема";
-		else if (countString.endsWith("2") ||
-				 countString.endsWith("3") ||
-				 countString.endsWith("4")) text = " новые темы";
+		if (!(count > 10 && count < 20)) {
+			if (countString.endsWith("1")) text = " новая тема";
+			else if (countString.endsWith("2") ||
+					 countString.endsWith("3") ||
+					 countString.endsWith("4")) text = " новые темы";
+		}
 		return countString + text;
 	}
 

@@ -51,6 +51,11 @@ public class MainActivity extends AppCompatActivity implements Authenticator.OnR
 		}
 	}
 	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+	}
+	
 	private void setupViewPager(ViewPager viewPager) {
 		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 		adapter.addFragment(myComm, "Мои Сообщества");
