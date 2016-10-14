@@ -46,6 +46,13 @@
 		<item name="android:gravity">left</item>
 	</style>
 
+	<style name="comments_cnt">
+		<item name="android:gravity">center</item>
+        <item name="android:layout_marginRight">6dp</item>
+		<item name="android:textSize">18sp</item>
+		<item name="android:textColor">@color/colorPrimaryDark</item>
+	</style>
+	
     <style name="LightRaiseWaveColorButtonRippleStyle" parent="Material.Drawable.Ripple.Wave.Light">
         <item name="android:background">@drawable/bg_bt_raise_color</item>
         <item name="rd_rippleColor">#33000000</item>

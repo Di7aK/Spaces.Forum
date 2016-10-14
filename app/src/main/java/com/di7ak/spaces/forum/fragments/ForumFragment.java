@@ -1,30 +1,29 @@
 package com.di7ak.spaces.forum.fragments;
 
-import android.view.*;
-import com.dexafree.materialList.card.*;
-import com.di7ak.spaces.forum.*;
-import com.di7ak.spaces.forum.api.*;
-
-import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.widget.LinearLayout;
-import com.dexafree.materialList.view.MaterialListView;
-import java.util.List;
-import java.util.ArrayList;
-
-import jp.wasabeef.recyclerview.animators.ScaleInAnimator;
-import android.support.v7.widget.RecyclerView;
-import java.util.TimerTask;
-import com.dexafree.materialList.listeners.RecyclerItemClickListener;
-import android.support.annotation.NonNull;
-import android.content.Intent;
-import android.support.v7.widget.CardView;
-import com.rey.material.widget.ProgressView;
-import android.widget.TextView;
 import android.support.v4.widget.NestedScrollView;
-import android.content.res.Configuration;
+import android.support.v7.widget.CardView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
+import com.di7ak.spaces.forum.R;
+import com.di7ak.spaces.forum.api.Comm;
+import com.di7ak.spaces.forum.api.Forum;
+import com.di7ak.spaces.forum.api.ForumResult;
+import com.di7ak.spaces.forum.api.Session;
+import com.di7ak.spaces.forum.api.SpacesException;
+import com.di7ak.spaces.forum.api.Topic;
+import com.rey.material.widget.ProgressView;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ForumFragment extends Fragment implements NestedScrollView.OnScrollChangeListener {
 	LinearLayout topicList;
@@ -142,14 +141,21 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 				@Override
 				public void run() {
 					if (bar != null) bar.dismiss();
-					if(cardView.getVisibility() == View.INVISIBLE) cardView.setVisibility(View.VISIBLE);
 					LayoutInflater li = getActivity().getLayoutInflater();
 					View v;
 					for (Topic topic : topics) {
 						v = li.inflate(R.layout.topic_item, null);
 						((TextView)v.findViewById(R.id.subject)).setText(topic.subject);
 						((TextView)v.findViewById(R.id.description)).setText(createDescription(topic));
+						((TextView)v.findViewById(R.id.comments_cnt)).setText(Integer.toString(topic.commentsCount));
+						if(topic.locked) {
+							((LinearLayout)v.findViewById(R.id.prop)).addView(li.inflate(R.layout.lock, null));
+						}
 						topicList.addView(v);
+					}
+					if(cardView.getVisibility() == View.INVISIBLE) {
+						cardView.setVisibility(View.VISIBLE);
+						expand(topicList);
 					}
 				}
 			});
@@ -162,5 +168,59 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 		String pattern = getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ? PATTERN_PORTRAIT : PATTERN_LANDSPACE;
 		return String.format(pattern, topic.topicUser, topic.date, topic.lastUser, topic.lastCommentDate);
 	}
+
+public static void expand(final View v) {
+    v.measure(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+    final int targetHeight = v.getMeasuredHeight();
+
+    // Older versions of android (pre API 21) cancel animations for views with a height of 0.
+    v.getLayoutParams().height = 1;
+    v.setVisibility(View.VISIBLE);
+    Animation a = new Animation()
+    {
+        @Override
+        protected void applyTransformation(float interpolatedTime, Transformation t) {
+            v.getLayoutParams().height = interpolatedTime == 1
+                    ? LayoutParams.WRAP_CONTENT
+                    : (int)(targetHeight * interpolatedTime);
+            v.requestLayout();
+        }
+
+        @Override
+        public boolean willChangeBounds() {
+            return true;
+        }
+    };
+
+    // 1dp/ms
+    a.setDuration(1000);
+    v.startAnimation(a);
+}
+
+public static void collapse(final View v) {
+    final int initialHeight = v.getMeasuredHeight();
+
+    Animation a = new Animation()
+    {
+        @Override
+        protected void applyTransformation(float interpolatedTime, Transformation t) {
+            if(interpolatedTime == 1){
+                v.setVisibility(View.GONE);
+            }else{
+                v.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
+                v.requestLayout();
+            }
+        }
+
+        @Override
+        public boolean willChangeBounds() {
+            return true;
+        }
+    };
+
+    // 1dp/ms
+    a.setDuration((int)(initialHeight / v.getContext().getResources().getDisplayMetrics().density));
+    v.startAnimation(a);
+}
 	
 }
