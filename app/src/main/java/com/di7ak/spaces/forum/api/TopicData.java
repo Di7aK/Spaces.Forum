@@ -25,6 +25,7 @@ public class TopicData {
     public static TopicData fromJson(JSONObject json) throws SpacesException {
         TopicData result = new TopicData();
         result.attaches = new ArrayList<AttachData>();
+        result.comments = new ArrayList<CommentData>();
         try {
             if (json.has("code")) {
                 int code = json.getInt("code");
@@ -66,6 +67,15 @@ public class TopicData {
                         JSONObject commentsBlock = json.getJSONObject("commentsBlock");
                         if(commentsBlock.has("pagination")) {
                             result.pagination = PaginationData.fromJson(commentsBlock.getJSONObject("pagination"));
+                        }
+                        if(commentsBlock.has("comments")) {
+                            JSONObject comments = commentsBlock.getJSONObject("comments");
+                            if(comments.has("comments_list")) {
+                                JSONArray commentsList = comments.getJSONArray("comments_list");
+                            for(int i = 0; i < comments.length(); i ++) {
+                                result.comments.add(CommentData.fromJson(commentsList.getJSONObject(i)));
+                            }
+                            }
                         }
                     }
                 } else throw new SpacesException(code);
