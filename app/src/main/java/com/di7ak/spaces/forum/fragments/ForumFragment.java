@@ -160,6 +160,7 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 							public void onClick(View v) {
 								Intent intent = new Intent(getContext(), TopicActivity.class);
 								intent.putExtra("topic_id", topicId);
+                                android.util.Log.d("lol", "calling activity show topic " + topicId);
 								startActivity(intent);
 							}
 						});

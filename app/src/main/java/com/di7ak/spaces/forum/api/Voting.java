@@ -18,8 +18,8 @@ public class Voting {
 		if(source.has("dislikes_count")) result.dislikes = source.getInt("dislikes_count");
 		if(source.has("ot")) result.objectType = source.getInt("ot");
 		if(source.has("oid")) result.objectId = source.getInt("oid");
-		if(source.has("disabled")) result.disabled = source.getInt("disabled") == 1;
-		if(source.has("can_dislike")) result.canDislike = source.getInt("candislike") == 1;
+		//if(source.has("disabled")) result.disabled = source.getInt("disabled") == 1;
+		//if(source.has("can_dislike")) result.canDislike = source.getInt("candislike") == 1;
 		return result;
 	}
 }
