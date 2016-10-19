@@ -6,15 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import com.di7ak.spaces.forum.R;
-import com.di7ak.spaces.forum.api.Topic;
+import com.di7ak.spaces.forum.api.PreviewTopicData;
 import android.widget.TextView;
+import com.di7ak.spaces.forum.api.TopicData;
 
 public class TopicAdapter extends BaseAdapter {
-	Topic topic;
+	TopicData topic;
 	Activity activity;
 	LayoutInflater inflater;
 	
-	public TopicAdapter(Activity activity, Topic topic) {
+	public TopicAdapter(Activity activity, TopicData topic) {
 		this.activity = activity;
 		this.topic = topic;
 		inflater = activity.getLayoutInflater();
@@ -40,9 +41,9 @@ public class TopicAdapter extends BaseAdapter {
 		View view = null;
 		if(isHeader(index)) {
 			view = inflater.inflate(R.layout.topic_head, null);
-			((TextView)view.findViewById(R.id.author)).setText(topic.topicUser);
+			((TextView)view.findViewById(R.id.author)).setText(topic.user.name);
 			((TextView)view.findViewById(R.id.title)).setText(topic.subject);
-			((TextView)view.findViewById(R.id.text)).setText(topic.text);
+			((TextView)view.findViewById(R.id.text)).setText(topic.body);
 			((TextView)view.findViewById(R.id.date)).setText(topic.date);
 		}
 		return view;

@@ -19,7 +19,7 @@ import com.rey.material.widget.ProgressView;
 public class TopicActivity extends AppCompatActivity implements Authenticator.OnResult {
 	Toolbar toolbar;
 	Session session;
-	Topic topic;
+	TopicData topic;
 	TopicAdapter adapter;
 	ListView content;
 	int retryCount = 0;
@@ -47,7 +47,7 @@ public class TopicActivity extends AppCompatActivity implements Authenticator.On
 			this.session = session;
 
 			Bundle extra = getIntent().getExtras();
-			topic = new Topic();
+			topic = new TopicData();
 			topic.id = extra.getString("topic_id");
 
 			getTopic();
@@ -71,7 +71,7 @@ public class TopicActivity extends AppCompatActivity implements Authenticator.On
 			public void run() {
 				try {
 					topic = Forum.getTopic(session, topic.id, 1);
-                    android.util.Log.d("lol", "author " + topic.topicUser + ", avatar " + topic.avatarUrl);
+                    android.util.Log.d("lol", "author " + topic.user.name + ", avatar " + topic.avatar.previewUrl);
                     runOnUiThread(new Runnable() {
                         
                         @Override

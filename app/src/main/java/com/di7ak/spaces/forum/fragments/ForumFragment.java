@@ -20,7 +20,7 @@ import com.di7ak.spaces.forum.api.Forum;
 import com.di7ak.spaces.forum.api.ForumResult;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
-import com.di7ak.spaces.forum.api.Topic;
+import com.di7ak.spaces.forum.api.PreviewTopicData;
 import com.rey.material.widget.ProgressView;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 	CardView cardView;
 	NestedScrollView scrollView;
 	Session session;
-	List<Topic> topics;
+	List<PreviewTopicData> topics;
 	Snackbar bar;
 	Comm comm;
 	int currentPage = 1;
@@ -43,7 +43,7 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 
 	public ForumFragment(Session session, Comm comm, int type) {
 		super();
-		topics = new ArrayList<Topic>();
+		topics = new ArrayList<PreviewTopicData>();
 		this.session = session;
 		this.comm = comm;
 		this.type = type;
@@ -136,7 +136,7 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 
 	}
 
-	public void showTopics(final List<Topic> topics) {
+	public void showTopics(final List<PreviewTopicData> topics) {
 		if (getActivity() == null) return;
 		getActivity().runOnUiThread(new Runnable() {
 
@@ -145,7 +145,7 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 					if (bar != null) bar.dismiss();
 					LayoutInflater li = getActivity().getLayoutInflater();
 					View v;
-					for (Topic topic : topics) {
+					for (PreviewTopicData topic : topics) {
 						v = li.inflate(R.layout.topic_item, null);
 						((TextView)v.findViewById(R.id.subject)).setText(topic.subject);
 						((TextView)v.findViewById(R.id.description)).setText(createDescription(topic));
@@ -177,9 +177,9 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 	private static final String PATTERN_PORTRAIT = "Автор: %1$s %2$s,  последний: %3$s %4$s";
 	private static final String PATTERN_LANDSPACE = "Автор: %1$s, создано: %2$s, последний комментарий: %3$s %4$s";
 	
-	private String createDescription(Topic topic) {
+	private String createDescription(PreviewTopicData topic) {
 		String pattern = getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ? PATTERN_PORTRAIT : PATTERN_LANDSPACE;
-		return String.format(pattern, topic.topicUser, topic.date, topic.lastUser, topic.lastCommentDate);
+		return String.format(pattern, topic.user, topic.date, topic.lastUser, topic.lastDate);
 	}
 
 public static void expand(final View v) {

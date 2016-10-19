@@ -13,6 +13,7 @@ public class AttachData {
 	public static final int TYPE_VIDEODIR 	= 24;
 	public static final int TYPE_VIDEO 		= 25;
 	
+    public String   url;
 	public String 	lightLink;
 	public String	previewUrl;
 	public String	downloadLink;
@@ -25,14 +26,22 @@ public class AttachData {
 	public boolean 	inTopic;
 	
 	public int 		type;
+    public int      width;
+    public int      height;
 	
-	public static AttachData fromJson(JSONObject item) throws JSONException {
+	public static AttachData fromJson(JSONObject attach) throws SpacesException {
 		AttachData result = new AttachData();
-		if(item.has("attach")) {
-			JSONObject attach = item.getJSONObject("attach");
+        try {
 			if(attach.has("lightLink")) result.lightLink = attach.getString("lightLink");
 			if(attach.has("inTopic")) result.inTopic = attach.getInt("inTopic") == 1;
 			if(attach.has("type")) result.type = attach.getInt("type");
+            if(attach.has("previewURL")) result.previewUrl = attach.getString("previewURL");
+            if(attach.has("URL")) result.url = attach.getString("URL");
+			if(attach.has("size")) {
+                JSONObject size = attach.getJSONObject("size");
+                if(size.has("width")) result.width = size.getInt("width");
+                if(size.has("height")) result.height = size.getInt("height");
+            }
 			if(attach.has("preview")) {
 				JSONObject preview = attach.getJSONObject("preview");
 				if(preview.has("previewURL")) result.previewUrl = preview.getString("previewURL");
@@ -43,7 +52,11 @@ public class AttachData {
 				if(preview.has("resolution")) result.resolution = preview.getString("resolution");
 				if(preview.has("fileext")) result.previewUrl = preview.getString("fileext");
 			}
-		}
+        } catch(JSONException e) {
+            android.util.Log.e("lol", "attach: " + e.toString(), e);
+            
+            throw new SpacesException(-2);
+        }
 		return result;
 	}
 }
