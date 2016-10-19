@@ -20,7 +20,7 @@ public class Forum {
 		ForumResult result = new ForumResult();
 		result.topics = new ArrayList<Topic>();
 		StringBuilder url = new StringBuilder()
-			.append("http://spaces.ru/forums/")
+			.append("http://spaces.ru/xhr/forums/")
 			.append("?com_cat_id=").append(comm.cid)
 			.append("&last=").append(Integer.toString(type))
 			.append("&tp=").append(Integer.toString(page))
@@ -130,10 +130,10 @@ public class Forum {
 				if(temp.has("body") && (temp2 = temp.getJSONObject("body")).has("subject")) result.text = temp2.getString("subject");
 				if(temp.has("mainAttachWidgets") && (temp2 = temp.getJSONObject("mainAttachWidgets")).has("attachWidgets")) {
 					JSONArray attachArray = temp2.getJSONArray("attachWidgets");
-					result.attachList = new ArrayList<Attach>();
+					result.attachList = new ArrayList<AttachData>();
 					for(int i = 0; i < attachArray.length(); i ++) {
 						JSONObject attachItem = attachArray.getJSONObject(i);
-						result.attachList.add(Attach.parseJson(attachItem));
+						result.attachList.add(AttachData.fromJson(attachItem));
 					}
 				}
 				if(temp.has("actionBar")) {
@@ -153,6 +153,7 @@ public class Forum {
 	}
 
 	private static String parseJsonString(String from) {
+		android.util.Log.d("lol", from);
 		int start = from.indexOf("data(");
 		start += 5;
 		int offset = from.lastIndexOf(")</");

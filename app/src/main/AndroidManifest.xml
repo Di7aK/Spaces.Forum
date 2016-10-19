@@ -35,6 +35,15 @@
             </intent-filter>
         </activity>
 		<activity
+            android:name=".TopicActivity"
+            android:label="@string/topic" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.NONE" />
+            </intent-filter>
+        </activity>
+		<activity
             android:name=".LoginActivity"
             android:label="@string/auth" >
             <intent-filter>

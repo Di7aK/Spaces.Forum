@@ -3,7 +3,7 @@ package com.di7ak.spaces.forum.api;
 import org.json.JSONObject;
 import org.json.JSONException;
 
-public class Attach {
+public class AttachData {
 	public static final int TYPE_FILEDIR 	= 1;
 	public static final int TYPE_MUSICDIR 	= 2;
 	public static final int TYPE_PICDIRDIR 	= 3;
@@ -26,8 +26,8 @@ public class Attach {
 	
 	public int 		type;
 	
-	public static Attach parseJson(JSONObject item) throws JSONException {
-		Attach result = new Attach();
+	public static AttachData fromJson(JSONObject item) throws JSONException {
+		AttachData result = new AttachData();
 		if(item.has("attach")) {
 			JSONObject attach = item.getJSONObject("attach");
 			if(attach.has("lightLink")) result.lightLink = attach.getString("lightLink");

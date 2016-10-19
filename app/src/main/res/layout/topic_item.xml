@@ -5,6 +5,7 @@
 	style="@style/MainLayout">
 
 	<com.di7ak.spaces.forum.widget.LinearLayout
+		android:id="@+id/layout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal"

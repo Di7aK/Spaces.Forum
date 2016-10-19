@@ -6,6 +6,6 @@ public class Topic {
 	public String topicUser, lastUser, date, lastCommentDate, subject, text, id, avatarUrl, editDate, editUser;
 	public boolean newTopic, locked, bookmarkAdded;
 	public int commentsCount, attachCount, likes, dislikes, currentPage, lastPage;
-	public List<Attach> attachList;
+	public List<AttachData> attachList;
 	public Voting voting;
 }

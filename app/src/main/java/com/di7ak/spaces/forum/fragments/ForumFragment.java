@@ -24,6 +24,8 @@ import com.di7ak.spaces.forum.api.Topic;
 import com.rey.material.widget.ProgressView;
 import java.util.ArrayList;
 import java.util.List;
+import android.content.Intent;
+import com.di7ak.spaces.forum.TopicActivity;
 
 public class ForumFragment extends Fragment implements NestedScrollView.OnScrollChangeListener {
 	LinearLayout topicList;
@@ -151,6 +153,16 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 						if(topic.locked) {
 							((LinearLayout)v.findViewById(R.id.prop)).addView(li.inflate(R.layout.lock, null));
 						}
+						final String topicId = topic.id;
+						v.findViewById(R.id.layout).setOnClickListener(new View.OnClickListener() {
+							
+							@Override
+							public void onClick(View v) {
+								Intent intent = new Intent(getContext(), TopicActivity.class);
+								intent.putExtra("topic_id", topicId);
+								startActivity(intent);
+							}
+						});
 						topicList.addView(v);
 					}
 					if(cardView.getVisibility() == View.INVISIBLE) {
