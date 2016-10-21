@@ -27,7 +27,7 @@ public class CommentData {
             if(json.has("admin")) {
                 result.admin = json.getInt("admin") == 1;
             }
-            if(json.has("avatar")) {
+            if(json.has("avatar") && !json.isNull("avatar")) {
                 result.avatar = AttachData.fromJson(json.getJSONObject("avatar"));
             }
             if(json.has("comment_id")) result.commentId = json.getString("comment_id");
@@ -57,6 +57,7 @@ public class CommentData {
                 result.voting = VotingData.fromJson(json.getJSONObject("voting"));
             }
         } catch(JSONException e ) {
+            android.util.Log.e("lol", "comment: " + e.toString(), e);
             throw new SpacesException(-2);
         }
         return result;

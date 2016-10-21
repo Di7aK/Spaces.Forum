@@ -24,7 +24,7 @@ public class UserData {
                 if(grant.has("img_link")) result.imageLink = grant.getString("img_link");
                 if(grant.has("user_rate")) result.rate = grant.getDouble("user_rate");
             }
-            if(json.has("onlineStatus")) {
+            if(json.has("onlineStatus") && !json.isNull("onlineStatus")) {
                 JSONObject onlineStatus = json.getJSONObject("onlineStatus");
                 if(onlineStatus.has("is_online")) {
                     result.online = onlineStatus.getInt("is_online") == 1;
@@ -33,7 +33,7 @@ public class UserData {
                 if(onlineStatus.has("on_img")) result.imageOn = onlineStatus.getString("on_img");
                 if(onlineStatus.has("off_img")) result.imageOff = onlineStatus.getString("off_img");
             }
-            if(json.has("siteLink")) {
+            if(json.has("siteLink") && !json.isNull("siteLink")) {
                 JSONObject siteLink = json.getJSONObject("siteLink");
                 if(siteLink.has("user_name")) result.name = siteLink.getString("user_name");
             }

@@ -21,6 +21,7 @@ public class TopicData {
     public String editDate;
     public String editUser;
     public String id;
+    public int commentsCnt;
 
     public static TopicData fromJson(JSONObject json) throws SpacesException {
         TopicData result = new TopicData();
@@ -33,10 +34,12 @@ public class TopicData {
                     if (json.has("topicWidget")) {
                         JSONObject topicWidget = json.getJSONObject("topicWidget");
                         if (topicWidget.has("subject")) result.subject = topicWidget.getString("subject");
-                        if (topicWidget.has("date")) result.subject = topicWidget.getString("date");
+                        if (topicWidget.has("date")) result.date = topicWidget.getString("date");
                         if (topicWidget.has("body")) {
-                            JSONObject body = topicWidget.getJSONObject("body");
-                            if (body.has("subject")) result.body = body.getString("subject");
+                            Object body = topicWidget.get("body");
+                            if(body instanceof JSONObject) {
+                                if (((JSONObject)body).has("subject")) result.body = ((JSONObject)body).getString("subject");
+                            } else result.body = body.toString();
                         }
                         if (topicWidget.has("infoDate")) result.editDate = topicWidget.getString("infoDate");
                         if (topicWidget.has("infoUser")) {
@@ -63,18 +66,20 @@ public class TopicData {
                             }
                         }
                     }
-                    if(json.has("commentsBlock")) {
+                    if (json.has("commentsBlock")) {
                         JSONObject commentsBlock = json.getJSONObject("commentsBlock");
-                        if(commentsBlock.has("pagination")) {
+                        if (commentsBlock.has("pagination") && !commentsBlock.isNull("pagination")) {
                             result.pagination = PaginationData.fromJson(commentsBlock.getJSONObject("pagination"));
                         }
-                        if(commentsBlock.has("comments")) {
+                        if (commentsBlock.has("comments")) {
                             JSONObject comments = commentsBlock.getJSONObject("comments");
-                            if(comments.has("comments_list")) {
+                            if(comments.has("commentsCnt")) result.commentsCnt = comments.getInt("commentsCnt");
+                            
+                            if (comments.has("comments_list")) {
                                 JSONArray commentsList = comments.getJSONArray("comments_list");
-                            for(int i = 0; i < comments.length(); i ++) {
-                                result.comments.add(CommentData.fromJson(commentsList.getJSONObject(i)));
-                            }
+                                for (int i = 0; i < commentsList.length(); i ++) {
+                                    result.comments.add(CommentData.fromJson(commentsList.getJSONObject(i)));
+                                }
                             }
                         }
                     }

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import android.content.Intent;
 import com.di7ak.spaces.forum.TopicActivity;
+import android.text.Html;
 
 public class ForumFragment extends Fragment implements NestedScrollView.OnScrollChangeListener {
 	LinearLayout topicList;
@@ -147,7 +148,7 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 					View v;
 					for (PreviewTopicData topic : topics) {
 						v = li.inflate(R.layout.topic_item, null);
-						((TextView)v.findViewById(R.id.subject)).setText(topic.subject);
+						((TextView)v.findViewById(R.id.subject)).setText(Html.fromHtml(topic.subject));
 						((TextView)v.findViewById(R.id.description)).setText(createDescription(topic));
 						((TextView)v.findViewById(R.id.comments_cnt)).setText(Integer.toString(topic.commentsCount));
 						if(topic.locked) {

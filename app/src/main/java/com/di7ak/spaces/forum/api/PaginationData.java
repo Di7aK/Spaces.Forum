@@ -15,6 +15,7 @@ public class PaginationData {
             if(json.has("last_page")) result.lastPage = json.getInt("last_page");
             if(json.has("items_n_page")) result.itemsOnPage = json.getInt("items_on_page");
         } catch(Exception e) {
+            android.util.Log.e("lol", "pagination: " + e.toString(), e);
             throw new SpacesException(-2);
         }
         return result;
