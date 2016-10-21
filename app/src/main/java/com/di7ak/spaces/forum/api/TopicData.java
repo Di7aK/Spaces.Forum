@@ -32,7 +32,9 @@ public class TopicData {
                 int code = json.getInt("code");
                 if (code == 0) {
                     if (json.has("topicWidget")) {
+                        
                         JSONObject topicWidget = json.getJSONObject("topicWidget");
+                        if (topicWidget.has("id")) result.id = topicWidget.getString("id");
                         if (topicWidget.has("subject")) result.subject = topicWidget.getString("subject");
                         if (topicWidget.has("date")) result.date = topicWidget.getString("date");
                         if (topicWidget.has("body")) {
@@ -70,6 +72,10 @@ public class TopicData {
                         JSONObject commentsBlock = json.getJSONObject("commentsBlock");
                         if (commentsBlock.has("pagination") && !commentsBlock.isNull("pagination")) {
                             result.pagination = PaginationData.fromJson(commentsBlock.getJSONObject("pagination"));
+                        } else {
+                            result.pagination = new PaginationData();
+                            result.pagination.currentPage = 1;
+                            result.pagination.lastPage = 1;
                         }
                         if (commentsBlock.has("comments")) {
                             JSONObject comments = commentsBlock.getJSONObject("comments");
