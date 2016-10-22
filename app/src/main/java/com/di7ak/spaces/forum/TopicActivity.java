@@ -3,6 +3,7 @@ package com.di7ak.spaces.forum;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
@@ -11,27 +12,31 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.TopicActivity;
+import com.di7ak.spaces.forum.api.Comment;
 import com.di7ak.spaces.forum.api.CommentData;
 import com.di7ak.spaces.forum.api.Forum;
+import com.di7ak.spaces.forum.api.PaginationData;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.api.TopicData;
+import com.di7ak.spaces.forum.util.PicassoImageGetter;
+import com.rey.material.widget.Button;
 import com.rey.material.widget.ProgressView;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 import de.hdodenhof.circleimageview.CircleImageView;
-import com.di7ak.spaces.forum.api.PaginationData;
 import java.util.List;
-import com.di7ak.spaces.forum.util.PicassoImageGetter;
 
 public class TopicActivity extends AppCompatActivity
         implements AppBarLayout.OnOffsetChangedListener, 
         Authenticator.OnResult, 
-        NestedScrollView.OnScrollChangeListener {
+        NestedScrollView.OnScrollChangeListener,
+        View.OnClickListener {
     private static final int PERCENTAGE_TO_SHOW_IMAGE = 20;
     private View author;
     private int mMaxScrollSize;
@@ -44,6 +49,10 @@ public class TopicActivity extends AppCompatActivity
 	Snackbar bar;
     Picasso picasso;
     View content;
+    FloatingActionButton fab;
+    View commentBlock;
+    EditText commentBox;
+    Button btnSend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +61,11 @@ public class TopicActivity extends AppCompatActivity
 
         author = findViewById(R.id.author);
         content = findViewById(R.id.content);
-
+        btnSend = (Button)findViewById(R.id.btn_send);
+        btnSend.setOnClickListener(this);
+        commentBox = (EditText)findViewById(R.id.comment);
+        fab = (FloatingActionButton)findViewById(R.id.fab);
+        commentBlock = findViewById(R.id.comment_block);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
@@ -74,6 +87,15 @@ public class TopicActivity extends AppCompatActivity
         ((NestedScrollView)findViewById(R.id.nested_scroll_view)).setOnScrollChangeListener(this);
         
         Authenticator.getSession(this, this);
+        
+        fab.setOnClickListener(new View.OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                hideFab();
+                showCommentBlock();
+            }
+        });
     }
     
     @Override
@@ -93,6 +115,32 @@ public class TopicActivity extends AppCompatActivity
     }
     
     @Override
+    public void onClick(View v) {
+        btnSend.setText("отправка");
+        btnSend.setEnabled(false);
+        new Thread(new Runnable() {
+            
+            @Override
+            public void run() {
+                try {
+                    Comment.send(session, commentBox.getText().toString(), 51, id);
+                } catch (SpacesException e) {}
+                
+                runOnUiThread(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        hideCommentBlock();
+                        showFab();
+                        btnSend.setText("отправить");
+                        btnSend.setEnabled(true);
+                    }
+                });
+            }
+        }).start();
+    }
+    
+    @Override
     public void onScrollChange(NestedScrollView v, int p2, int p3, int p4, int p5) {
         if(topic.pagination != null && p3 + 50 > (v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight())) {
             if (!bar.isShown() && topic.pagination.currentPage < topic.pagination.lastPage) {
@@ -102,9 +150,26 @@ public class TopicActivity extends AppCompatActivity
         }
 	}
     
+    private void showFab() {
+        ViewCompat.animate(fab).translationY(0).start();
+    }
+    
+    private void hideFab() {
+        ViewCompat.animate(fab).translationY(fab.getHeight() + 16).start();
+    }
+    
+    private void showCommentBlock() {
+        ViewCompat.animate(commentBlock).translationY(0).start();
+    }
+    
+    private void hideCommentBlock() {
+        ViewCompat.animate(commentBlock).translationY(commentBlock.getHeight()).start();
+    }
+    
     private void getTopic() {
         bar = Snackbar.make(getWindow().getDecorView(), "Получение топика", Snackbar.LENGTH_INDEFINITE);
-
+        hideFab();
+        hideCommentBlock();
         Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) bar.getView();
         View snackView = getLayoutInflater().inflate(R.layout.progress_snackbar, layout, false);
         ProgressView pv = (ProgressView)snackView.findViewById(R.id.progress_pv_circular_determinate);
@@ -126,6 +191,7 @@ public class TopicActivity extends AppCompatActivity
                             bar.dismiss();
                             if(topic.pagination.currentPage == 1) showTopic();
                             showComments(topic.comments);
+                            showFab();
                         }
                     });
                 } catch (SpacesException e) {
@@ -175,6 +241,8 @@ public class TopicActivity extends AppCompatActivity
                     
         author.setVisibility(View.VISIBLE);
         content.setVisibility(View.VISIBLE);
+        commentBlock.setVisibility(View.VISIBLE);
+        fab.setVisibility(View.VISIBLE);
         ViewCompat.animate(author).translationY(0).alpha(1).start();
         ViewCompat.animate(content).translationY(0).alpha(1).start();
     }
@@ -205,6 +273,8 @@ public class TopicActivity extends AppCompatActivity
     public void hideTopic() {
         author.setVisibility(View.INVISIBLE);
         content.setVisibility(View.INVISIBLE);
+        commentBlock.setVisibility(View.INVISIBLE);
+        fab.setVisibility(View.INVISIBLE);
         ViewCompat.animate(author).translationY(-50).alpha(0).start();
         ViewCompat.animate(content).translationY(50).alpha(0).start();
     }

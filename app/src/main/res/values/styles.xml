@@ -64,6 +64,18 @@
         <item name="android:textAppearance">@style/Base.TextAppearance.AppCompat.Button</item>
         <item name="android:textColor">@color/abc_primary_text_material_dark</item>
     </style>
+    
+    <style name="LightWaveColorButtonRippleStyle" parent="Material.Drawable.Ripple.Wave.Light">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="rd_rippleColor">#33000000</item>
+        <item name="rd_leftPadding">1dp</item>
+        <item name="rd_topPadding">1dp</item>
+        <item name="rd_rightPadding">1dp</item>
+        <item name="rd_bottomPadding">2dp</item>
+        <item name="rd_delayClick">afterRelease</item>
+        <item name="android:textAppearance">@style/Base.TextAppearance.AppCompat.Button</item>
+        <item name="android:textColor">@color/abc_primary_text_material_dark</item>
+    </style>
 	
 
     <style name="LightCircularProgressDrawable" parent="Material.Drawable.CircularProgress">
@@ -130,6 +142,10 @@
 	
 	<array name="button_raise_wave_color">
         <item>@style/LightRaiseWaveColorButtonRippleStyle</item>
+    </array>
+    
+    <array name="button_wave_color">
+        <item>@style/LightWaveColorButtonRippleStyle</item>
     </array>
 	
     <array name="pv_circular_in_colors">
