@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.text.Html;
 import android.widget.TextView;
 import com.squareup.picasso.Picasso;
+import android.view.Gravity;
 
 public class PicassoImageGetter implements Html.ImageGetter {
 
@@ -30,8 +31,10 @@ public PicassoImageGetter(final TextView textView, final Resources resources, fi
         @Override
         protected Bitmap doInBackground(final Void... meh) {
             try {
-                return pablo.load(source).get();
+                
+                return pablo.load("http:" + source).get();
             } catch (Exception e) {
+                
                 return null;
             }
         }
@@ -42,11 +45,12 @@ public PicassoImageGetter(final TextView textView, final Resources resources, fi
                 final BitmapDrawable drawable = new BitmapDrawable(resources, bitmap);
 
                 drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-
+                //drawable.setGravity(Gravity.CENTER_VERTICAL);
                 result.setDrawable(drawable);
                 result.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
 
-                textView.setText(textView.getText()); // invalidate() doesn't work correctly...
+                textView.setText(textView.getText());
+                //textView.invalidate();//doesn't work correctly...
             } catch (Exception e) {
                 /* nom nom nom*/
             }

@@ -21,7 +21,7 @@
 			android:layout_margin="5dp"/>
 		
 		<TextView
-			android:id="@+id/author"
+			android:id="@+id/date"
             android:textSize="16sp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -30,15 +30,16 @@
         </LinearLayout>
 		
         <LinearLayout
+            android:id="@+id/comment_block_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="left"
             android:orientation="vertical">
             
             <TextView
-                android:id="@+id/date"
+                android:id="@+id/author"
                 android:layout_margin="5dp"
-                android:textSize="14sp"
+                android:textSize="20sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="date" />
@@ -46,7 +47,8 @@
 		<TextView
 			android:id="@+id/text"
             android:layout_margin="5dp"
-            android:textSize="16sp"
+            android:textSize="20sp"
+            android:gravity="center_vertical" 
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
