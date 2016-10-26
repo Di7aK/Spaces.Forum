@@ -138,6 +138,7 @@ View.OnClickListener {
                             public void run() {
                                 hideCommentBlock();
                                 showFab();
+                                commentBox.setText("");
                                 fab.setLineMorphingState(0, true);
                                 btnSend.setLineMorphingState(0, true);
                                 showing = false;

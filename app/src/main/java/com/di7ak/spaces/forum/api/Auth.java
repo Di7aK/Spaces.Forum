@@ -38,13 +38,16 @@ public class Auth {
 			JSONObject json = new JSONObject(response.toString());
 			int code = json.getInt("code");
 			if (code != 0) throw new SpacesException(code);
+            
 			json = json.getJSONObject("attributes");
 			session.sid = json.getString("sid");
 			session.ck = json.getString("CK");
 			session.login = json.getString("name");
+            session.channel = json.getString("channel_id");
 		} catch (IOException e) {
 			throw new SpacesException(-1);
 		} catch (JSONException e) {
+            
 			throw new SpacesException(-2);
 		}
 		return session;

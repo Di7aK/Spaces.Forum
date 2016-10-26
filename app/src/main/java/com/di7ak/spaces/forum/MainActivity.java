@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements Authenticator.OnR
 			popularComm = new CommFragment(session, Comm.TYPE_POPULAR);
 			setupViewPager(viewPager);
 			tabLayout.setupWithViewPager(viewPager);
+            if(!NotificationService.running) startService(new Intent(this, NotificationService.class));
 		}
 	}
 	

@@ -37,7 +37,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 				getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
 		
 		if(mAccountAuthenticatorResponse != null) {
-			android.util.Log.d("lol", "laaaal");
 			mAccountAuthenticatorResponse.onRequestContinued();
 		}
 	}
@@ -94,11 +93,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 						if (canceled) return;
 						AccountManager am = AccountManager.get(getApplicationContext());
 						Account account = new Account(session.login, Authenticator.ACCOUNT_TYPE);
-						am.addAccountExplicitly(account, password, new Bundle());
+                        Bundle userData = new Bundle();
+                        userData.putString("ck", session.ck);
+                        userData.putString("login", session.login);
+                        userData.putString("avatar", session.avatar);
+                        userData.putString("channel", session.channel);
+						am.addAccountExplicitly(account, password, userData);
 						Intent res = new Intent();
 						res.putExtra(AccountManager.KEY_ACCOUNT_NAME, account.name);
 						res.putExtra(AccountManager.KEY_ACCOUNT_TYPE, account.type);
 						res.putExtra(AccountManager.KEY_AUTHTOKEN, session.sid);
+                        
 						if(mAccountAuthenticatorResponse != null) {
 							mAccountAuthenticatorResponse.onResult(res.getExtras());
 						}

@@ -11,6 +11,7 @@ import com.di7ak.spaces.forum.api.Session;
 
 public class Application extends Application {
 	public static Session session;
+    public static NotificationManager notificationManager;
 
     @Override 
 	public void onCreate() {

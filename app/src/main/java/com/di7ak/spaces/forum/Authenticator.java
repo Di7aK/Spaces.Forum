@@ -54,8 +54,13 @@ public class Authenticator extends AbstractAccountAuthenticator {
 			final String password = am.getPassword(account);
 			if (!TextUtils.isEmpty(password)) {
 				try {
+                    
 					Session session = Auth.login(account.name, password);
 					authToken = session.sid;
+                    am.setUserData(account, "channel", session.channel);
+                    am.setUserData(account, "ck", session.ck);
+                    am.setUserData(account, "login", session.login);
+                    am.setUserData(account, "avatar", session.avatar);
 				} catch (SpacesException e) {}
 			}
 		}
@@ -63,6 +68,10 @@ public class Authenticator extends AbstractAccountAuthenticator {
 			result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
 			result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
 			result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+            result.putString("ck", am.getUserData(account, "ck"));
+            result.putString("avatar", am.getUserData(account, "avatar"));
+            result.putString("login", am.getUserData(account, "login"));
+            result.putString("channel", am.getUserData(account, "channel"));
 		} else {
 			final Intent intent = new Intent(context, LoginActivity.class);
 			intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
@@ -91,7 +100,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	}
 
 	public static void getSession(final Activity activity, final OnResult onResult) {
-		AccountManager am = AccountManager.get(activity);
+		final AccountManager am = AccountManager.get(activity);
 		Account[] accounts = am.getAccountsByType(ACCOUNT_TYPE);
         if (accounts.length == 0) {
             am.addAccount(ACCOUNT_TYPE, TOKEN_FULL_ACCESS, null, null, activity,
@@ -111,7 +120,14 @@ public class Authenticator extends AbstractAccountAuthenticator {
 							Bundle result = future.getResult();
 							Session session = new Session();
                             session.sid = result.getString(AccountManager.KEY_AUTHTOKEN);
-							onResult.onAuthenticatorResult(session);
+                            session.channel = result.getString("channel");
+                            session.ck = result.getString("ck");
+                            session.login = result.getString("login");
+                            session.avatar = result.getString("avatar");
+                            if(TextUtils.isEmpty(session.channel)) {
+                                am.invalidateAuthToken(ACCOUNT_TYPE, session.sid);
+                                getSession(activity, onResult);
+                            } else onResult.onAuthenticatorResult(session);
                         } catch (Exception e) {
 							onResult.onAuthenticatorResult(null);
                         }

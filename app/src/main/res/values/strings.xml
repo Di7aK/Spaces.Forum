@@ -12,6 +12,7 @@
 	
 	<string name="forum">Форум</string>
 	<string name="topic">Топик</string>
+    <string name="journal">Журнал</string>
 
     <array name="progress_colors_light">
         <item>#FF03A9F4</item>
