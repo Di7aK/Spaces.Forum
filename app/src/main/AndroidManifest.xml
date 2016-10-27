@@ -27,6 +27,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ViewerActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/forum" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.NONE" />
+            </intent-filter>
+        </activity>
 		<activity
             android:name=".ForumActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"

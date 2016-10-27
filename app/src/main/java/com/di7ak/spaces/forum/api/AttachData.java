@@ -50,7 +50,7 @@ public class AttachData {
 				if(preview.has("filename")) result.filename = preview.getString("filename");
 				if(preview.has("description")) result.description = preview.getString("description");
 				if(preview.has("resolution")) result.resolution = preview.getString("resolution");
-				if(preview.has("fileext")) result.previewUrl = preview.getString("fileext");
+				if(preview.has("fileext")) result.fileext = preview.getString("fileext");
 			}
         } catch(JSONException e) {
             android.util.Log.e("lol", "attach: " + e.toString(), e);

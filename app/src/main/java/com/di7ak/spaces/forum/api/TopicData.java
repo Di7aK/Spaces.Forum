@@ -49,12 +49,24 @@ public class TopicData {
                             if (infoUser.has("name")) result.editUser = infoUser.getString("name");
                         }
                         if (topicWidget.has("user")) result.user = UserData.fromJson(topicWidget.getJSONObject("user"));
+                        if (topicWidget.has("attachWidgets")) {
+
+                            JSONObject mainAttachWidgets = topicWidget.getJSONObject("attachWidgets");
+                            android.util.Log.d("lol", "glob " + mainAttachWidgets.toString());
+                        }
                         if (topicWidget.has("mainAttachWidgets")) {
+                            
                             JSONObject mainAttachWidgets = topicWidget.getJSONObject("mainAttachWidgets");
+                            //android.util.Log.d("lol", "main: " + mainAttachWidgets.toString());
+                            
                             if (mainAttachWidgets.has("attachWidgets")) {
                                 JSONArray attachWidgets = mainAttachWidgets.getJSONArray("attachWidgets");
                                 for (int i = 0; i < attachWidgets.length(); i ++) {
-                                    result.attaches.add(AttachData.fromJson(attachWidgets.getJSONObject(i)));
+                                    JSONObject attach = attachWidgets.getJSONObject(i);
+                                    if(attach.has("attach")) {
+                                        attach = attach.getJSONObject("attach");
+                                    }
+                                    result.attaches.add(AttachData.fromJson(attach));
                                 }
                             }
                         }

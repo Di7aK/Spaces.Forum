@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.TopicActivity;
+import com.di7ak.spaces.forum.api.AttachData;
 import com.di7ak.spaces.forum.api.Comment;
 import com.di7ak.spaces.forum.api.CommentData;
 import com.di7ak.spaces.forum.api.Forum;
@@ -29,6 +30,7 @@ import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.api.TopicData;
 import com.di7ak.spaces.forum.util.PicassoImageGetter;
+import com.di7ak.spaces.forum.widget.AttachWidget;
 import com.rey.material.widget.FloatingActionButton;
 import com.rey.material.widget.ProgressView;
 import com.squareup.picasso.OkHttpDownloader;
@@ -348,6 +350,13 @@ View.OnClickListener, NotificationManager.OnNewNotification {
         picasso.load(topic.avatar.previewUrl.replace("41.40", "81.80"))
             .into((CircleImageView)findViewById(R.id.user_avatar));
         
+        LinearLayout attachBlock = (LinearLayout)findViewById(R.id.attach_block);
+            for(AttachData attach : topic.attaches) {
+                AttachWidget widget = new AttachWidget(attach, this, picasso);
+                View av = widget.getView();
+                if(av != null) attachBlock.addView(av);
+            }
+            
         author.setVisibility(View.VISIBLE);
         content.setVisibility(View.VISIBLE);
         commentBlock.setVisibility(View.VISIBLE);
@@ -378,6 +387,15 @@ View.OnClickListener, NotificationManager.OnNewNotification {
             } else {
                 ((TextView)v.findViewById(R.id.time)).setText(date[0].trim());
             }
+            
+            //attaches
+            LinearLayout attachBlock = (LinearLayout)v.findViewById(R.id.attach_block);
+            for(AttachData attach : comment.attaches) {
+                AttachWidget widget = new AttachWidget(attach, this, picasso);
+                View av = widget.getView();
+                if(av != null) attachBlock.addView(av);
+            }
+            
             if(comment.replyUserName != null && !comment.replyUserName.equals("null")) {
                 View reply = li.inflate(R.layout.reply, null);
                 ((TextView)reply.findViewById(R.id.reply_to)).setText(comment.replyUserName);

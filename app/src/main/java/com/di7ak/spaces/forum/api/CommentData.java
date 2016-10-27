@@ -1,7 +1,10 @@
 package com.di7ak.spaces.forum.api;
 
-import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class CommentData {
     public boolean admin;
@@ -21,10 +24,21 @@ public class CommentData {
     public boolean userBlocked;
     public boolean userFemale;
     public VotingData voting;
+    public List<AttachData> attaches;
     
     public static CommentData fromJson(JSONObject json) throws SpacesException {
         CommentData result = new CommentData();
+        result.attaches = new ArrayList<AttachData>();
         try {
+            if(json.has("attaches_widgets") && !json.isNull("attaches_widgets")) {
+                JSONObject attaches = json.getJSONObject("attaches_widgets");
+                if(attaches.has("tile_items")) {
+                    JSONArray items = attaches.getJSONArray("tile_items");
+                    for(int i = 0; i < items.length(); i ++) {
+                        result.attaches.add(AttachData.fromJson(items.getJSONObject(i)));
+                    }
+                }
+            }
             if(json.has("admin")) {
                 result.admin = json.getInt("admin") == 1;
             }
