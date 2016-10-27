@@ -33,7 +33,7 @@ import com.di7ak.spaces.forum.NotificationManager;
 public class JournalFragment extends Fragment implements NestedScrollView.OnScrollChangeListener,
         NotificationManager.OnNewNotification {
     LinearLayout topicList;
-    CardView cardView;
+    //CardView cardView;
     NestedScrollView scrollView;
     Session session;
     List<JournalRecord> records;
@@ -43,18 +43,36 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
     int type;
     int retryCount = 0;
     int maxRetryCount = 2;
+    boolean update = false;
 
     public JournalFragment(Session session, int type) {
         super();
         records = new ArrayList<JournalRecord>();
         this.session = session;
         this.type = type;
-        if(type == 2) Application.notificationManager.addListener(this);
+        
     }
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(type != 2) return;
+        Application.notificationManager.removeListener(this);
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        currentPage = 1;
+        update = true;
+        loadRecords();
+        if(type != 2) return;
+        Application.notificationManager.addListener(this);
     }
 
     @Override
@@ -66,9 +84,11 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
                 if (text.has("act")) {
                     int act = text.getInt("act");
                     if (act == 21) {
-                        if (text.has("Ot") && text.getInt("Ot") == 8 && text.has("cnt")) {
-                            int count = text.getInt("cnt");
-                            if(count > 0) loadRecords();
+                        if (text.has("type") && text.getInt("type") == 1
+                        && text.getInt("cnt") > 0) {
+                            currentPage = 1;
+                            update = true;
+                            loadRecords();
                         }
                     } 
                 }
@@ -84,14 +104,13 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
     public View onCreateView(LayoutInflater inflater, ViewGroup parrent, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.forum_fragment, parrent, false);
         topicList = (LinearLayout) v.findViewById(R.id.topic_list);
-        cardView = (CardView) v.findViewById(R.id.card_view);
+        //cardView = (CardView) v.findViewById(R.id.card_view);
         scrollView = (NestedScrollView) v.findViewById(R.id.scroll_view);
-        cardView.setVisibility(View.INVISIBLE);
+        //cardView.setVisibility(View.INVISIBLE);
 
         scrollView.setOnScrollChangeListener(this);
 
-        if (records.size() == 0) loadRecords();
-        else showRecords(records);
+        if (records.size()  != 0) showRecords(records);
         return v;
     }
 
@@ -122,8 +141,9 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
                 public void run() {
                     try {
                         JournalResult result = Journal.getRecords(session, type, currentPage);
-                        records.addAll(result.records);
+                        
                         pages = result.pagination.lastPage;
+                        
                         showRecords(result.records);
                         retryCount = 0;
                     } catch (SpacesException e) {
@@ -161,6 +181,10 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
             }).start();
 
     }
+    
+    public void removeRecords() {
+        topicList.removeAllViews(); 
+    }
 
     public void showRecords(final List<JournalRecord> records) {
         if (getActivity() == null) return;
@@ -169,6 +193,12 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
                 @Override
                 public void run() {
                     if (bar != null) bar.dismiss();
+                    if(update) {
+                        JournalFragment.this.records = records;
+                        removeRecords();
+                        update = false;
+                    } else records.addAll(records);
+                    
                     LayoutInflater li = getActivity().getLayoutInflater();
                     View v;
                     for (JournalRecord record : records) {
@@ -190,10 +220,11 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
                         topicList.addView(v);
                         } catch(Exception e) {}
                     }
+                    /*
                     if (records.size() > 0 && cardView.getVisibility() == View.INVISIBLE) {
                         cardView.setVisibility(View.VISIBLE);
                         expand(topicList);
-                    } else {
+                    } else */ if(records.size() == 0) {
                         bar = Snackbar.make(getActivity().getWindow().getDecorView(), "Журнал пуст", Snackbar.LENGTH_INDEFINITE);
 
                         bar.setAction("Обновить", new View.OnClickListener() {
@@ -205,6 +236,8 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
                             });
                         
                         bar.show();
+                    } else {
+                        expand(topicList);
                     }
                 }
             });

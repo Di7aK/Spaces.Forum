@@ -25,7 +25,15 @@ public class NotificationManager extends WebSocketClient {
     }
     
     public void addListener(OnNewNotification listener) {
-        listeners.add(listener);
+        synchronized(listener) {
+            listeners.add(listener);
+        }
+    }
+    
+    public void removeListener(OnNewNotification listener) {
+        synchronized(listener) {
+            listeners.remove(listener);
+        }
     }
 
 

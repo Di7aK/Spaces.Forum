@@ -22,6 +22,7 @@ public class NotificationService extends Service implements NotificationManager.
         return null; 
     } 
 
+    String mailUser;
     @Override
     public void onNewNotification(JSONObject message) {
         android.util.Log.d("lol", message.toString());
@@ -31,24 +32,38 @@ public class NotificationService extends Service implements NotificationManager.
                 JSONObject text = message.getJSONObject("text");
                 if (text.has("act")) {
                     int act = text.getInt("act");
+                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);   
                     if (act == 21) {
-                        if (text.has("Ot") && text.getInt("Ot") == 8) {
-                            int count = text.getInt("cnt");
-                            Intent intent = new Intent(this, JournalActivity.class);
-                            PendingIntent pintent = PendingIntent.getActivity(this,
-                                                                              0, intent,
-                                                                              PendingIntent.FLAG_CANCEL_CURRENT);
-                            showNotification(1, "Форум", "Журнал: " + count, pintent);
+
+                        int count = text.getInt("cnt");
+                        if (text.has("type")) {
+                            int type = text.getInt("type");
+                            if (type == 3) {
+                                notificationManager.cancel(2);
+                                if (count > 0) {
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://spaces.ru/mail/"));
+                                    PendingIntent pintent = PendingIntent.getActivity(this,
+                                                                                      0, intent,
+                                                                                      PendingIntent.FLAG_CANCEL_CURRENT);
+                                    showNotification(2, "Почта (" + count + ")", "Новое сообщение от: " + mailUser, pintent);
+                                }
+                            }
+                            if (type == 1) {
+                                notificationManager.cancel(1);
+                                if (count > 0) {
+                                    Intent intent = new Intent(this, JournalActivity.class);
+                                    PendingIntent pintent = PendingIntent.getActivity(this,
+                                                                                      0, intent,
+                                                                                      PendingIntent.FLAG_UPDATE_CURRENT);
+                                    showNotification(1, "Форум", "Журнал: " + count, pintent);
+                                }
+                            }
                         }
-                    } else if(act == 24) {
-                        if(text.has("user")) {
-                            String from = text.getString("user");
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://spaces.ru/mail/"));
-                            PendingIntent pintent = PendingIntent.getActivity(this,
-                                                                              0, intent,
-                                                                              PendingIntent.FLAG_CANCEL_CURRENT);
-                            showNotification(2, "Почта", "Новое сообщение от: " + from, pintent);
-                        }
+                        
+                    } else if (act == 1) {
+                        JSONObject contact = text.getJSONObject("data").getJSONObject("contact");
+                        mailUser = contact.getString("user");
+                        
                     }
                 }
             }

@@ -119,6 +119,20 @@ View.OnClickListener, NotificationManager.OnNewNotification {
             default:
                 return super.onOptionsItemSelected(item);
         }
+        
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        Application.notificationManager.removeListener(this);
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        Application.notificationManager.addListener(this);
+        readNewComments();
     }
     
     @Override
@@ -164,7 +178,6 @@ View.OnClickListener, NotificationManager.OnNewNotification {
             }
             topic.pagination = new PaginationData();
             topic.pagination.currentPage = 1;
-            Application.notificationManager.addListener(this);
             getTopic();
         }
     }
@@ -214,20 +227,23 @@ View.OnClickListener, NotificationManager.OnNewNotification {
     }
 
     private void hideFab() {
-        ViewCompat.animate(fab).translationY(fab.getHeight() + 16).start();
+        ViewCompat.animate(fab).translationY(fab.getHeight() + 20).start();
     }
 
     private void showCommentBlock() {
+        commentBox.setEnabled(true);
         ViewCompat.animate(commentBlock).translationY(0).start();
         ViewCompat.animate(fab).translationY(- commentBlock.getHeight()).start();
     }
 
     private void hideCommentBlock() {
+        commentBox.setEnabled(false);
         ViewCompat.animate(commentBlock).translationY(commentBlock.getHeight()).start();
         ViewCompat.animate(fab).translationY(0).start();
     }
     
     private void readNewComments() {
+        if(topic == null) return;
         new Thread(new Runnable() {
 
                 @Override
@@ -331,8 +347,7 @@ View.OnClickListener, NotificationManager.OnNewNotification {
 
         picasso.load(topic.avatar.previewUrl.replace("41.40", "81.80"))
             .into((CircleImageView)findViewById(R.id.user_avatar));
-        ((TextView)findViewById(R.id.comments_cnt)).setText(Integer.toString(topic.commentsCnt));
-
+        
         author.setVisibility(View.VISIBLE);
         content.setVisibility(View.VISIBLE);
         commentBlock.setVisibility(View.VISIBLE);
@@ -346,6 +361,7 @@ View.OnClickListener, NotificationManager.OnNewNotification {
     
     public void showComments(List<CommentData> comments) {
         LayoutInflater li = getLayoutInflater();
+        ((TextView)findViewById(R.id.comments_cnt)).setText(Integer.toString(topic.commentsCnt));
         LinearLayout commentsList = (LinearLayout)findViewById(R.id.comments_list);
         for (CommentData comment : topic.comments) {
             if(showingIds.indexOf(comment.id) != -1) continue;

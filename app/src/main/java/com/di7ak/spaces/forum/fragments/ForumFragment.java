@@ -30,7 +30,7 @@ import android.text.Html;
 
 public class ForumFragment extends Fragment implements NestedScrollView.OnScrollChangeListener {
 	LinearLayout topicList;
-	CardView cardView;
+	//CardView cardView;
 	NestedScrollView scrollView;
 	Session session;
 	List<PreviewTopicData> topics;
@@ -59,9 +59,9 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 	public View onCreateView(LayoutInflater inflater, ViewGroup parrent, Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.forum_fragment, parrent, false);
 		topicList = (LinearLayout) v.findViewById(R.id.topic_list);
-		cardView = (CardView) v.findViewById(R.id.card_view);
+		//cardView = (CardView) v.findViewById(R.id.card_view);
 		scrollView = (NestedScrollView) v.findViewById(R.id.scroll_view);
-		cardView.setVisibility(View.INVISIBLE);
+		//cardView.setVisibility(View.INVISIBLE);
 		
 		scrollView.setOnScrollChangeListener(this);
 		
@@ -167,10 +167,13 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 						});
 						topicList.addView(v);
 					}
-					if(cardView.getVisibility() == View.INVISIBLE) {
+                    
+                    expand(topicList);
+                    
+					/*if(cardView.getVisibility() == View.INVISIBLE) {
 						cardView.setVisibility(View.VISIBLE);
 						expand(topicList);
-					}
+					}*/
 				}
 			});
 	}
