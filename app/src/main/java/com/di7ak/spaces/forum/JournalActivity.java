@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import com.di7ak.spaces.forum.api.Comm;
 import com.di7ak.spaces.forum.api.Forum;
 import com.di7ak.spaces.forum.api.Session;
@@ -22,7 +23,6 @@ public class JournalActivity extends AppCompatActivity implements Authenticator.
     private ViewPager viewPager;
     private JournalFragment newRecords, allRecords;
     private Session session;
-    private Comm comm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +31,11 @@ public class JournalActivity extends AppCompatActivity implements Authenticator.
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    onBackPressed();
+                }
+            });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);

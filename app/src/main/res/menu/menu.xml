@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto" >
+<item
+    android:id="@+id/journal"
+    android:title="Журнал"
+    android:icon="@drawable/ic_forum_white_32dp"
+    android:showAsAction="always"
+    app:showAsAction="always"/>  
+</menu>

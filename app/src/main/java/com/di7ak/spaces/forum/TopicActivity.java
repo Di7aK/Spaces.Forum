@@ -1,5 +1,7 @@
 package com.di7ak.spaces.forum;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -10,11 +12,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.TopicActivity;
 import com.di7ak.spaces.forum.api.Comment;
@@ -26,20 +30,20 @@ import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.api.TopicData;
 import com.di7ak.spaces.forum.util.PicassoImageGetter;
 import com.rey.material.widget.FloatingActionButton;
-import com.rey.material.widget.Button;
 import com.rey.material.widget.ProgressView;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
-
 import de.hdodenhof.circleimageview.CircleImageView;
-
+import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class TopicActivity extends AppCompatActivity
 implements AppBarLayout.OnOffsetChangedListener, 
 Authenticator.OnResult, 
 NestedScrollView.OnScrollChangeListener,
-View.OnClickListener {
+View.OnClickListener, NotificationManager.OnNewNotification {
     private static final int PERCENTAGE_TO_SHOW_IMAGE = 20;
     private View author;
     private int mMaxScrollSize;
@@ -103,6 +107,44 @@ View.OnClickListener {
                 }
             });
     }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.journal:
+                Intent intent = new Intent(TopicActivity.this, JournalActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
+    @Override
+    public void onNewNotification(JSONObject message) {
+        try {
+
+            if (message.has("text")) {
+                JSONObject text = message.getJSONObject("text");
+                if (text.has("act")) {
+                    int act = text.getInt("act");
+                    if (act == 40) {
+                        readNewComments();
+                    } 
+                }
+            }
+        } catch (JSONException e) {
+
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
 
     @Override
     public void onAuthenticatorResult(Session session) {
@@ -110,12 +152,19 @@ View.OnClickListener {
         else {
             this.session = session;
 
-            Bundle extra = getIntent().getExtras();
             topic = new TopicData();
-            id = extra.getString("topic_id");
+            Uri data = getIntent().getData();
+            if(data != null) {
+                id = data.getQueryParameter("id");
+            } else {
+                Bundle extra = getIntent().getExtras();
+                if(extra != null) {
+                    id = extra.getString("topic_id");
+                }
+            }
             topic.pagination = new PaginationData();
             topic.pagination.currentPage = 1;
-
+            Application.notificationManager.addListener(this);
             getTopic();
         }
     }
@@ -143,6 +192,7 @@ View.OnClickListener {
                                 btnSend.setLineMorphingState(0, true);
                                 showing = false;
                                 btnSend.setEnabled(true);
+                                readNewComments();
                             }
                         });
                 }
@@ -175,6 +225,33 @@ View.OnClickListener {
     private void hideCommentBlock() {
         ViewCompat.animate(commentBlock).translationY(commentBlock.getHeight()).start();
         ViewCompat.animate(fab).translationY(0).start();
+    }
+    
+    private void readNewComments() {
+        new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        topic = Forum.getTopic(session, id, topic.pagination.currentPage);
+                        runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    showComments(topic.comments);
+                                }
+                            });
+                    } catch (SpacesException e) {
+                        if (e.code == -1) {
+                            
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException ie) {}
+                            readNewComments();
+                        } 
+                    }
+                }
+            }).start();
     }
 
     private void getTopic() {
@@ -265,17 +342,26 @@ View.OnClickListener {
     }
 
     View decoration = null;
+    List<String> showingIds = new ArrayList<String>();
+    
     public void showComments(List<CommentData> comments) {
         LayoutInflater li = getLayoutInflater();
         LinearLayout commentsList = (LinearLayout)findViewById(R.id.comments_list);
         for (CommentData comment : topic.comments) {
+            if(showingIds.indexOf(comment.id) != -1) continue;
             if (decoration != null) commentsList.addView(decoration);
 
             View v = li.inflate(R.layout.comment_item, null);
             ((TextView)v.findViewById(R.id.author)).setText(comment.user.name);
             TextView text = (TextView)v.findViewById(R.id.text);
             text.setText(Html.fromHtml(comment.text, new PicassoImageGetter(text, getResources(), picasso), null));
-            ((TextView)v.findViewById(R.id.date)).setText(comment.date);
+            String[] date = comment.date.split("в ");
+            if(date.length == 2) {
+                ((TextView)v.findViewById(R.id.date)).setText(date[0].trim());
+                ((TextView)v.findViewById(R.id.time)).setText(date[1].trim());
+            } else {
+                ((TextView)v.findViewById(R.id.time)).setText(date[0].trim());
+            }
             if(comment.replyUserName != null && !comment.replyUserName.equals("null")) {
                 View reply = li.inflate(R.layout.reply, null);
                 ((TextView)reply.findViewById(R.id.reply_to)).setText(comment.replyUserName);
@@ -289,6 +375,8 @@ View.OnClickListener {
             decoration = new View(this);
             decoration.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
             decoration.setBackgroundColor(0xffdddddd);
+            
+            showingIds.add(comment.id);
         }
     }
 

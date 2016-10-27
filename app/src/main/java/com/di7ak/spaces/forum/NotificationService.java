@@ -3,14 +3,15 @@ package com.di7ak.spaces.forum;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.NotificationCompat;
 import org.json.JSONException;
 import org.json.JSONObject;
-import android.app.PendingIntent;
 
 public class NotificationService extends Service implements NotificationManager.OnNewNotification { 
     public static boolean running = false;
@@ -39,6 +40,15 @@ public class NotificationService extends Service implements NotificationManager.
                                                                               PendingIntent.FLAG_CANCEL_CURRENT);
                             showNotification(1, "Форум", "Журнал: " + count, pintent);
                         }
+                    } else if(act == 24) {
+                        if(text.has("user")) {
+                            String from = text.getString("user");
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://spaces.ru/mail/"));
+                            PendingIntent pintent = PendingIntent.getActivity(this,
+                                                                              0, intent,
+                                                                              PendingIntent.FLAG_CANCEL_CURRENT);
+                            showNotification(2, "Почта", "Новое сообщение от: " + from, pintent);
+                        }
                     }
                 }
             }
@@ -52,6 +62,7 @@ public class NotificationService extends Service implements NotificationManager.
         builder.setContentIntent(intent)
             .setSmallIcon(R.drawable.ic_launcher)
             .setContentTitle(title)
+            .setAutoCancel(true)
             .setContentText(text);
 
         Notification notification = builder.build();

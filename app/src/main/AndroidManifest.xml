@@ -42,11 +42,18 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/topic" >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.NONE" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+
+            <data android:scheme="http" />
+            <data android:scheme="https" />
+            <data android:host="spaces.ru" />
+            <data android:pathPrefix="/forums"/>
             </intent-filter>
         </activity>
+         
         <activity
             android:name=".JournalActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -54,7 +61,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.NONE" />
             </intent-filter>
         </activity>
 		<activity

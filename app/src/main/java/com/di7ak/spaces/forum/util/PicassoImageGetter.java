@@ -40,13 +40,18 @@ public PicassoImageGetter(final TextView textView, final Resources resources, fi
         }
 
         @Override
-        protected void onPostExecute(final Bitmap bitmap) {
+        protected void onPostExecute(Bitmap bitmap) {
             try {
-                final BitmapDrawable drawable = new BitmapDrawable(resources, bitmap);
-
+                float density = resources.getDisplayMetrics().density;
+                int w = (int)(bitmap.getWidth() * density);
+                int h = (int)(bitmap.getHeight() * density);
+                BitmapDrawable drawable = new BitmapDrawable(resources, Bitmap.createScaledBitmap(bitmap, w, h, true));
+                
                 drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
                 //drawable.setGravity(Gravity.CENTER_VERTICAL);
+                
                 result.setDrawable(drawable);
+                
                 result.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
 
                 textView.setText(textView.getText());

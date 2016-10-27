@@ -16,6 +16,7 @@ public class CommentData {
     public String replyCommentText;
     public String replyUserName;
     public String text;
+    public String id;
     public UserData user;
     public boolean userBlocked;
     public boolean userFemale;
@@ -56,6 +57,7 @@ public class CommentData {
             if(json.has("voting")) {
                 result.voting = VotingData.fromJson(json.getJSONObject("voting"));
             }
+            if(json.has("comment_id")) result.id = json.getString("comment_id");
         } catch(JSONException e ) {
             android.util.Log.e("lol", "comment: " + e.toString(), e);
             throw new SpacesException(-2);
