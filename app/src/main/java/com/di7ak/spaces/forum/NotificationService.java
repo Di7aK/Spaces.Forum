@@ -25,7 +25,7 @@ public class NotificationService extends Service implements NotificationManager.
     String mailUser;
     @Override
     public void onNewNotification(JSONObject message) {
-        android.util.Log.d("lol", message.toString());
+        //android.util.Log.d("lol", message.toString());
         try {
 
             if (message.has("text")) {

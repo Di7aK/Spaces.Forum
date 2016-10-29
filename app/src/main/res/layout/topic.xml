@@ -102,21 +102,28 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                 >
-                
-                    <HorizontalScrollView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
 
-                        <LinearLayout
-                            android:id="@+id/attach_block"
+                    
+
+                        <HorizontalScrollView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="horizontal">
+                            
+                            android:layout_gravity="center_horizontal">
 
-                        </LinearLayout>
+                            <LinearLayout
+                                
+                                android:id="@+id/attach_block"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                
+                                android:orientation="horizontal">
 
-                    </HorizontalScrollView>
+                            </LinearLayout>
+
+                        </HorizontalScrollView>
+
+                   
 
                     <TextView
                         android:id="@+id/body"
@@ -196,7 +203,7 @@
         android:layout_margin="24dp"
         android:layout_gravity="end|bottom"
         app:v_styleId="@array/fab_line"/>
-    
+
     <LinearLayout
         android:id="@+id/comment_block"
         android:layout_width="match_parent"
@@ -206,7 +213,7 @@
         android:layout_gravity="bottom"
         android:gravity="center_vertical"
         android:background="@color/colorPrimary">
-        
+
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_name"
             android:layout_width="wrap_content"
@@ -228,7 +235,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"
             app:v_styleId="@array/fab_send" />
-        
+
     </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

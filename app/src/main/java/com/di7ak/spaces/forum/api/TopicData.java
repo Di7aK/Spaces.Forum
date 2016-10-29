@@ -52,7 +52,7 @@ public class TopicData {
                         if (topicWidget.has("attachWidgets")) {
 
                             JSONObject mainAttachWidgets = topicWidget.getJSONObject("attachWidgets");
-                            android.util.Log.d("lol", "glob " + mainAttachWidgets.toString());
+                            //android.util.Log.d("lol", "glob " + mainAttachWidgets.toString());
                         }
                         if (topicWidget.has("mainAttachWidgets")) {
                             
@@ -61,6 +61,16 @@ public class TopicData {
                             
                             if (mainAttachWidgets.has("attachWidgets")) {
                                 JSONArray attachWidgets = mainAttachWidgets.getJSONArray("attachWidgets");
+                                for (int i = 0; i < attachWidgets.length(); i ++) {
+                                    JSONObject attach = attachWidgets.getJSONObject(i);
+                                    if(attach.has("attach")) {
+                                        attach = attach.getJSONObject("attach");
+                                    }
+                                    result.attaches.add(AttachData.fromJson(attach));
+                                }
+                            }
+                            if (mainAttachWidgets.has("pictureWidgets")) {
+                                JSONArray attachWidgets = mainAttachWidgets.getJSONArray("pictureWidgets");
                                 for (int i = 0; i < attachWidgets.length(); i ++) {
                                     JSONObject attach = attachWidgets.getJSONObject(i);
                                     if(attach.has("attach")) {

@@ -31,6 +31,8 @@ import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.api.TopicData;
 import com.di7ak.spaces.forum.util.PicassoImageGetter;
 import com.di7ak.spaces.forum.widget.AttachWidget;
+import com.di7ak.spaces.forum.widget.PictureAttach;
+import com.di7ak.spaces.forum.widget.ReplyWidget;
 import com.rey.material.widget.FloatingActionButton;
 import com.rey.material.widget.ProgressView;
 import com.squareup.picasso.OkHttpDownloader;
@@ -63,6 +65,9 @@ View.OnClickListener, NotificationManager.OnNewNotification {
     EditText commentBox;
     FloatingActionButton btnSend;
     boolean showing = false;
+    
+    List<String> attachesNames;
+    List<String> attachesUrls;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +92,6 @@ View.OnClickListener, NotificationManager.OnNewNotification {
         appbar.addOnOffsetChangedListener(this);
 
         picasso = new Picasso.Builder(this) 
-            .loggingEnabled(BuildConfig.DEBUG) 
-            .indicatorsEnabled(BuildConfig.DEBUG) 
             .downloader(new OkHttpDownloader(this, 100000)) 
             .build();
 
@@ -108,6 +111,9 @@ View.OnClickListener, NotificationManager.OnNewNotification {
                     fab.setLineMorphingState((fab.getLineMorphingState() + 1) % 2, true);
                 }
             });
+            
+        attachesNames = new ArrayList<String>();
+        attachesUrls = new ArrayList<String>();
     }
     
     @Override
@@ -214,8 +220,15 @@ View.OnClickListener, NotificationManager.OnNewNotification {
             }).start();
     }
 
+    int preY;
     @Override
     public void onScrollChange(NestedScrollView v, int p2, int p3, int p4, int p5) {
+        if(preY > p3) {
+            if(!fabShowing && !showing) showFab();
+        } else {
+            if(fabShowing && !showing) hideFab();
+        }
+        preY = p3;
         if (topic.pagination != null && p3 + 50 > (v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight())) {
             if (!bar.isShown() && topic.pagination.currentPage < topic.pagination.lastPage) {
                 topic.pagination.currentPage ++;
@@ -224,12 +237,15 @@ View.OnClickListener, NotificationManager.OnNewNotification {
         }
 	}
 
+    boolean fabShowing = false;
     private void showFab() {
         ViewCompat.animate(fab).translationY(0).start();
+        fabShowing = true;
     }
 
     private void hideFab() {
         ViewCompat.animate(fab).translationY(fab.getHeight() + 20).start();
+        fabShowing = false;
     }
 
     private void showCommentBlock() {
@@ -352,9 +368,15 @@ View.OnClickListener, NotificationManager.OnNewNotification {
         
         LinearLayout attachBlock = (LinearLayout)findViewById(R.id.attach_block);
             for(AttachData attach : topic.attaches) {
-                AttachWidget widget = new AttachWidget(attach, this, picasso);
-                View av = widget.getView();
-                if(av != null) attachBlock.addView(av);
+                if(attach == null) return;
+                if(attach.fileext.equals("jpg") || attach.fileext.equals("png")) {
+                    attachesNames.add(attach.filename);
+                    attachesUrls.add(attach.downloadLink);
+                    int index = attachesNames.size() - 1;
+                    PictureAttach widget = new PictureAttach(attach, attachesNames, attachesUrls, index, this, picasso);
+                    attachBlock.addView(widget.getView());
+                }
+                
             }
             
         author.setVisibility(View.VISIBLE);
@@ -391,14 +413,18 @@ View.OnClickListener, NotificationManager.OnNewNotification {
             //attaches
             LinearLayout attachBlock = (LinearLayout)v.findViewById(R.id.attach_block);
             for(AttachData attach : comment.attaches) {
-                AttachWidget widget = new AttachWidget(attach, this, picasso);
-                View av = widget.getView();
-                if(av != null) attachBlock.addView(av);
+                if(attach == null) return;
+                if(attach.fileext.equals("jpg") || attach.fileext.equals("png")) {
+                    attachesNames.add(attach.filename);
+                    attachesUrls.add(attach.downloadLink);
+                    int index = attachesNames.size() - 1;
+                    PictureAttach widget = new PictureAttach(attach, attachesNames, attachesUrls, index, this, picasso);
+                    attachBlock.addView(widget.getView());
+                }
             }
             
             if(comment.replyUserName != null && !comment.replyUserName.equals("null")) {
-                View reply = li.inflate(R.layout.reply, null);
-                ((TextView)reply.findViewById(R.id.reply_to)).setText(comment.replyUserName);
+                View reply = new ReplyWidget(this, comment.replyUserName, comment.replyCommentText, picasso).getView();
                 ((LinearLayout)v.findViewById(R.id.comment_block_left)).addView(reply, 1);
             }
             if (comment.avatar != null) picasso.load(comment.avatar.previewUrl)

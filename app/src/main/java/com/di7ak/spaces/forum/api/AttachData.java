@@ -31,6 +31,7 @@ public class AttachData {
 	
 	public static AttachData fromJson(JSONObject attach) throws SpacesException {
 		AttachData result = new AttachData();
+        
         try {
 			if(attach.has("lightLink")) result.lightLink = attach.getString("lightLink");
 			if(attach.has("inTopic")) result.inTopic = attach.getInt("inTopic") == 1;
@@ -51,6 +52,11 @@ public class AttachData {
 				if(preview.has("description")) result.description = preview.getString("description");
 				if(preview.has("resolution")) result.resolution = preview.getString("resolution");
 				if(preview.has("fileext")) result.fileext = preview.getString("fileext");
+                if(preview.has("size")) {
+                    JSONObject size = preview.getJSONObject("size");
+                    if(size.has("width")) result.width = size.getInt("width");
+                    if(size.has("height")) result.height = size.getInt("height");
+                }
 			}
         } catch(JSONException e) {
             android.util.Log.e("lol", "attach: " + e.toString(), e);

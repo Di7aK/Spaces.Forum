@@ -1,32 +1,32 @@
 package com.di7ak.spaces.forum.fragments;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
-import android.support.v7.widget.CardView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
+import com.di7ak.spaces.forum.TopicActivity;
 import com.di7ak.spaces.forum.api.Comm;
 import com.di7ak.spaces.forum.api.Forum;
-import com.di7ak.spaces.forum.api.ForumResult;
+import com.di7ak.spaces.forum.api.PreviewTopicData;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
-import com.di7ak.spaces.forum.api.PreviewTopicData;
+import com.di7ak.spaces.forum.api.TopicListData;
 import com.rey.material.widget.ProgressView;
 import java.util.ArrayList;
 import java.util.List;
-import android.content.Intent;
-import com.di7ak.spaces.forum.TopicActivity;
-import android.text.Html;
 
 public class ForumFragment extends Fragment implements NestedScrollView.OnScrollChangeListener {
 	LinearLayout topicList;
@@ -96,9 +96,10 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 				@Override
 				public void run() {
 					try {
-						ForumResult result = Forum.getTopics(session, comm, currentPage, type);
+						TopicListData result = Forum.getTopics(session, comm, currentPage, type);
 						topics.addAll(result.topics);
-						pages = result.lastPage;
+						pages = result.pagination.lastPage;
+                        currentPage = result.pagination.currentPage;
 						showTopics(result.topics);
 						retryCount = 0;
 					} catch (SpacesException e) {
@@ -151,8 +152,24 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 						((TextView)v.findViewById(R.id.subject)).setText(Html.fromHtml(topic.subject));
 						((TextView)v.findViewById(R.id.description)).setText(createDescription(topic));
 						((TextView)v.findViewById(R.id.comments_cnt)).setText(Integer.toString(topic.commentsCount));
-						if(topic.locked) {
-							((LinearLayout)v.findViewById(R.id.prop)).addView(li.inflate(R.layout.lock, null));
+						LinearLayout prop = (LinearLayout)v.findViewById(R.id.prop);
+                        float density = getResources().getDisplayMetrics().density;
+                        int propW = (int)(density * 20);
+                        int propH = (int)(density * 20);
+                        int padding = (int)(density * 3);
+                        if(topic.locked) {
+                            ImageView lock = new ImageView(getActivity());
+                            lock.setPadding(padding, padding, padding, padding);
+                            lock.setLayoutParams(new LinearLayout.LayoutParams(propW, propH));
+                            lock.setImageResource(R.drawable.ic_lock_outline_black_18dp);
+							prop.addView(lock);
+						}
+                        if(topic.attachCount > 0) {
+                            ImageView attach = new ImageView(getActivity());
+                            attach.setPadding(padding, padding, padding, padding);
+                            attach.setLayoutParams(new LinearLayout.LayoutParams(propW, propH));
+                            attach.setImageResource(R.drawable.ic_attachment_black);
+                            prop.addView(attach);
 						}
 						final String topicId = topic.id;
 						v.findViewById(R.id.layout).setOnClickListener(new View.OnClickListener() {
@@ -161,7 +178,7 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 							public void onClick(View v) {
 								Intent intent = new Intent(getContext(), TopicActivity.class);
 								intent.putExtra("topic_id", topicId);
-                                android.util.Log.d("lol", "calling activity show topic " + topicId);
+                                
 								startActivity(intent);
 							}
 						});

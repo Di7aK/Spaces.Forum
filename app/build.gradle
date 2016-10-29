@@ -26,6 +26,7 @@ dependencies {
 	compile 'de.hdodenhof:circleimageview:2.1.0'
 	compile 'com.github.dexafree:materiallist:+'
 	compile 'jp.wasabeef:recyclerview-animators:2.2.4'
-    
+    compile 'com.nineoldandroids:library:2.4.0'
+    compile 'com.daimajia.slider:library:1.1.5@aar'
 	compile project(':material')
 }
