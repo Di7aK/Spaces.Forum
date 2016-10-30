@@ -1,8 +1,59 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:gravity="right"
+    android:layout_gravity="right"
     android:orientation="horizontal">
-    
-    
-    
+
+    <com.di7ak.spaces.forum.widget.LinearLayout
+        android:id="@+id/layout_like"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:padding="3dp"
+        android:layout_margin="3dp"
+        android:orientation="horizontal"
+        style="@style/Material.Drawable.Ripple.Touch.Light">
+
+        <ImageView
+            android:id="@+id/image_like"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_thumb_up_black_18dp" />
+
+        <TextView
+            android:id="@+id/likes_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:padding="5dp"/>
+
+    </com.di7ak.spaces.forum.widget.LinearLayout>
+
+    <com.di7ak.spaces.forum.widget.LinearLayout
+        android:id="@+id/layout_dislike"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:padding="3dp"
+        android:layout_margin="3dp"
+        android:orientation="horizontal"
+        style="@style/Material.Drawable.Ripple.Touch.Light">
+
+        <ImageView
+            android:id="@+id/image_dislike"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_thumb_down_black_18dp" />
+
+        <TextView
+            android:id="@+id/dislikes_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:padding="5dp"/>
+
+    </com.di7ak.spaces.forum.widget.LinearLayout>
+
 </LinearLayout>

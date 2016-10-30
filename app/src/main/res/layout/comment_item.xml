@@ -1,4 +1,3 @@
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -85,13 +84,31 @@
             </HorizontalScrollView>
 
         </LinearLayout>
-
+        
         <LinearLayout
-            android:id="@+id/likes_block"
+            android:id="@+id/bottom_block"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="right"
             android:orientation="horizontal">
+            
+            <LinearLayout
+                android:id="@+id/button_block"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:orientation="horizontal">
+                
+            </LinearLayout>
+            
+            <LinearLayout
+                android:id="@+id/widget_block"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:orientation="horizontal">
+
+            </LinearLayout>
 
         </LinearLayout>
 

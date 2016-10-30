@@ -3090,7 +3090,9 @@
   "revision" : [ 17,
       17
     ],
-  "topicWidget" : { "actionBar" : { "info" : null,
+  "topicWidget" : { 
+      "actionBar" : { 
+          "info" : null,
           "links" : { "bookmark_added" : 0,
               "bookmark_link" : "http://spaces.ru/bookmarks/add/?link_id=1607429&object_id=19886502&object_type=8&sid=7322937670536712",
               "share_link" : "http://spaces.ru/diary/share/index/?Link_id=1607429&Oid=19886502&Ot=8&sid=7322937670536712"
@@ -3108,7 +3110,8 @@
                   "likes_count" : "3",
                   "oid" : "19886502",
                   "ot" : "8"
-                } }
+                } 
+            }
         },
       "actionBarInfo" : { "info" : { "id" : "8_19886502",
               "share" : { "cnt" : 0 },

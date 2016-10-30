@@ -54,6 +54,8 @@
                     android:layout_gravity="center_horizontal"
                     android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
                 />
+            
+            
 
             </LinearLayout>
 
@@ -134,6 +136,15 @@
                         android:textSize="20sp"
                         android:text="текст"
                     />
+                
+                    <LinearLayout
+                        android:id="@+id/widgets"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:orientation="horizontal">
+                        
+                    </LinearLayout>
 
                 </LinearLayout>
             </android.support.v7.widget.CardView>

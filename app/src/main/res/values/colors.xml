@@ -7,4 +7,6 @@
 	<color name="navigationBarColor">#000000</color>
 	<color name="colorAccent">#c8e8ff</color>
     <color name="placeholder">#cccccc</color>
+    
+    <color name="colorPrimaryQuarter">#3303A9F4</color>
 </resources>

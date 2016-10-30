@@ -1,0 +1,16 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_weight="0"
+    android:orientation="vertical">
+    
+    <com.rey.material.widget.Button
+        android:id="@+id/btn_reply"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="ОТВЕТИТЬ"
+    android:background="@null"
+    app:v_styleId="@array/button_flat_color"/>
+    
+</LinearLayout>

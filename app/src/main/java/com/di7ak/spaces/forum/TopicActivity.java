@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.TopicActivity;
@@ -30,9 +31,9 @@ import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.api.TopicData;
 import com.di7ak.spaces.forum.util.PicassoImageGetter;
-import com.di7ak.spaces.forum.widget.AttachWidget;
 import com.di7ak.spaces.forum.widget.PictureAttach;
 import com.di7ak.spaces.forum.widget.ReplyWidget;
+import com.di7ak.spaces.forum.widget.VotingWidget;
 import com.rey.material.widget.FloatingActionButton;
 import com.rey.material.widget.ProgressView;
 import com.squareup.picasso.OkHttpDownloader;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
+import com.rey.material.widget.Button;
 
 public class TopicActivity extends AppCompatActivity
 implements AppBarLayout.OnOffsetChangedListener, 
@@ -65,6 +67,7 @@ View.OnClickListener, NotificationManager.OnNewNotification {
     EditText commentBox;
     FloatingActionButton btnSend;
     boolean showing = false;
+    String replyId = null;
     
     List<String> attachesNames;
     List<String> attachesUrls;
@@ -199,7 +202,7 @@ View.OnClickListener, NotificationManager.OnNewNotification {
                 @Override
                 public void run() {
                     try {
-                        Comment.send(session, commentBox.getText().toString(), 51, id);
+                        Comment.send(session, commentBox.getText().toString(), 51, id, replyId);
                     } catch (SpacesException e) {}
 
                     runOnUiThread(new Runnable() {
@@ -239,12 +242,14 @@ View.OnClickListener, NotificationManager.OnNewNotification {
 
     boolean fabShowing = false;
     private void showFab() {
+        if(topic != null && !topic.commentFormEnabled) return;
         ViewCompat.animate(fab).translationY(0).start();
         fabShowing = true;
     }
 
     private void hideFab() {
-        ViewCompat.animate(fab).translationY(fab.getHeight() + 20).start();
+        int hidingPos  = fab.getHeight() + (int)(20 * getResources().getDisplayMetrics().density);
+        ViewCompat.animate(fab).translationY(hidingPos).start();
         fabShowing = false;
     }
 
@@ -255,6 +260,7 @@ View.OnClickListener, NotificationManager.OnNewNotification {
     }
 
     private void hideCommentBlock() {
+        replyId = null;
         commentBox.setEnabled(false);
         ViewCompat.animate(commentBlock).translationY(commentBlock.getHeight()).start();
         ViewCompat.animate(fab).translationY(0).start();
@@ -368,7 +374,7 @@ View.OnClickListener, NotificationManager.OnNewNotification {
         
         LinearLayout attachBlock = (LinearLayout)findViewById(R.id.attach_block);
             for(AttachData attach : topic.attaches) {
-                if(attach == null) return;
+                if(attach == null || attach.fileext == null) return;
                 if(attach.fileext.equals("jpg") || attach.fileext.equals("png")) {
                     attachesNames.add(attach.filename);
                     attachesUrls.add(attach.downloadLink);
@@ -378,6 +384,11 @@ View.OnClickListener, NotificationManager.OnNewNotification {
                 }
                 
             }
+            
+        LinearLayout widgets = (LinearLayout)findViewById(R.id.widgets);
+        
+        VotingWidget voting = new VotingWidget(session, TopicActivity.this, topic.voting);
+        widgets.addView(voting.getView());
             
         author.setVisibility(View.VISIBLE);
         content.setVisibility(View.VISIBLE);
@@ -401,7 +412,9 @@ View.OnClickListener, NotificationManager.OnNewNotification {
             View v = li.inflate(R.layout.comment_item, null);
             ((TextView)v.findViewById(R.id.author)).setText(comment.user.name);
             TextView text = (TextView)v.findViewById(R.id.text);
-            text.setText(Html.fromHtml(comment.text, new PicassoImageGetter(text, getResources(), picasso), null));
+            if(comment.text != null && !comment.text.equals("null")) {
+                text.setText(Html.fromHtml(comment.text, new PicassoImageGetter(text, getResources(), picasso), null));
+            }
             String[] date = comment.date.split("в ");
             if(date.length == 2) {
                 ((TextView)v.findViewById(R.id.date)).setText(date[0].trim());
@@ -422,6 +435,34 @@ View.OnClickListener, NotificationManager.OnNewNotification {
                     attachBlock.addView(widget.getView());
                 }
             }
+            
+            LinearLayout buttonBlock = (LinearLayout)v.findViewById(R.id.button_block);
+            
+            if(topic.commentFormEnabled) {
+                View btnResponse = li.inflate(R.layout.btn_response, null);
+                Button btnReply = (Button)btnResponse.findViewById(R.id.btn_reply);
+                btnReply.setTag(comment.id);
+                btnReply.setOnClickListener(new View.OnClickListener() {
+                    
+                    @Override
+                    public void onClick(View v) {
+                        replyId = (String)v.getTag();
+                        
+                        if(!commentBox.isEnabled()) {
+                            showing = true;
+                            showCommentBlock();
+                            fab.setLineMorphingState((fab.getLineMorphingState() + 1) % 2, true);
+                        }
+                    }
+                });
+                buttonBlock.addView(btnResponse);
+            }
+        
+            LinearLayout widgetBlock = (LinearLayout)v.findViewById(R.id.widget_block);
+            
+            
+            VotingWidget voting = new VotingWidget(session, TopicActivity.this, comment.voting);
+            widgetBlock.addView(voting.getView());
             
             if(comment.replyUserName != null && !comment.replyUserName.equals("null")) {
                 View reply = new ReplyWidget(this, comment.replyUserName, comment.replyCommentText, picasso).getView();

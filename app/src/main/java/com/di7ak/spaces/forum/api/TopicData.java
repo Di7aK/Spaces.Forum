@@ -22,6 +22,7 @@ public class TopicData {
     public String editUser;
     public String id;
     public int commentsCnt;
+    public boolean commentFormEnabled;
 
     public static TopicData fromJson(JSONObject json) throws SpacesException {
         TopicData result = new TopicData();
@@ -83,11 +84,15 @@ public class TopicData {
                         if (topicWidget.has("avatar")) {
                             result.avatar = AttachData.fromJson(topicWidget.getJSONObject("avatar"));
                         }
-                        if (topicWidget.has("widgets")) {
-                            JSONObject widgets = topicWidget.getJSONObject("widgets");
+                        if (topicWidget.has("actionBar")) {
+                            JSONObject actionBar = topicWidget.getJSONObject("actionBar");
+                        if (actionBar.has("widgets")) {
+                            
+                            JSONObject widgets = actionBar.getJSONObject("widgets");
                             if (widgets.has("voting")) {
                                 result.voting = VotingData.fromJson(widgets.getJSONObject("voting"));
                             }
+                        }
                         }
                     }
                     if (json.has("commentsBlock")) {
@@ -99,6 +104,9 @@ public class TopicData {
                             result.pagination.currentPage = 1;
                             result.pagination.lastPage = 1;
                         }
+                        if (commentsBlock.has("commentForm") && !commentsBlock.isNull("commentForm")) {
+                            result.commentFormEnabled = true;
+                        } else result.commentFormEnabled = false;
                         if (commentsBlock.has("comments")) {
                             JSONObject comments = commentsBlock.getJSONObject("comments");
                             if(comments.has("commentsCnt")) result.commentsCnt = comments.getInt("commentsCnt");

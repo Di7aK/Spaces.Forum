@@ -154,8 +154,8 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 						((TextView)v.findViewById(R.id.comments_cnt)).setText(Integer.toString(topic.commentsCount));
 						LinearLayout prop = (LinearLayout)v.findViewById(R.id.prop);
                         float density = getResources().getDisplayMetrics().density;
-                        int propW = (int)(density * 20);
-                        int propH = (int)(density * 20);
+                        int propW = (int)(density * 26);
+                        int propH = (int)(density * 26);
                         int padding = (int)(density * 3);
                         if(topic.locked) {
                             ImageView lock = new ImageView(getActivity());
@@ -168,7 +168,7 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
                             ImageView attach = new ImageView(getActivity());
                             attach.setPadding(padding, padding, padding, padding);
                             attach.setLayoutParams(new LinearLayout.LayoutParams(propW, propH));
-                            attach.setImageResource(R.drawable.ic_attachment_black);
+                            attach.setImageResource(R.drawable.ic_attachment_black_18dp);
                             prop.addView(attach);
 						}
 						final String topicId = topic.id;

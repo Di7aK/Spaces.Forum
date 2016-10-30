@@ -10,26 +10,21 @@ import java.net.URL;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Comment {
+public class Voting {
     
-    public static void send(Session session, String text, int type, String id, String cr) throws SpacesException {
+    public static void vote(Session session, int ot, int oid, int down) throws SpacesException {
         StringBuilder args = new StringBuilder();
-        args.append("method=").append("add")
+        args.append("method=").append(down == -1 ? "delete" : "like")
             .append("&sid=").append(Uri.encode(session.sid))
-            .append("&CK=").append(Uri.encode(session.sid.substring(12, 16)))
-            .append("&comment=").append(Uri.encode(text))
-            .append("&id=").append(id)
-            .append("&Id=").append(id)
-            .append("&passed=").append("1")
-            .append("&Type=").append(Integer.toString(type));
-        if(cr != null) {
-            args.append("&Cr=").append(cr);
-        }
+            .append("&CK=").append(Uri.encode(session.ck))
+            .append("&Ot=").append(Uri.encode(Integer.toString(ot)))
+            .append("&Oid=").append(Uri.encode(Integer.toString(oid)))
+            .append("&Down=").append(Uri.encode(Integer.toString(down)));
+
         try {
-            HttpURLConnection con = (HttpURLConnection) new URL("http://spaces.ru/neoapi/comments/").openConnection();
+            HttpURLConnection con = (HttpURLConnection) new URL("http://spaces.ru/neoapi/voting/").openConnection();
 
             con.setRequestMethod("POST");
-            con.addRequestProperty("Cookie:", "beta=1;");
             con.setDoOutput(true);
 
             DataOutputStream wr = new DataOutputStream(con.getOutputStream());
@@ -46,15 +41,14 @@ public class Comment {
                 response.append(inputLine);
             }
             in.close();
-
+android.util.Log.d("lol", response.toString());
             JSONObject json = new JSONObject(response.toString());
             int code = json.getInt("code");
             if (code != 0) throw new SpacesException(code);
-            
         } catch (IOException e) {
             throw new SpacesException(-1);
         } catch (JSONException e) {
             throw new SpacesException(-2);
 		}
-	}
+    }
 }

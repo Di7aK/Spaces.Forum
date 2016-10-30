@@ -11,6 +11,10 @@ public class VotingData {
 
     public boolean canDislike;
     public boolean disabled;
+    
+    public String likeUrl;
+    public String dislikeUrl;
+    public String deleteUrl;
 
     public static VotingData fromJson(JSONObject source) throws SpacesException {
         VotingData result = new VotingData();
@@ -19,11 +23,10 @@ public class VotingData {
             if (source.has("dislikes_count")) result.dislikes = source.getInt("dislikes_count");
             if (source.has("ot")) result.objectType = source.getInt("ot");
             if (source.has("oid")) result.objectId = source.getInt("oid");
-            //if(source.has("disabled")) result.disabled = source.getInt("disabled") == 1;
-            //if(source.has("can_dislike")) result.canDislike = source.getInt("candislike") == 1;
+            if (source.has("like_URL")) result.likeUrl = source.getString("like_URL");
+            if (source.has("dislike_URL")) result.dislikeUrl = source.getString("dislike_URL");
+            if (source.has("delete_URL")) result.deleteUrl = source.getString("delete_URL");
         } catch (JSONException e) {
-            android.util.Log.e("lol", "voting: " + e.toString(), e);
-            
             throw new SpacesException(-2);
         }
         return result;
