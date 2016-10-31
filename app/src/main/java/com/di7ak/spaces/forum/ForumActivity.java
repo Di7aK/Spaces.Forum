@@ -33,6 +33,7 @@ public class ForumActivity extends AppCompatActivity implements
 	private Session session;
 	private Comm comm;
     private int activeTab;
+    private int defaultPage;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -73,9 +74,9 @@ public class ForumActivity extends AppCompatActivity implements
     
     @Override
     public void onBackPressed() {
-        if(activeTab == 0) finish();
+        if(activeTab == 0 || defaultPage != 0) finish();
         else viewPager.setCurrentItem(0);
-        super.onBackPressed();
+        //super.onBackPressed();
     }
 
     @Override
@@ -120,6 +121,7 @@ public class ForumActivity extends AppCompatActivity implements
 			comm = new Comm();
 			comm.cid = extra.getString("cid");
 			comm.name = extra.getString("name");
+            defaultPage = extra.getInt("default_page");
 			setTitle(comm.name);
 			
             categoryFragment = new ForumCategoryFragment(session, comm);
@@ -138,6 +140,7 @@ public class ForumActivity extends AppCompatActivity implements
 		adapter.addFragment(newTopics, "Новые");
 		adapter.addFragment(lastTopics, "Последние");
 		viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(defaultPage);
 	}
 	
 	class ViewPagerAdapter extends FragmentPagerAdapter {

@@ -86,6 +86,7 @@ public class CommFragment extends Fragment implements RecyclerItemClickListener.
 		Intent intent = new Intent(getContext(), ForumActivity.class);
 		intent.putExtra("name", comms.get(position).name);
 		intent.putExtra("cid", comms.get(position).cid);
+        intent.putExtra("default_page", 1);
 		startActivity(intent);
 	}
 

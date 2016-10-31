@@ -1,7 +1,7 @@
 package com.di7ak.spaces.forum.fragments;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,7 +23,6 @@ import com.rey.material.widget.ProgressView;
 import java.util.ArrayList;
 import java.util.List;
 import jp.wasabeef.recyclerview.animators.ScaleInAnimator;
-import android.graphics.PorterDuff;
 
 public class ForumsFragment extends Fragment implements RecyclerItemClickListener.OnItemClickListener {
     MaterialListView mListView;
@@ -36,9 +35,18 @@ public class ForumsFragment extends Fragment implements RecyclerItemClickListene
         super();
         categories = new ArrayList<ForumCategoryData>();
     }
+    
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if(categories.size() == 0) {
+            loadCategories();
+            
+        }
+    }
 
     public void onSelected() {
-        if (categories.size() == 0) {
+        if (getActivity() != null && categories.size() == 0) {
             loadCategories();
         }
     }

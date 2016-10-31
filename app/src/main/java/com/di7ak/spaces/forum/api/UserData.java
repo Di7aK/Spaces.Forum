@@ -34,9 +34,12 @@ public class UserData {
                 if(onlineStatus.has("off_img")) result.imageOff = onlineStatus.getString("off_img");
             }
             if(json.has("siteLink") && !json.isNull("siteLink")) {
-                JSONObject siteLink = json.getJSONObject("siteLink");
-                if(siteLink.has("user_name")) result.name = siteLink.getString("user_name");
+                Object siteLink = json.get("siteLink");
+                if(siteLink instanceof JSONObject) {
+                    if(((JSONObject)siteLink).has("user_name")) result.name = ((JSONObject)siteLink).getString("user_name");
+                }
             }
+            if(json.has("name")) result.name = json.getString("name");
         } catch(JSONException e) {
             android.util.Log.e("lol", "user: " + e.toString(), e);
             

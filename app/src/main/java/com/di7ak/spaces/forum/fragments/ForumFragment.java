@@ -61,8 +61,16 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
         pages = 1;
     }
     
-    public void onSelected() {
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
         if(topics.size() == 0) {
+            loadTopics();
+        }
+    }
+    
+    public void onSelected() {
+        if(getActivity() != null && topics.size() == 0) {
             loadTopics();
         }
     }
