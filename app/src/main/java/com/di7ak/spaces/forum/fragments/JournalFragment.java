@@ -1,12 +1,12 @@
 package com.di7ak.spaces.forum.fragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
-import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.Application;
+import com.di7ak.spaces.forum.NotificationManager;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.api.Journal;
 import com.di7ak.spaces.forum.api.JournalRecord;
@@ -28,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.di7ak.spaces.forum.NotificationManager;
 
 public class JournalFragment extends Fragment implements NestedScrollView.OnScrollChangeListener,
         NotificationManager.OnNewNotification {
@@ -50,7 +50,18 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
         records = new ArrayList<JournalRecord>();
         this.session = session;
         this.type = type;
-        
+    }
+     
+    public void onSelected() {
+        if(records.size() == 0) {
+            loadRecords();
+        }
+    }
+    
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if(type == 2) loadRecords();
     }
 
     @Override
@@ -61,17 +72,21 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
     @Override
     public void onPause() {
         super.onPause();
+        paused = true;
         if(type != 2) return;
         Application.notificationManager.removeListener(this);
     }
     
+    boolean paused = false;
     @Override
     public void onResume() {
         super.onResume();
         currentPage = 1;
         update = true;
-        loadRecords();
+        
         if(type != 2) return;
+        if(paused) loadRecords();
+        paused = false;
         Application.notificationManager.addListener(this);
     }
 

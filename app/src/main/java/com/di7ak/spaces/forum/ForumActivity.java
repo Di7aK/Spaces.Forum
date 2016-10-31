@@ -15,19 +15,24 @@ import android.view.MenuItem;
 import com.di7ak.spaces.forum.api.Comm;
 import com.di7ak.spaces.forum.api.Forum;
 import com.di7ak.spaces.forum.api.Session;
+import com.di7ak.spaces.forum.fragments.ForumCategoryFragment;
 import com.di7ak.spaces.forum.fragments.ForumFragment;
 import java.util.ArrayList;
 import java.util.List;
 import android.content.Intent;
 
-public class ForumActivity extends AppCompatActivity implements Authenticator.OnResult {
-	
+public class ForumActivity extends AppCompatActivity implements 
+        Authenticator.OnResult,
+        ViewPager.OnPageChangeListener,
+        ForumCategoryFragment.OnForumChangeListener {
 	private Toolbar toolbar;
 	private TabLayout tabLayout;
 	private ViewPager viewPager;
-	private ForumFragment newTopics, popularTopics, lastTopics;
+	private ForumFragment newTopics, lastTopics;
+    private ForumCategoryFragment categoryFragment;
 	private Session session;
 	private Comm comm;
+    private int activeTab;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +53,42 @@ public class ForumActivity extends AppCompatActivity implements Authenticator.On
 		viewPager = (ViewPager) findViewById(R.id.viewpager);
 		tabLayout = (TabLayout) findViewById(R.id.tabs);
 		
+        viewPager.setOnPageChangeListener(this);
+        
 		Authenticator.getSession(this, this);
 	}
+    
+    @Override
+    public void onForumChange(String id) {
+        newTopics.setForum(id);
+        lastTopics.setForum(id);
+        
+        viewPager.setCurrentItem(1);
+    }
+    
+    @Override
+    public void onPageScrolled(int p1, float p2, int p3) {
+
+    }
+    
+    @Override
+    public void onBackPressed() {
+        if(activeTab == 0) finish();
+        else viewPager.setCurrentItem(0);
+        super.onBackPressed();
+    }
+
+    @Override
+    public void onPageSelected(int page) {
+        if(page == 1) newTopics.onSelected();
+        else if(page == 2) lastTopics.onSelected();
+        activeTab = page;
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int p1) {
+
+    }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -83,8 +122,9 @@ public class ForumActivity extends AppCompatActivity implements Authenticator.On
 			comm.name = extra.getString("name");
 			setTitle(comm.name);
 			
+            categoryFragment = new ForumCategoryFragment(session, comm);
+            categoryFragment.setOnForumChangeListener(this);
 			newTopics = new ForumFragment(session, comm, Forum.TYPE_NEW);
-			popularTopics = new ForumFragment(session, comm, Forum.TYPE_POPULAR);
 			lastTopics = new ForumFragment(session, comm, Forum.TYPE_LAST);
 			
 			setupViewPager(viewPager);
@@ -94,9 +134,9 @@ public class ForumActivity extends AppCompatActivity implements Authenticator.On
 	
 	private void setupViewPager(ViewPager viewPager) {
 		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(categoryFragment, "Разделы");
 		adapter.addFragment(newTopics, "Новые");
 		adapter.addFragment(lastTopics, "Последние");
-		adapter.addFragment(popularTopics, "Популярные");
 		viewPager.setAdapter(adapter);
 	}
 	

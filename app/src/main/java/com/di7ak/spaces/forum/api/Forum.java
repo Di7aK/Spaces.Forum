@@ -16,12 +16,16 @@ public class Forum {
 	public static final int TYPE_LAST = 5;
 	public static final int TYPE_POPULAR = 7;
 
-	public static TopicListData getTopics(Session session, Comm comm, int page, int type) throws SpacesException {
+	public static TopicListData getTopics(Session session, Comm comm, int page, int type, String forum) throws SpacesException {
 		StringBuilder url = new StringBuilder()
-			.append("http://spaces.ru/ajax/forums/")
-			.append("?com_cat_id=").append(comm.cid)
-			.append("&last=").append(Integer.toString(type))
-			.append("&tp=").append(Integer.toString(page))
+			.append("http://spaces.ru/ajax/forums/");
+            if(forum == null) {
+			    url.append("?com_cat_id=").append(comm.cid);
+            } else {
+                url.append("?f=").append(forum);
+            }
+			if((forum != null && type == TYPE_NEW) || forum == null) url.append("&last=").append(Integer.toString(type));
+			url.append("&tp=").append(Integer.toString(page))
 			.append("&sid=").append(session.sid);
 
 		try {
@@ -29,8 +33,8 @@ public class Forum {
 
 			con.setRequestMethod("GET");
 			con.addRequestProperty("X-proxy", "spaces");
-			con.setRequestProperty("User-Agent", "android_app");
-			con.setRequestProperty("Cookie", "json=1");
+			con.addRequestProperty("User-Agent", "android_app");
+			con.addRequestProperty("Cookie", "json=1; beta=1;");
 			BufferedReader in = new BufferedReader(
 				new InputStreamReader(con.getInputStream()));
 			String inputLine;
@@ -65,7 +69,8 @@ public class Forum {
 
 			con.setRequestMethod("GET");
 			con.addRequestProperty("X-proxy", "spaces");
-			con.addRequestProperty("Cookie", "beta=1");
+            con.addRequestProperty("User-Agent", "android_app");
+			con.addRequestProperty("Cookie", "beta=1; json=1;");
 			BufferedReader in = new BufferedReader(
 				new InputStreamReader(con.getInputStream()));
 			String inputLine;
@@ -85,5 +90,83 @@ public class Forum {
 		}
 		return result;
 	}
+    
+    public static List<ForumCategoryData> getCategories() throws SpacesException {
+        List<ForumCategoryData> result = new ArrayList<ForumCategoryData>();
+        StringBuilder url = new StringBuilder()
+            .append("http://spaces.ru/ajax/forums/");
+
+        try {
+            HttpURLConnection con = (HttpURLConnection) new URL(url.toString()).openConnection();
+
+            con.setRequestMethod("GET");
+            con.addRequestProperty("X-proxy", "spaces");
+            con.addRequestProperty("Cookie", "beta=1");
+            BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            JSONObject json = new JSONObject(response.toString());
+            if(json.has("cat_list")) {
+                JSONArray catList = json.getJSONArray("cat_list");
+                for(int i = 0; i < catList.length(); i ++) {
+                    JSONObject category = catList.getJSONObject(i);
+                    ForumCategoryData data = ForumCategoryData.fromJson(category);
+                    result.add(data);
+                }
+            }
+        } catch (IOException e) {
+            throw new SpacesException(-1);
+        } catch (JSONException e) {
+            throw new SpacesException(-2);
+		}
+        return result;
+    }
+    
+    public static List<ForumData> getForums(Session session, String cid) throws SpacesException {
+        List<ForumData> result = new ArrayList<ForumData>();
+        StringBuilder url = new StringBuilder()
+            .append("http://spaces.ru/ajax/forums/")
+            .append("?cid=").append(cid)
+            .append("&sid=").append(session.sid);
+
+        try {
+            HttpURLConnection con = (HttpURLConnection) new URL(url.toString()).openConnection();
+
+            con.setRequestMethod("GET");
+            con.addRequestProperty("X-proxy", "spaces");
+            con.addRequestProperty("Cookie", "beta=1");
+            BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            JSONObject json = new JSONObject(response.toString());
+            if(json.has("forums")) {
+                JSONArray forums = json.getJSONArray("forums");
+                for(int i = 0; i < forums.length(); i ++) {
+                    JSONObject category = forums.getJSONObject(i);
+                    ForumData data = ForumData.fromJson(category);
+                    result.add(data);
+                }
+            }
+        } catch (IOException e) {
+            throw new SpacesException(-1);
+        } catch (JSONException e) {
+            throw new SpacesException(-2);
+        }
+        return result;
+    }
     
 }

@@ -17,7 +17,9 @@ import com.di7ak.spaces.forum.fragments.JournalFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JournalActivity extends AppCompatActivity implements Authenticator.OnResult {
+public class JournalActivity extends AppCompatActivity implements 
+        Authenticator.OnResult,
+ViewPager.OnPageChangeListener {
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -41,6 +43,8 @@ public class JournalActivity extends AppCompatActivity implements Authenticator.
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
 
+        viewPager.setOnPageChangeListener(this);
+        
         Authenticator.getSession(this, this);
     }
 
@@ -49,9 +53,7 @@ public class JournalActivity extends AppCompatActivity implements Authenticator.
         if(session == null) finish();
         else {
             this.session = session;
-
             
-
             newRecords = new JournalFragment(session, 2);
             allRecords = new JournalFragment(session, 1);
             
@@ -65,6 +67,22 @@ public class JournalActivity extends AppCompatActivity implements Authenticator.
         adapter.addFragment(newRecords, "Новые");
         adapter.addFragment(allRecords, "Все");
         viewPager.setAdapter(adapter);
+    }
+    
+    @Override
+    public void onPageScrolled(int p1, float p2, int p3) {
+
+    }
+
+    @Override
+    public void onPageSelected(int page) {
+        if(page == 0) newRecords.onSelected();
+        else allRecords.onSelected();
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int p1) {
+
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

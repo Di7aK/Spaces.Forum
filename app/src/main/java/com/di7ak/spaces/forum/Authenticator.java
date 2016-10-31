@@ -50,12 +50,12 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		Bundle result = new Bundle();
 		AccountManager am = AccountManager.get(context.getApplicationContext());
 		String authToken = am.peekAuthToken(account, authTokenType);
-		if (TextUtils.isEmpty(authToken)) {
+        String channelId = am.getUserData(account, "channel");
+        if (TextUtils.isEmpty(authToken) || TextUtils.isEmpty(channelId)) {
 			final String password = am.getPassword(account);
 			if (!TextUtils.isEmpty(password)) {
 				try {
-                    
-					Session session = Auth.login(account.name, password);
+                    Session session = Auth.login(account.name, password);
 					authToken = session.sid;
                     am.setUserData(account, "channel", session.channel);
                     am.setUserData(account, "ck", session.ck);
@@ -68,10 +68,6 @@ public class Authenticator extends AbstractAccountAuthenticator {
 			result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
 			result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
 			result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-            result.putString("ck", am.getUserData(account, "ck"));
-            result.putString("avatar", am.getUserData(account, "avatar"));
-            result.putString("login", am.getUserData(account, "login"));
-            result.putString("channel", am.getUserData(account, "channel"));
 		} else {
 			final Intent intent = new Intent(context, LoginActivity.class);
 			intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
@@ -83,25 +79,22 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
 	@Override
 	public String getAuthTokenLabel(String p1) {
-		// TODO: Implement this method
 		return null;
 	}
 
 	@Override
 	public Bundle updateCredentials(AccountAuthenticatorResponse p1, Account p2, String p3, Bundle p4) throws NetworkErrorException {
-		// TODO: Implement this method
 		return null;
 	}
 
 	@Override
 	public Bundle hasFeatures(AccountAuthenticatorResponse p1, Account p2, String[] p3) throws NetworkErrorException {
-		// TODO: Implement this method
 		return null;
 	}
 
 	public static void getSession(final Activity activity, final OnResult onResult) {
 		final AccountManager am = AccountManager.get(activity);
-		Account[] accounts = am.getAccountsByType(ACCOUNT_TYPE);
+		final Account[] accounts = am.getAccountsByType(ACCOUNT_TYPE);
         if (accounts.length == 0) {
             am.addAccount(ACCOUNT_TYPE, TOKEN_FULL_ACCESS, null, null, activity,
                 new AccountManagerCallback<Bundle>() {
@@ -120,14 +113,11 @@ public class Authenticator extends AbstractAccountAuthenticator {
 							Bundle result = future.getResult();
 							Session session = new Session();
                             session.sid = result.getString(AccountManager.KEY_AUTHTOKEN);
-                            session.channel = result.getString("channel");
-                            session.ck = result.getString("ck");
-                            session.login = result.getString("login");
-                            session.avatar = result.getString("avatar");
-                            if(TextUtils.isEmpty(session.channel)) {
-                                am.invalidateAuthToken(ACCOUNT_TYPE, session.sid);
-                                getSession(activity, onResult);
-                            } else onResult.onAuthenticatorResult(session);
+                            session.channel = am.getUserData(accounts[0], "channel");
+                            session.ck = am.getUserData(accounts[0], "ck");
+                            session.login = am.getUserData(accounts[0], "login");
+                            session.avatar = am.getUserData(accounts[0], "avatar");
+                            onResult.onAuthenticatorResult(session);
                         } catch (Exception e) {
 							onResult.onAuthenticatorResult(null);
                         }

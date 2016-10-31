@@ -16,6 +16,7 @@ import org.json.JSONObject;
 public class NotificationService extends Service implements NotificationManager.OnNewNotification { 
     public static boolean running = false;
     private static String channel;
+    private static long lastChecking;
 
     @Override 
     public IBinder onBind(Intent intent) { 
@@ -25,7 +26,10 @@ public class NotificationService extends Service implements NotificationManager.
     String mailUser;
     @Override
     public void onNewNotification(JSONObject message) {
-        //android.util.Log.d("lol", message.toString());
+        if(System.currentTimeMillis() - lastChecking > 60 * 60 * 1000) {
+            lastChecking = System.currentTimeMillis();
+            Update.check(this);
+        }
         try {
 
             if (message.has("text")) {
@@ -103,12 +107,14 @@ public class NotificationService extends Service implements NotificationManager.
             } catch (Exception e) {
                 running = false;
             }
+            lastChecking = System.currentTimeMillis();
+            Update.check(this);
         }
     } 
 
     @Override 
     public void onDestroy() { 
-        android.util.Log.d("lol", "destroy");
+        
         running = false;
     } 
 }

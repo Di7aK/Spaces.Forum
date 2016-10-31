@@ -16,15 +16,19 @@ import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.api.Comm;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.fragments.CommFragment;
+import com.di7ak.spaces.forum.fragments.ForumsFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements Authenticator.OnResult {
+public class MainActivity extends AppCompatActivity implements 
+        Authenticator.OnResult,
+        ViewPager.OnPageChangeListener {
 
 	private Toolbar toolbar;
 	private TabLayout tabLayout;
 	private ViewPager viewPager;
-	private CommFragment myComm, popularComm;
+	private CommFragment myComm;
+    private ForumsFragment forumsFragment;
 	private Session session;
 
 	@Override
@@ -39,11 +43,27 @@ public class MainActivity extends AppCompatActivity implements Authenticator.OnR
 
 		viewPager = (ViewPager) findViewById(R.id.viewpager);
 		tabLayout = (TabLayout) findViewById(R.id.tabs);
+        
+        viewPager.setOnPageChangeListener(this);
 
 		Authenticator.getSession(this, this);
-
-
 	}
+    
+    @Override
+    public void onPageScrolled(int p1, float p2, int p3) {
+
+    }
+
+    @Override
+    public void onPageSelected(int page) {
+        if(page == 0) myComm.onSelected();
+        else forumsFragment.onSelected();
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int p1) {
+
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -71,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements Authenticator.OnR
 		else {
 			this.session = session;
 			myComm = new CommFragment(session, Comm.TYPE_MYCOMM);
-			popularComm = new CommFragment(session, Comm.TYPE_POPULAR);
+			forumsFragment = new ForumsFragment();
 			setupViewPager(viewPager);
 			tabLayout.setupWithViewPager(viewPager);
             if (!NotificationService.running) startService(new Intent(this, NotificationService.class));
@@ -85,8 +105,8 @@ public class MainActivity extends AppCompatActivity implements Authenticator.OnR
 
 	private void setupViewPager(ViewPager viewPager) {
 		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-		adapter.addFragment(myComm, "Мои Сообщества");
-		adapter.addFragment(popularComm, "Популярные");
+		adapter.addFragment(myComm, "Форумы сообществ");
+		adapter.addFragment(forumsFragment, "Общий форум");
 		viewPager.setAdapter(adapter);
 	}
 

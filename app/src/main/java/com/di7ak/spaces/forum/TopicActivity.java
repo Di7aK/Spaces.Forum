@@ -11,6 +11,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.TopicActivity;
@@ -34,6 +34,7 @@ import com.di7ak.spaces.forum.util.PicassoImageGetter;
 import com.di7ak.spaces.forum.widget.PictureAttach;
 import com.di7ak.spaces.forum.widget.ReplyWidget;
 import com.di7ak.spaces.forum.widget.VotingWidget;
+import com.rey.material.widget.Button;
 import com.rey.material.widget.FloatingActionButton;
 import com.rey.material.widget.ProgressView;
 import com.squareup.picasso.OkHttpDownloader;
@@ -43,7 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.rey.material.widget.Button;
 
 public class TopicActivity extends AppCompatActivity
 implements AppBarLayout.OnOffsetChangedListener, 
@@ -367,6 +367,7 @@ View.OnClickListener, NotificationManager.OnNewNotification {
         ((CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar)).setTitle(Html.fromHtml(topic.subject));
         ((TextView)findViewById(R.id.user_name)).setText(topic.user.name);
         TextView body = (TextView)findViewById(R.id.body);
+        body.setMovementMethod(LinkMovementMethod.getInstance());
         body.setText(Html.fromHtml(topic.body, new PicassoImageGetter(body, getResources(), picasso), null));
 
         picasso.load(topic.avatar.previewUrl.replace("41.40", "81.80"))
@@ -412,6 +413,7 @@ View.OnClickListener, NotificationManager.OnNewNotification {
             View v = li.inflate(R.layout.comment_item, null);
             ((TextView)v.findViewById(R.id.author)).setText(comment.user.name);
             TextView text = (TextView)v.findViewById(R.id.text);
+            text.setMovementMethod(LinkMovementMethod.getInstance());
             if(comment.text != null && !comment.text.equals("null")) {
                 text.setText(Html.fromHtml(comment.text, new PicassoImageGetter(text, getResources(), picasso), null));
             }

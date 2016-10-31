@@ -1,5 +1,6 @@
 package com.di7ak.spaces.forum.fragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -49,6 +50,22 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 		this.comm = comm;
 		this.type = type;
 	}
+    
+    
+    String forum;
+    public void setForum(String forum) {
+        this.forum = forum;
+        if(topicList != null) topicList.removeAllViews();
+        topics = new ArrayList<PreviewTopicData>();
+        currentPage = 1;
+        pages = 1;
+    }
+    
+    public void onSelected() {
+        if(topics.size() == 0) {
+            loadTopics();
+        }
+    }
 
 	@Override
 	public void onCreate(Bundle bundle) {
@@ -65,8 +82,7 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 		
 		scrollView.setOnScrollChangeListener(this);
 		
-		if (topics.size() == 0) loadTopics();
-		else showTopics(topics);
+		if (topics.size() != 0) showTopics(topics);
 		return v;
 	}
 	
@@ -96,10 +112,11 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 				@Override
 				public void run() {
 					try {
-						TopicListData result = Forum.getTopics(session, comm, currentPage, type);
+						TopicListData result = Forum.getTopics(session, comm, currentPage, type, forum);
 						topics.addAll(result.topics);
 						pages = result.pagination.lastPage;
                         currentPage = result.pagination.currentPage;
+                        android.util.Log.d("lol", "sort " + type + "pages " + pages);
 						showTopics(result.topics);
 						retryCount = 0;
 					} catch (SpacesException e) {

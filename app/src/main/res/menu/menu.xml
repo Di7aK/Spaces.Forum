@@ -3,7 +3,7 @@ xmlns:app="http://schemas.android.com/apk/res-auto" >
 <item
     android:id="@+id/journal"
     android:title="Журнал"
-    android:icon="@drawable/ic_forum_white_32dp"
+    android:icon="@drawable/ic_forum_white_48dp"
     android:showAsAction="always"
     app:showAsAction="always"/>  
 </menu>

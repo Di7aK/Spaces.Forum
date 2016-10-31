@@ -1,25 +1,32 @@
 package com.di7ak.spaces.forum.fragments;
 
-import android.view.*;
-import com.dexafree.materialList.card.*;
-import com.di7ak.spaces.forum.*;
-import com.di7ak.spaces.forum.api.*;
-import com.rey.material.widget.*;
-
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.dexafree.materialList.card.Card;
+import com.dexafree.materialList.card.CardProvider;
+import com.dexafree.materialList.listeners.RecyclerItemClickListener;
 import com.dexafree.materialList.view.MaterialListView;
-import java.util.List;
+import com.di7ak.spaces.forum.ForumActivity;
+import com.di7ak.spaces.forum.R;
+import com.di7ak.spaces.forum.api.Comm;
+import com.di7ak.spaces.forum.api.CommResult;
+import com.di7ak.spaces.forum.api.Session;
+import com.di7ak.spaces.forum.api.SpacesException;
+import com.rey.material.widget.ProgressView;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.ScaleInAnimator;
-import android.support.v7.widget.RecyclerView;
-import java.util.TimerTask;
-import com.dexafree.materialList.listeners.RecyclerItemClickListener;
-import android.support.annotation.NonNull;
-import android.content.Intent;
 
 public class CommFragment extends Fragment implements RecyclerItemClickListener.OnItemClickListener {
 	MaterialListView mListView;
@@ -38,6 +45,12 @@ public class CommFragment extends Fragment implements RecyclerItemClickListener.
 		this.session = session;
 		this.type = type;
 	}
+
+    public void onSelected() {
+        if (comms.size() == 0) {
+            loadComm();
+        }
+    }
 
 	@Override
 	public void onCreate(Bundle bundle) {
@@ -64,9 +77,7 @@ public class CommFragment extends Fragment implements RecyclerItemClickListener.
 				}
 			});
 		mListView.addOnItemTouchListener(this);
-
-		if (comms.size() == 0) loadComm();
-		else showComms(comms);
+		if (comms.size() != 0) showComms(comms);
 		return v;
 	}
 
@@ -82,6 +93,12 @@ public class CommFragment extends Fragment implements RecyclerItemClickListener.
 	public void onItemLongClick(@NonNull Card card, int position) {
 		//Log.d("LONG_CLICK", "" + card.getTag());
 	}
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (type == Comm.TYPE_MYCOMM) loadComm();
+    }
 
 	public void loadComm() {
 		bar = Snackbar.make(getActivity().getWindow().getDecorView(), "Получение списка", Snackbar.LENGTH_INDEFINITE);
