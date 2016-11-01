@@ -41,6 +41,7 @@ public class ForumActivity extends AppCompatActivity implements
 	private CommunityData comm;
     private Bundle args;
     private ViewPagerAdapter adapter;
+    String type;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,9 +70,16 @@ public class ForumActivity extends AppCompatActivity implements
     boolean forumChanged = false;
     @Override
     public void onForumChange(String id) {
+        if(!sortTabsAdded) {
+            addSortTabs();
+            tabLayout.setupWithViewPager(viewPager);
+        }
+        
         newTopics.setForum(id);
         lastTopics.setForum(id);
+        
         forumChanged = true;
+        
         //show new topics
         viewPager.setCurrentItem(adapter.getItemPosition(newTopics));
     }
@@ -139,16 +147,25 @@ public class ForumActivity extends AppCompatActivity implements
                 return;
             }
 			setTitle(comm.name);
-			
-            categoryFragment = new ForumCategoryFragment(session, comm.cid);
-			newTopics = new ForumFragment(session, comm, Forum.TYPE_NEW);
-			lastTopics = new ForumFragment(session, comm, Forum.TYPE_LAST);
-			blogsFragment = new BlogsFragment(session, comm.id, Blogs.TYPE_COMM);
-            
-			setupViewPager(viewPager);
-			tabLayout.setupWithViewPager(viewPager);
             
             args = extra.getBundle("args");
+			
+			adapter = new ViewPagerAdapter(getSupportFragmentManager());
+			if(comm.blogEnabled) {
+                blogsFragment = new BlogsFragment(session, comm.id, Blogs.TYPE_COMM);
+                adapter.addFragment(blogsFragment, "Блоги");
+            }
+
+            if(comm.forumEnabled) {
+                categoryFragment = new ForumCategoryFragment(session, comm.cid, comm.id != null);
+                adapter.addFragment(categoryFragment, "Разделы");
+            }
+            
+            if(comm.id != null) addSortTabs();
+            
+            viewPager.setAdapter(adapter);
+            
+			tabLayout.setupWithViewPager(viewPager);
             
             if(args != null) {
                 String tab = args.getString("tab");
@@ -158,23 +175,25 @@ public class ForumActivity extends AppCompatActivity implements
                     if(tab.equals("category")) item = adapter.getItemPosition(categoryFragment);
                     if(tab.equals("last")) item = adapter.getItemPosition(lastTopics);
                     if(tab.equals("blog")) item = adapter.getItemPosition(blogsFragment);
-                    if(item != -1) viewPager.setCurrentItem(item);
+                    if(item == -1) item = 0;
+                    if(item == 0) onPageSelected(item);
+                    viewPager.setCurrentItem(item);
                 }
             }
             
             categoryFragment.setOnForumChangeListener(this);
 		}
 	}
-	
-	private void setupViewPager(ViewPager viewPager) {
-		adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(blogsFragment, "Блоги");
-        adapter.addFragment(categoryFragment, "Разделы");
-		adapter.addFragment(newTopics, "Новые");
-		adapter.addFragment(lastTopics, "Последние");
-        
-		viewPager.setAdapter(adapter);
-	}
+    
+    boolean sortTabsAdded = false;
+    private void addSortTabs() {
+        newTopics = new ForumFragment(session, comm, Forum.TYPE_NEW);
+        lastTopics = new ForumFragment(session, comm, Forum.TYPE_LAST);
+        adapter.addFragment(newTopics, "Новые");
+        adapter.addFragment(lastTopics, "Последние");
+        adapter.notifyDataSetChanged();
+        sortTabsAdded = true;
+    }
 	
 	class ViewPagerAdapter extends FragmentPagerAdapter {
 		private final List<Fragment> mFragmentList = new ArrayList<>();

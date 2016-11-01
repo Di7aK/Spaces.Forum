@@ -96,10 +96,10 @@ public class PreviewBlogData {
                         data.author = commWidget.getString("name");
                     }
                 }
-                if(json.has("model")) {
-                    JSONObject model = json.getJSONObject("model");
-                    if(model.has("topic_id")) data.id = model.getString("topic_id");
-                }
+            }
+            if(json.has("model")) {
+                JSONObject model = json.getJSONObject("model");
+                if(model.has("topic_id")) data.id = model.getString("topic_id");
             }
         } catch(JSONException e) {
             throw new SpacesException(-2);

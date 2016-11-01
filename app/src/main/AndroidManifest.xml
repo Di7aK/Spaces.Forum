@@ -64,6 +64,22 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".BlogActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/topic" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="spaces.ru" />
+                <data android:pathPrefix="/diary/read"/>
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".ViewPageActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="Просмотр страницы" >

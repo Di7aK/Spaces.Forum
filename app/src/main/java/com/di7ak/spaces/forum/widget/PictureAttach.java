@@ -30,7 +30,10 @@ public class PictureAttach implements View.OnClickListener {
             float density = activity.getResources().getDisplayMetrics().density;
             int width = (int)(data.width * density);
             int height = (int)(data.height * density);
-            if(width == 0) width = LinearLayout.LayoutParams.WRAP_CONTENT;
+            if(width == 0) {
+                width = LinearLayout.LayoutParams.WRAP_CONTENT;
+                height = width;
+            }
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 width, height);
             view.setLayoutParams(layoutParams);

@@ -83,6 +83,7 @@ public class ForumsFragment extends Fragment implements RecyclerItemClickListene
             intent.putExtra("comm", json.toString());
             Bundle args = new Bundle();
             args.putString("tab", "category");
+            args.putString("type", "general");
             intent.putExtra("args", args);
             startActivity(intent);
         } catch (JSONException e) {}

@@ -1,8 +1,8 @@
 package com.di7ak.spaces.forum.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.text.Html;
@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.di7ak.spaces.forum.BlogActivity;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.api.AttachData;
 import com.di7ak.spaces.forum.api.BlogListData;
@@ -24,12 +25,12 @@ import com.di7ak.spaces.forum.util.PicassoImageGetter;
 import com.di7ak.spaces.forum.widget.PictureAttach;
 import com.di7ak.spaces.forum.widget.ProgressBar;
 import com.di7ak.spaces.forum.widget.VotingWidget;
-import com.rey.material.widget.ProgressView;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 import de.hdodenhof.circleimageview.CircleImageView;
 import java.util.ArrayList;
 import java.util.List;
+import com.rey.material.widget.Button;
 
     public class BlogsFragment extends Fragment implements NestedScrollView.OnScrollChangeListener,
     OnPageSelectedListener {
@@ -159,7 +160,7 @@ import java.util.List;
                         LayoutInflater li = getActivity().getLayoutInflater();
                         View v;
                         for (PreviewBlogData blog : blogs) {
-                            try {
+                            
                             v = li.inflate(R.layout.blog_item, null);
                             String[] date = blog.date.split("в ");
                             if (date.length == 2) {
@@ -200,25 +201,26 @@ import java.util.List;
                                 VotingWidget voting = new VotingWidget(session, getActivity(), blog.voting);
                                 widgetBlock.addView(voting.getView());
                             }
-                            /*
-
-                            View layout = v.findViewById(R.id.layout);
-                            layout.setTag(blog.id);
-                            layout.setOnClickListener(new View.OnClickListener() {
+                            
+                            LinearLayout buttonBlock = (LinearLayout)v.findViewById(R.id.buttons_block);
+                            
+                            View btnResponse = li.inflate(R.layout.btn_response, null);
+                            Button btnReply = (Button)btnResponse.findViewById(R.id.btn_reply);
+                            btnReply.setTag(blog.id);
+                            btnReply.setText("ПРОСМОТРЕТЬ");
+                            btnReply.setOnClickListener(new View.OnClickListener() {
 
                                     @Override
                                     public void onClick(View v) {
-                                        Intent intent = new Intent(getContext(), TopicActivity.class);
-                                        intent.putExtra("topic_id", (String)v.getTag());
+                                        Intent intent = new Intent(getContext(), BlogActivity.class);
+                                        intent.putExtra("blog_id", (String)v.getTag());
 
                                         startActivity(intent);
                                     }
                                 });
-                                */
+                            buttonBlock.addView(btnResponse);
+                            
                             blogsList.addView(v);
-                            } catch(Exception e) {
-                                android.util.Log.e("lol", "", e);
-                            }
                         }
 
                     }

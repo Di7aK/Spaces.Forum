@@ -27,14 +27,16 @@ public class ForumCategoryFragment extends Fragment implements OnPageSelectedLis
     List<ForumData> categoryList;
     Snackbar bar;
     String categoryId;
+    boolean comm;
     int retryCount = 0;
     int maxRetryCount = 2;
 
-    public ForumCategoryFragment(Session session, String categoryId) {
+    public ForumCategoryFragment(Session session, String categoryId, boolean comm) {
         super();
         categoryList = new ArrayList<ForumData>();
         this.session = session;
         this.categoryId = categoryId;
+        this.comm = comm;
     }
 
     boolean selected = false;
@@ -82,10 +84,12 @@ public class ForumCategoryFragment extends Fragment implements OnPageSelectedLis
                 public void run() {
                     try {
                         categoryList = Forum.getForums(session, categoryId);
-                        ForumData all = new ForumData();
-                        all.name = "Все";
-                        all.description = "Показать со всех разделов";
-                        categoryList.add(0, all);
+                        if(comm) {
+                            ForumData all = new ForumData();
+                            all.name = "Все разделы";
+                            all.description = "Показать со всех разделов";
+                            categoryList.add(0, all);
+                        }
                         showCategories(categoryList);
                         retryCount = 0;
                     } catch (SpacesException e) {
