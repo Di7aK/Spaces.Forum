@@ -26,7 +26,7 @@ public class BlogListData {
                     }
                 }
             }
-            if(json.has("pagnationWidget") && !json.isNull("paginationWidget")) {
+            if(json.has("paginationWidget") && !json.isNull("paginationWidget")) {
                 JSONObject paginationWidget = json.getJSONObject("paginationWidget");
                 data.pagination = PaginationData.fromJson(paginationWidget);
             } else {

@@ -13,7 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import com.di7ak.spaces.forum.R;
-import com.di7ak.spaces.forum.api.Comm;
+import com.di7ak.spaces.forum.api.Communities;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.fragments.CommFragment;
 import com.di7ak.spaces.forum.fragments.ForumsFragment;
@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements
 	private CommFragment myComm;
     private ForumsFragment forumsFragment;
 	private Session session;
+    private Bundle args;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements
 		if (session == null) finish();
 		else {
 			this.session = session;
-			myComm = new CommFragment(session, Comm.TYPE_MYCOMM);
+			myComm = new CommFragment(session, Communities.TYPE_MYCOMM);
 			forumsFragment = new ForumsFragment();
 			setupViewPager(viewPager);
 			tabLayout.setupWithViewPager(viewPager);
@@ -108,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements
 		adapter.addFragment(myComm, "Форумы сообществ");
 		adapter.addFragment(forumsFragment, "Общий форум");
 		viewPager.setAdapter(adapter);
+        myComm.onSelected();
 	}
 
 

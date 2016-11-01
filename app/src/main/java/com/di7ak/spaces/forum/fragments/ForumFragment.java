@@ -19,31 +19,32 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.TopicActivity;
-import com.di7ak.spaces.forum.api.Comm;
+import com.di7ak.spaces.forum.api.CommunityData;
 import com.di7ak.spaces.forum.api.Forum;
 import com.di7ak.spaces.forum.api.PreviewTopicData;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.api.TopicListData;
+import com.di7ak.spaces.forum.interfaces.OnPageSelectedListener;
 import com.rey.material.widget.ProgressView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ForumFragment extends Fragment implements NestedScrollView.OnScrollChangeListener {
+public class ForumFragment extends Fragment implements NestedScrollView.OnScrollChangeListener,
+        OnPageSelectedListener {
 	LinearLayout topicList;
-	//CardView cardView;
 	NestedScrollView scrollView;
 	Session session;
 	List<PreviewTopicData> topics;
 	Snackbar bar;
-	Comm comm;
+	CommunityData comm;
 	int currentPage = 1;
 	int pages = 1;
 	int type;
 	int retryCount = 0;
 	int maxRetryCount = 2;
 
-	public ForumFragment(Session session, Comm comm, int type) {
+	public ForumFragment(Session session, CommunityData comm, int type) {
 		super();
 		topics = new ArrayList<PreviewTopicData>();
 		this.session = session;
@@ -64,12 +65,15 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if(topics.size() == 0) {
+        if(selected && topics.size() == 0) {
             loadTopics();
         }
     }
     
+    boolean selected = false;
+    @Override
     public void onSelected() {
+        selected = true;
         if(getActivity() != null && topics.size() == 0) {
             loadTopics();
         }
@@ -120,12 +124,11 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 				@Override
 				public void run() {
 					try {
-						TopicListData result = Forum.getTopics(session, comm, currentPage, type, forum);
+						TopicListData result = Forum.getTopics(session, comm.cid, currentPage, type, forum);
 						topics.addAll(result.topics);
 						pages = result.pagination.lastPage;
                         currentPage = result.pagination.currentPage;
-                        android.util.Log.d("lol", "sort " + type + "pages " + pages);
-						showTopics(result.topics);
+                        showTopics(result.topics);
 						retryCount = 0;
 					} catch (SpacesException e) {
 						final String message = e.getMessage();

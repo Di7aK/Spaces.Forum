@@ -10,7 +10,7 @@ public class PreviewBlogData {
     public List<AttachData> attaches;
     public AttachData avatar;
     public VotingData voting;
-    public UserData user;
+    public String author;
     public String subject;
     public String header;
     public String date;
@@ -49,14 +49,14 @@ public class PreviewBlogData {
                         data.voting = new VotingData();
                         if(widgets.has("like")) {
                             JSONObject like = widgets.getJSONObject("like");
-                            if(like.has("URL")) data.voting.likeUrl = like.getString("URL");
+                            if(like.has("URL") && !like.isNull("URL")) data.voting.likeUrl = like.getString("URL");
                             if(like.has("count")) data.voting.likes = like.getInt("count");
                             if(like.has("oid")) data.voting.objectId = like.getInt("oid");
                             if(like.has("ot")) data.voting.objectType = like.getInt("ot");
                         }
                         if(widgets.has("dislike")) {
                             JSONObject dislike = widgets.getJSONObject("dislike");
-                            if(dislike.has("URL")) data.voting.dislikeUrl = dislike.getString("URL");
+                            if(dislike.has("URL") && !dislike.isNull("URL")) data.voting.dislikeUrl = dislike.getString("URL");
                             if(dislike.has("count")) data.voting.dislikes = dislike.getInt("count");
                             if(dislike.has("oid")) data.voting.objectId = dislike.getInt("oid");
                             if(dislike.has("ot")) data.voting.objectType = dislike.getInt("ot");
@@ -89,7 +89,11 @@ public class PreviewBlogData {
                     }
                     if(properties.has("userWidget")) {
                         JSONObject userWidget = properties.getJSONObject("userWidget");
-                        data.user = UserData.fromJson(userWidget);
+                        data.author = userWidget.getString("name");
+                    }
+                    if(properties.has("commWidget")) {
+                        JSONObject commWidget = properties.getJSONObject("commWidget");
+                        data.author = commWidget.getString("name");
                     }
                 }
                 if(json.has("model")) {

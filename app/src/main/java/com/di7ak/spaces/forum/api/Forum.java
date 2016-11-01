@@ -1,4 +1,5 @@
 package com.di7ak.spaces.forum.api;
+
 import java.util.ArrayList;
 import java.util.List;
 import android.net.Uri;
@@ -16,11 +17,11 @@ public class Forum {
 	public static final int TYPE_LAST = 5;
 	public static final int TYPE_POPULAR = 7;
 
-	public static TopicListData getTopics(Session session, Comm comm, int page, int type, String forum) throws SpacesException {
+	public static TopicListData getTopics(Session session, String categoryId, int page, int type, String forum) throws SpacesException {
 		StringBuilder url = new StringBuilder()
 			.append("http://spaces.ru/ajax/forums/");
             if(forum == null) {
-			    url.append("?com_cat_id=").append(comm.cid);
+			    url.append("?com_cat_id=").append(categoryId);
             } else {
                 url.append("?f=").append(forum);
             }

@@ -47,12 +47,15 @@ public PicassoImageGetter(final TextView textView, final Resources resources, fi
                 int h = (int)(bitmap.getHeight() * density);
                 BitmapDrawable drawable = new BitmapDrawable(resources, Bitmap.createScaledBitmap(bitmap, w, h, true));
                 
-                drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+                float height = drawable.getIntrinsicHeight();
+                float width = drawable.getIntrinsicWidth();
+                
+                drawable.setBounds(0, 0, (int)width, (int)height);
                 //drawable.setGravity(Gravity.CENTER_VERTICAL);
                 
                 result.setDrawable(drawable);
                 
-                result.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+                result.setBounds(0, 0, (int)width, (int)height);
 
                 textView.setText(textView.getText());
                 //textView.invalidate();//doesn't work correctly...

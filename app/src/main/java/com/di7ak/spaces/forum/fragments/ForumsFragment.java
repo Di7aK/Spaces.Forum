@@ -23,6 +23,8 @@ import com.rey.material.widget.ProgressView;
 import java.util.ArrayList;
 import java.util.List;
 import jp.wasabeef.recyclerview.animators.ScaleInAnimator;
+import org.json.JSONObject;
+import org.json.JSONException;
 
 public class ForumsFragment extends Fragment implements RecyclerItemClickListener.OnItemClickListener {
     MaterialListView mListView;
@@ -39,12 +41,12 @@ public class ForumsFragment extends Fragment implements RecyclerItemClickListene
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if(categories.size() == 0) {
+        if(selected && categories.size() == 0) {
             loadCategories();
-            
         }
     }
 
+    boolean selected;
     public void onSelected() {
         if (getActivity() != null && categories.size() == 0) {
             loadCategories();
@@ -74,9 +76,16 @@ public class ForumsFragment extends Fragment implements RecyclerItemClickListene
     public void onItemClick(@NonNull Card card, int position) {
         Intent intent = new Intent(getContext(), ForumActivity.class);
         intent.putExtra("name", categories.get(position).name);
-        Uri uri = Uri.parse(categories.get(position).url);
-        intent.putExtra("cid", uri.getQueryParameter("cid"));
-        startActivity(intent);
+        JSONObject json = new JSONObject();
+        try {
+            json.put("name", categories.get(position).name);
+            json.put("forum_url", categories.get(position).url);
+            intent.putExtra("comm", json.toString());
+            Bundle args = new Bundle();
+            args.putString("tab", "category");
+            intent.putExtra("args", args);
+            startActivity(intent);
+        } catch (JSONException e) {}
     }
 
     @Override
@@ -148,10 +157,10 @@ public class ForumsFragment extends Fragment implements RecyclerItemClickListene
                     for (ForumCategoryData data : categories) {
                         Card card = new Card.Builder(getContext())
                             .withProvider(new CardProvider())
-                            .setLayout(R.layout.comm_item)
+                            .setLayout(R.layout.category_item)
                             .setTitle(data.name)
                             .setDescription(data.description)
-                            .setDrawable(R.drawable.ic_forum_black_18dp)
+                            .setDrawable(R.drawable.ic_forum)
                             .endConfig()
                             .build();
 

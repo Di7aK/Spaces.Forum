@@ -1,6 +1,7 @@
 package com.di7ak.spaces.forum.fragments;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -11,35 +12,36 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
-import com.di7ak.spaces.forum.api.Comm;
 import com.di7ak.spaces.forum.api.Forum;
-import com.di7ak.spaces.forum.api.ForumCategoryData;
 import com.di7ak.spaces.forum.api.ForumData;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
+import com.di7ak.spaces.forum.interfaces.OnPageSelectedListener;
 import com.rey.material.widget.ProgressView;
 import java.util.ArrayList;
 import java.util.List;
-import android.net.Uri;
 
-public class ForumCategoryFragment extends Fragment {
+public class ForumCategoryFragment extends Fragment implements OnPageSelectedListener {
     LinearLayout catList;
     Session session;
     List<ForumData> categoryList;
     Snackbar bar;
-    Comm comm;
+    String categoryId;
     int retryCount = 0;
     int maxRetryCount = 2;
 
-    public ForumCategoryFragment(Session session, Comm comm) {
+    public ForumCategoryFragment(Session session, String categoryId) {
         super();
         categoryList = new ArrayList<ForumData>();
         this.session = session;
-        this.comm = comm;
+        this.categoryId = categoryId;
     }
 
+    boolean selected = false;
+    @Override
     public void onSelected() {
-        if(categoryList.size() == 0) {
+        selected = true;
+        if(getActivity() != null && categoryList.size() == 0) {
             loadCategories();
         }
     }
@@ -47,7 +49,7 @@ public class ForumCategoryFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        loadCategories();
+        if(selected && categoryList.size() == 0) loadCategories();
     }
 
     @Override
@@ -79,7 +81,7 @@ public class ForumCategoryFragment extends Fragment {
                 @Override
                 public void run() {
                     try {
-                        categoryList = Forum.getForums(session, comm.cid);
+                        categoryList = Forum.getForums(session, categoryId);
                         ForumData all = new ForumData();
                         all.name = "Все";
                         all.description = "Показать со всех разделов";

@@ -9,7 +9,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import com.di7ak.spaces.forum.api.Comm;
 import com.di7ak.spaces.forum.api.Forum;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.fragments.ForumFragment;

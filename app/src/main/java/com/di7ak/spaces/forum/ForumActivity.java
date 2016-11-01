@@ -1,5 +1,6 @@
 package com.di7ak.spaces.forum;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -8,18 +9,23 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import com.di7ak.spaces.forum.api.Comm;
+import android.view.View;
+import com.di7ak.spaces.forum.api.Blogs;
+import com.di7ak.spaces.forum.api.CommunityData;
 import com.di7ak.spaces.forum.api.Forum;
 import com.di7ak.spaces.forum.api.Session;
+import com.di7ak.spaces.forum.api.SpacesException;
+import com.di7ak.spaces.forum.fragments.BlogsFragment;
 import com.di7ak.spaces.forum.fragments.ForumCategoryFragment;
 import com.di7ak.spaces.forum.fragments.ForumFragment;
 import java.util.ArrayList;
 import java.util.List;
-import android.content.Intent;
+import org.json.JSONException;
+import org.json.JSONObject;
+import com.di7ak.spaces.forum.interfaces.OnPageSelectedListener;
 
 public class ForumActivity extends AppCompatActivity implements 
         Authenticator.OnResult,
@@ -30,10 +36,11 @@ public class ForumActivity extends AppCompatActivity implements
 	private ViewPager viewPager;
 	private ForumFragment newTopics, lastTopics;
     private ForumCategoryFragment categoryFragment;
+    private BlogsFragment blogsFragment;
 	private Session session;
-	private Comm comm;
-    private int activeTab;
-    private int defaultPage;
+	private CommunityData comm;
+    private Bundle args;
+    private ViewPagerAdapter adapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,31 +66,34 @@ public class ForumActivity extends AppCompatActivity implements
 		Authenticator.getSession(this, this);
 	}
     
+    boolean forumChanged = false;
     @Override
     public void onForumChange(String id) {
         newTopics.setForum(id);
         lastTopics.setForum(id);
-        
-        viewPager.setCurrentItem(1);
+        forumChanged = true;
+        //show new topics
+        viewPager.setCurrentItem(adapter.getItemPosition(newTopics));
+    }
+    
+    @Override
+    public void onBackPressed() {
+        if(forumChanged) {
+            forumChanged = false;
+            //show forums
+            viewPager.setCurrentItem(adapter.getItemPosition(categoryFragment));
+        } else finish();
     }
     
     @Override
     public void onPageScrolled(int p1, float p2, int p3) {
 
     }
-    
-    @Override
-    public void onBackPressed() {
-        if(activeTab == 0 || defaultPage != 0) finish();
-        else viewPager.setCurrentItem(0);
-        //super.onBackPressed();
-    }
 
     @Override
     public void onPageSelected(int page) {
-        if(page == 1) newTopics.onSelected();
-        else if(page == 2) lastTopics.onSelected();
-        activeTab = page;
+        OnPageSelectedListener listener = (OnPageSelectedListener)adapter.getItem(page);
+        listener.onSelected();
     }
 
     @Override
@@ -93,7 +103,6 @@ public class ForumActivity extends AppCompatActivity implements
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case R.id.journal:
                 Intent intent = new Intent(ForumActivity.this, JournalActivity.class);
@@ -118,29 +127,53 @@ public class ForumActivity extends AppCompatActivity implements
 			this.session = session;
 			
 			Bundle extra = getIntent().getExtras();
-			comm = new Comm();
-			comm.cid = extra.getString("cid");
-			comm.name = extra.getString("name");
-            defaultPage = extra.getInt("default_page");
+			String commData = extra.getString("comm");
+			try {
+                JSONObject json = new JSONObject(commData);
+                comm = new CommunityData(json);
+            } catch (SpacesException e) {
+                finish();
+                return;
+            } catch (JSONException e) {
+                finish();
+                return;
+            }
 			setTitle(comm.name);
 			
-            categoryFragment = new ForumCategoryFragment(session, comm);
-            categoryFragment.setOnForumChangeListener(this);
+            categoryFragment = new ForumCategoryFragment(session, comm.cid);
 			newTopics = new ForumFragment(session, comm, Forum.TYPE_NEW);
 			lastTopics = new ForumFragment(session, comm, Forum.TYPE_LAST);
-			
+			blogsFragment = new BlogsFragment(session, comm.id, Blogs.TYPE_COMM);
+            
 			setupViewPager(viewPager);
 			tabLayout.setupWithViewPager(viewPager);
+            
+            args = extra.getBundle("args");
+            
+            if(args != null) {
+                String tab = args.getString("tab");
+                if(tab != null) {
+                    int item = 0;
+                    if(tab.equals("new")) item = adapter.getItemPosition(newTopics);
+                    if(tab.equals("category")) item = adapter.getItemPosition(categoryFragment);
+                    if(tab.equals("last")) item = adapter.getItemPosition(lastTopics);
+                    if(tab.equals("blog")) item = adapter.getItemPosition(blogsFragment);
+                    if(item != -1) viewPager.setCurrentItem(item);
+                }
+            }
+            
+            categoryFragment.setOnForumChangeListener(this);
 		}
 	}
 	
 	private void setupViewPager(ViewPager viewPager) {
-		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+		adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(blogsFragment, "Блоги");
         adapter.addFragment(categoryFragment, "Разделы");
 		adapter.addFragment(newTopics, "Новые");
 		adapter.addFragment(lastTopics, "Последние");
+        
 		viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(defaultPage);
 	}
 	
 	class ViewPagerAdapter extends FragmentPagerAdapter {
@@ -150,6 +183,11 @@ public class ForumActivity extends AppCompatActivity implements
 		public ViewPagerAdapter(FragmentManager manager) {
 			super(manager);
 		}
+        
+        @Override
+        public int getItemPosition(Object item) {
+            return mFragmentList.indexOf(item);
+        }
 		
 		@Override
 		public Fragment getItem(int position) {
