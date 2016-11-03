@@ -2,6 +2,7 @@ package com.di7ak.spaces.forum.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
@@ -25,12 +26,12 @@ import com.di7ak.spaces.forum.util.PicassoImageGetter;
 import com.di7ak.spaces.forum.widget.PictureAttach;
 import com.di7ak.spaces.forum.widget.ProgressBar;
 import com.di7ak.spaces.forum.widget.VotingWidget;
+import com.rey.material.widget.Button;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 import de.hdodenhof.circleimageview.CircleImageView;
 import java.util.ArrayList;
 import java.util.List;
-import com.rey.material.widget.Button;
 
     public class BlogsFragment extends Fragment implements NestedScrollView.OnScrollChangeListener,
     OnPageSelectedListener {
@@ -213,7 +214,7 @@ import com.rey.material.widget.Button;
                                     @Override
                                     public void onClick(View v) {
                                         Intent intent = new Intent(getContext(), BlogActivity.class);
-                                        intent.putExtra("blog_id", (String)v.getTag());
+                                        intent.setData(Uri.parse("http://spaces.ru/diary/read/?id=" + (String)v.getTag()));
 
                                         startActivity(intent);
                                     }
