@@ -18,6 +18,7 @@ import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.util.PicassoImageGetter;
 import com.di7ak.spaces.forum.widget.AvatarView;
+import com.di7ak.spaces.forum.widget.CommentsView;
 import com.di7ak.spaces.forum.widget.PictureAttachmentsView;
 import com.di7ak.spaces.forum.widget.ProgressBar;
 import com.di7ak.spaces.forum.widget.VotingView;
@@ -28,9 +29,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class BlogActivity extends AppCompatActivity
-implements AppBarLayout.OnOffsetChangedListener, 
-Authenticator.OnResult,
-RequestListener {
+        implements AppBarLayout.OnOffsetChangedListener, 
+        Authenticator.OnResult,
+        RequestListener {
     private static final int PERCENTAGE_TO_SHOW_IMAGE = 20;
     private View author;
     private int mMaxScrollSize;
@@ -45,6 +46,7 @@ RequestListener {
     private AvatarView mAvatar;
     private VotingView mVoting;
     private PictureAttachmentsView mPictureAttachments;
+    private CommentsView mComments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +55,11 @@ RequestListener {
 
         author = findViewById(R.id.author);
         mAuthor = (TextView)findViewById(R.id.user_name);
-        mText = (TextView)findViewById(R.id.body);
+        mText = (TextView)findViewById(R.id.text);
         mAvatar = (AvatarView)findViewById(R.id.avatar);
         mVoting = (VotingView)findViewById(R.id.voting);
         mPictureAttachments = (PictureAttachmentsView)findViewById(R.id.picture_attachments);
+        mComments = (CommentsView) findViewById(R.id.comments);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -105,6 +108,10 @@ RequestListener {
             if (json.has("actionBar")) {
                 JSONObject actionBar = json.getJSONObject("actionBar");
                 setupActionBar(actionBar);
+            }
+            if (json.has("commentsBlock")) {
+                JSONObject commentsBlock = json.getJSONObject("commentsBlock");
+                mComments.setupData(commentsBlock, picasso, session);
             }
         } catch (JSONException e) {
 

@@ -19,6 +19,8 @@ public class VotingView extends LinearLayout implements View.OnClickListener {
     TextView dislikes;
     ImageView imageLike;
     ImageView imageDislike;
+    String likeUrl;
+    String dislikeUrl;
     boolean isLike;
     boolean isDislike;
     boolean lastLike;
@@ -51,16 +53,37 @@ public class VotingView extends LinearLayout implements View.OnClickListener {
         try {
             if (data.has("like")) {
                 JSONObject like = data.getJSONObject("like");
-                isLike = !(like.has("URL") && !like.isNull("URL"));
+                if (like.has("URL") && !like.isNull("URL")) {
+                    likeUrl = like.getString("URL");
+                    if(likeUrl.equals("null")) likeUrl = null;
+                }
                 if (like.has("count")) likesCount = like.getInt("count");
                 if (like.has("oid")) oid = like.getInt("oid");
                 if (like.has("ot")) ot = like.getInt("ot");
             }
             if (data.has("dislike")) {
                 JSONObject dislike = data.getJSONObject("dislike");
-                isDislike = !(dislike.has("URL") && !dislike.isNull("URL"));
+                if(dislike.has("URL") && !dislike.isNull("URL")) {
+                    dislikeUrl = dislike.getString("URL");
+                    if(dislikeUrl.equals("null")) dislikeUrl = null;
+                }
                 if (dislike.has("count")) dislikesCount = dislike.getInt("count");
             }
+            if (data.has("likes_count")) likesCount = data.getInt("likes_count");
+            if (data.has("dislikes_count")) dislikesCount = data.getInt("dislikes_count");
+            if (data.has("ot")) ot = data.getInt("ot");
+            if (data.has("oid")) oid = data.getInt("oid");
+            if (data.has("like_URL") && !data.isNull("likeURL")) {
+                likeUrl = data.getString("like_URL");
+                if(likeUrl.equals("null")) likeUrl = null;
+            }
+            if (data.has("dislike_URL") && !data.isNull("dislikeURL")) {
+                dislikeUrl = data.getString("dislike_URL");
+                if(dislikeUrl.equals("null")) dislikeUrl = null;
+            }
+            
+            isLike = likeUrl == null;
+            isDislike = dislikeUrl == null;
         } catch (JSONException e) {
 
         }

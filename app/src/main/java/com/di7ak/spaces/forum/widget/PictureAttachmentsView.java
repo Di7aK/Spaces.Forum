@@ -20,11 +20,9 @@ public class PictureAttachmentsView extends LinearLayout {
         this.mContext = context;
         LayoutInflater li = LayoutInflater.from(context);
 
-        View view = li.inflate(R.layout.pictures_attachments, null);
+        View view = li.inflate(R.layout.pictures_attachments, this, true);
 
         mAttachBlock = (android.widget.LinearLayout)view.findViewById(R.id.attach_block);
-
-        addView(view);
     }
 
     public void setupData(JSONArray data, Picasso picasso) {

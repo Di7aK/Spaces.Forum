@@ -95,7 +95,7 @@
                         android:layout_height="wrap_content" />
 
                     <TextView
-                        android:id="@+id/body"
+                        android:id="@+id/text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-light"
@@ -119,6 +119,11 @@
                 </LinearLayout>
 
             </android.support.v7.widget.CardView>
+            
+            <com.di7ak.spaces.forum.widget.CommentsView
+                android:id="@+id/comments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
