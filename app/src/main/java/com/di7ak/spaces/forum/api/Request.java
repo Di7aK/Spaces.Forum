@@ -64,7 +64,7 @@ public class Request extends AsyncTask<Void, Void, String> {
     
     public void executeWithListener(RequestListener listener) {
         mListener = listener;
-        execute();
+        executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
 }

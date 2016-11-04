@@ -186,7 +186,7 @@ import java.util.List;
 
                             LinearLayout attachBlock = (LinearLayout)v.findViewById(R.id.attach_block);
                             for (AttachData attach : blog.attaches) {
-                                if (attach == null) return;
+                                if (attach == null || attach.fileext == null) continue;
                                 if (attach.fileext.equals("jpg") || attach.fileext.equals("png")) {
                                     attachesNames.add(attach.filename);
                                     attachesUrls.add(attach.downloadLink);
@@ -214,7 +214,7 @@ import java.util.List;
                                     @Override
                                     public void onClick(View v) {
                                         Intent intent = new Intent(getContext(), BlogActivity.class);
-                                        intent.setData(Uri.parse("http://spaces.ru/diary/read/?id=" + (String)v.getTag()));
+                                        intent.setData(Uri.parse("http://spaces.ru/diary/read/?id=" + (String)v.getTag() + "&sid=" + session.sid));
 
                                         startActivity(intent);
                                     }

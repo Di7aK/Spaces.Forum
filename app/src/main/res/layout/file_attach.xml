@@ -1,0 +1,91 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="5dp"
+    android:gravity="center_vertical">
+
+    <com.rey.material.widget.FloatingActionButton
+        android:id="@+id/fab_load"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:v_styleId="@array/fab_load"/>
+
+    <LinearLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:orientation="vertical">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="16dp"
+            android:id="@+id/filename" />
+
+        <com.rey.material.widget.ProgressView
+            android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_gravity="center"
+            app:v_styleId="@array/pv_linear_query"/>
+
+        <RelativeLayout 
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="16dp"
+                android:id="@+id/filesize" />
+
+            <LinearLayout
+                android:id="@+id/progress_state"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="#ffffff"
+                android:visibility="gone"
+                android:orientation="horizontal">
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16dp"
+                    android:layout_weight="0"
+                    android:gravity="left|center_vertical"
+                    android:id="@+id/downloaded" />
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:textSize="16dp"
+                    android:gravity="left|center_vertical"
+                    android:id="@+id/total" />
+                
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+                
+                <com.rey.material.widget.CheckBox
+                    android:id="@+id/open_on_finished"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:text="открыть"
+                    android:checked="false"
+                    android:gravity="right|center_vertical"
+                    app:v_styleId="@array/checkbox"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

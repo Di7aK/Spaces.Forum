@@ -52,11 +52,75 @@
 		<item name="android:textSize">18sp</item>
 		<item name="android:textColor">@color/colorPrimaryDark</item>
 	</style>
+    
+    <style name="LightCheckBoxDrawable" parent="Material.Drawable.CheckBox">
+        <item name="android:textAppearance">@style/Base.TextAppearance.AppCompat.Body1</item>
+        <item name="android:textColor">#FF000000</item>
+    </style>
+    
+    <array name="checkbox">
+        <item>@style/LightCheckBoxDrawable</item>
+    </array>
+    
+    <array name="pv_linear_buffer">
+        <item>@style/LightBufferLinearProgressView</item>
+    </array>
+    
+
+    <array name="pv_linear_query">
+        <item>@style/LightQueryLinearProgressView</item>
+    </array>
+    
+
+    <style name="LightLinearProgressDrawable" parent="Material.Drawable.LinearProgress">
+        <item name="lpd_strokeColor">@color/colorPrimary</item>
+        <item name="lpd_strokeSecondaryColor">@android:color/transparent</item>
+    </style>
+
+    <style name="LightColorLinearProgressDrawable" parent="LightLinearProgressDrawable">
+        <item name="lpd_strokeColors">@array/progress_colors_light</item>
+    </style>
+
+    <style name="LightDeterminateLinearProgressDrawable" parent="Material.Drawable.LinearProgress.Determinate">
+        <item name="lpd_strokeColor">@color/colorPrimary</item>
+        <item name="lpd_strokeSecondaryColor">@color/colorPrimaryQuarter</item>
+    </style>
+
+    <style name="LightBufferLinearProgressDrawable" parent="LightDeterminateLinearProgressDrawable">
+        <item name="lpd_travelDuration">400</item>
+        <item name="lpd_transformDuration">400</item>
+        <item name="lpd_keepDuration">100</item>
+    </style>
+
+    <style name="LightLinearProgressView">
+        <item name="pv_autostart">false</item>
+        <item name="pv_circular">false</item>
+        <item name="pv_progressStyle">@style/LightLinearProgressDrawable</item>
+        <item name="pv_progressMode">indeterminate</item>
+    </style>
+
+    <style name="LightColorLinearProgressView" parent="LightLinearProgressView">
+        <item name="pv_progressStyle">@style/LightColorLinearProgressDrawable</item>
+    </style>
+
+    <style name="LightDeterminateLinearProgressView" parent="LightLinearProgressView">
+        <item name="pv_progressStyle">@style/LightDeterminateLinearProgressDrawable</item>
+        <item name="pv_progressMode">determinate</item>
+    </style>
+
+    <style name="LightQueryLinearProgressView" parent="LightLinearProgressView">
+        <item name="pv_progressStyle">@style/LightDeterminateLinearProgressDrawable</item>
+        <item name="pv_progressMode">query</item>
+    </style>
+
+    <style name="LightBufferLinearProgressView" parent="LightLinearProgressView">
+        <item name="pv_progressStyle">@style/LightBufferLinearProgressDrawable</item>
+        <item name="pv_progressMode">buffer</item>
+    </style>
 
     <array name="button_flat_color">
         <item>@style/LightFlatColorButtonRippleStyle</item>
     </array>
-	
     
     <style name="LightFlatColorButtonRippleStyle" parent="Material.Drawable.Ripple.Touch.Light">
         <item name="android:background">@null</item>
@@ -155,6 +219,30 @@
         <item name="pv_progressStyle">@style/LightDeterminateInCircularProgressDrawable</item>
     </style>
     
+    <array name="fab_load">
+        <item>@style/LightFABLoad</item>
+    </array>
+    
+    <style name="LightFloatingActionButtonLoadIcon" >
+        <item name="lmd_state">@xml/fab_load</item>
+        <item name="lmd_curState">0</item>
+        <item name="lmd_padding">2dp</item>
+        <item name="lmd_animDuration">400</item>
+        <item name="lmd_interpolator">@android:anim/accelerate_decelerate_interpolator</item>
+        <item name="lmd_strokeSize">3dp</item>
+        <item name="lmd_strokeColor">#FFFFFFFF</item>
+        <item name="lmd_strokeCap">butt</item>
+        <item name="lmd_strokeJoin">miter</item>
+        <item name="lmd_clockwise">true</item>
+    </style>
+
+    <style name="LightFABLoad" parent="Material.Widget.FloatingActionButton.Light">
+        <item name="rd_rippleColor">#33000000</item>
+        <item name="fab_backgroundColor">@color/colorPrimary</item>
+        <item name="fab_iconLineMorphing">@style/LightFloatingActionButtonLoadIcon</item>
+        <item name="fab_elevation">0dp</item>
+    </style>
+    
     <array name="fab_line">
         <item>@style/LightFABLine</item>
     </array>
@@ -177,6 +265,8 @@
         <item name="fab_backgroundColor">@color/colorPrimary</item>
         <item name="fab_iconLineMorphing">@style/LightFloatingActionButtonIcon</item>
     </style>
+    
+    
     
     <array name="fab_send">
         <item>@style/LightFABSend</item>

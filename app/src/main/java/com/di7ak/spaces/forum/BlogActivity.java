@@ -3,6 +3,7 @@ package com.di7ak.spaces.forum;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -20,6 +21,7 @@ import com.di7ak.spaces.forum.util.PicassoImageGetter;
 import com.di7ak.spaces.forum.widget.AvatarView;
 import com.di7ak.spaces.forum.widget.CommentsView;
 import com.di7ak.spaces.forum.widget.PictureAttachmentsView;
+import com.di7ak.spaces.forum.widget.FileAttachmentsView;
 import com.di7ak.spaces.forum.widget.ProgressBar;
 import com.di7ak.spaces.forum.widget.VotingView;
 import com.squareup.picasso.OkHttpDownloader;
@@ -33,9 +35,12 @@ public class BlogActivity extends AppCompatActivity
         Authenticator.OnResult,
         RequestListener {
     private static final int PERCENTAGE_TO_SHOW_IMAGE = 20;
+    
+    private CollapsingToolbarLayout mCollapsingToolbar;
     private View author;
     private int mMaxScrollSize;
     private boolean mIsImageHidden;
+    private AppBarLayout appbar;
     private Session session;
     private JSONObject blog;
     private Uri uri;
@@ -46,6 +51,8 @@ public class BlogActivity extends AppCompatActivity
     private AvatarView mAvatar;
     private VotingView mVoting;
     private PictureAttachmentsView mPictureAttachments;
+    private FileAttachmentsView mFileAttachments;
+    private FileAttachmentsView mAudioAttachments;
     private CommentsView mComments;
 
     @Override
@@ -59,7 +66,10 @@ public class BlogActivity extends AppCompatActivity
         mAvatar = (AvatarView)findViewById(R.id.avatar);
         mVoting = (VotingView)findViewById(R.id.voting);
         mPictureAttachments = (PictureAttachmentsView)findViewById(R.id.picture_attachments);
+        mFileAttachments = (FileAttachmentsView)findViewById(R.id.file_attachments);
+        mAudioAttachments = (FileAttachmentsView)findViewById(R.id.audio_attachments);
         mComments = (CommentsView) findViewById(R.id.comments);
+        mCollapsingToolbar = (CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -68,7 +78,7 @@ public class BlogActivity extends AppCompatActivity
                 }
             });
 
-        AppBarLayout appbar = (AppBarLayout) findViewById(R.id.appbar);
+        appbar = (AppBarLayout) findViewById(R.id.appbar);
         appbar.addOnOffsetChangedListener(this);
 
         picasso = new Picasso.Builder(this) 
@@ -140,7 +150,7 @@ public class BlogActivity extends AppCompatActivity
                 JSONObject topicModel = data.getJSONObject("topicModel");
                 if (topicModel.has("header")) {
                     String title = topicModel.getString("header");
-                    if (!TextUtils.isEmpty(title)) setTitle(title);
+                    if (!TextUtils.isEmpty(title)) mCollapsingToolbar.setTitle(title);
                 }
             }
             //text
@@ -161,12 +171,24 @@ public class BlogActivity extends AppCompatActivity
                 JSONObject avatar = data.getJSONObject("avatar");
                 mAvatar.setupData(avatar, picasso);
             }
-            //attachments
+            //main attachments
             if (data.has("MainAttachWidget")) {
                 JSONObject mainAttachWidgets = data.getJSONObject("MainAttachWidget");
                 if (mainAttachWidgets.has("pictureWidgets")) {
                     JSONArray pictureWidgets = mainAttachWidgets.getJSONArray("pictureWidgets");
                     mPictureAttachments.setupData(pictureWidgets, picasso);
+                }
+            }
+            //attachments
+            if (data.has("attachWidget")) {
+                JSONObject mainAttachWidgets = data.getJSONObject("attachWidget");
+                if (mainAttachWidgets.has("attachWidgets")) {
+                    JSONArray attachWidgets = mainAttachWidgets.getJSONArray("attachWidgets");
+                    mFileAttachments.setupData(attachWidgets);
+                }
+                if (mainAttachWidgets.has("musicInlineWidget")) {
+                    JSONArray attachWidgets = mainAttachWidgets.getJSONArray("musicInlineWidget");
+                    mAudioAttachments.setupData(attachWidgets);
                 }
             }
         } catch (JSONException e) {

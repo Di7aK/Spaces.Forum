@@ -60,8 +60,12 @@
             android:id="@+id/attachments"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical" />
+            android:gravity="center_horizontal"/>
+        
+        <com.di7ak.spaces.forum.widget.FileAttachmentsView
+            android:id="@+id/file_attachments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
         
         <LinearLayout
             android:id="@+id/bottom_block"

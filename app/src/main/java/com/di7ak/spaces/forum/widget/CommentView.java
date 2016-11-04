@@ -25,6 +25,7 @@ public class CommentView extends LinearLayout {
     private TextView mDate;
     private TextView mTime;
     private PictureAttachmentsView mPictureAttachments;
+    private FileAttachmentsView mFileAttachments;
     private AvatarView mAvatar;
     private VotingView mVoting;
     private int mCommentId;
@@ -41,6 +42,7 @@ public class CommentView extends LinearLayout {
         mTime = (TextView)view.findViewById(R.id.time);
         mAvatar = (AvatarView)view.findViewById(R.id.avatar);
         mPictureAttachments = (PictureAttachmentsView)view.findViewById(R.id.attachments);
+        mFileAttachments = (FileAttachmentsView)view.findViewById(R.id.file_attachments);
         mVoting = (VotingView)view.findViewById(R.id.voting);
         
         mText.setMovementMethod(LinkMovementMethod.getInstance());
@@ -53,6 +55,10 @@ public class CommentView extends LinearLayout {
                 if (attaches.has("tile_items")) {
                     JSONArray items = attaches.getJSONArray("tile_items");
                     mPictureAttachments.setupData(items, picasso);
+                }
+                if (attaches.has("list_items")) {
+                    JSONArray items = attaches.getJSONArray("list_items");
+                    mFileAttachments.setupData(items);
                 }
             }
             if (data.has("avatar") && !data.isNull("avatar")) {

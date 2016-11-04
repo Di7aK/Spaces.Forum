@@ -73,11 +73,11 @@ public class VotingView extends LinearLayout implements View.OnClickListener {
             if (data.has("dislikes_count")) dislikesCount = data.getInt("dislikes_count");
             if (data.has("ot")) ot = data.getInt("ot");
             if (data.has("oid")) oid = data.getInt("oid");
-            if (data.has("like_URL") && !data.isNull("likeURL")) {
+            if (data.has("like_URL") && !data.isNull("like_URL")) {
                 likeUrl = data.getString("like_URL");
                 if(likeUrl.equals("null")) likeUrl = null;
             }
-            if (data.has("dislike_URL") && !data.isNull("dislikeURL")) {
+            if (data.has("dislike_URL") && !data.isNull("dislike_URL")) {
                 dislikeUrl = data.getString("dislike_URL");
                 if(dislikeUrl.equals("null")) dislikeUrl = null;
             }
