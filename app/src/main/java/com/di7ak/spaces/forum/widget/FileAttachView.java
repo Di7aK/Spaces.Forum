@@ -34,6 +34,8 @@ DownloadManager.DownloadListener {
     private static final int STATE_CANCELL= 2;
     private static final int STATE_ERROR = 3;
     private static final int STATE_OK = 4;
+    
+    private static final String[] SIZES = {"б", "Кб", "Мб", "Гб", "Тб"};
 
     private static HashMap<String, String> urls = new HashMap<String, String>();
     private Context mContext;
@@ -104,7 +106,7 @@ DownloadManager.DownloadListener {
                     if (DownloadManager.isDownload(downloadUrl)) {
                         mProgress.setProgress(0f);
                         mProgress.start();
-                        mFabLoad.setLineMorphingState(STATE_CANCELL, true);
+                        showDownloadState();
                         DownloadManager.appendListener(downloadUrl, this);
                     }
                 }
@@ -226,10 +228,26 @@ DownloadManager.DownloadListener {
 
     @Override
     public void onProgress(int downloaded, int total) {
-        mDownloaded.setText(Integer.toString(downloaded / 1024) + "кб/");
-        mTotal.setText(Integer.toString(total / 1024) + "кб");
+        if(mFabLoad.getLineMorphingState() != STATE_CANCELL) {
+            mFabLoad.setLineMorphingState(STATE_CANCELL, true);
+        }
+        mDownloaded.setText(getSize((double)downloaded, 0)+ "/");
+        mTotal.setText(getSize((double)total, 0));
         float width = 1f / total * downloaded;
         mProgress.setProgress(width);
+    }
+    
+    private static String getSize(double size, int multipier) {
+        if(size > 1023 && multipier < 2) {
+            size = size / 1024;
+            multipier ++;
+            return getSize(size, multipier);
+        }
+        return Double.toString(round(size, 2)) + " " + SIZES[multipier];
+    }
+    
+    public static double round(double value, int scale) {
+        return Math.round(value * Math.pow(10, scale)) / Math.pow(10, scale);
     }
 
     @Override
