@@ -2,6 +2,7 @@ package com.di7ak.spaces.forum.widget;
 
 import android.content.Context;
 import android.text.Html;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,12 +23,13 @@ public class CommentView extends LinearLayout {
     private Context mContext;
     private TextView mAuthor;
     private TextView mText;
-    private TextView mDate;
+    //private TextView mDate;
     private TextView mTime;
     private PictureAttachmentsView mPictureAttachments;
     private FileAttachmentsView mFileAttachments;
     private AvatarView mAvatar;
     private VotingView mVoting;
+    private String mDate = "";
     private int mCommentId;
     private int mCommentType;
 
@@ -38,7 +40,7 @@ public class CommentView extends LinearLayout {
         View view = inflater.inflate(R.layout.comment, this, true);
         mAuthor = (TextView)view.findViewById(R.id.author);
         mText = (TextView)view.findViewById(R.id.text);
-        mDate = (TextView)view.findViewById(R.id.date);
+        //mDate = (TextView)view.findViewById(R.id.date);
         mTime = (TextView)view.findViewById(R.id.time);
         mAvatar = (AvatarView)view.findViewById(R.id.avatar);
         mPictureAttachments = (PictureAttachmentsView)view.findViewById(R.id.attachments);
@@ -46,6 +48,15 @@ public class CommentView extends LinearLayout {
         mVoting = (VotingView)view.findViewById(R.id.voting);
         
         mText.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+    
+    public int getCommentId() {
+        return mCommentId;
+    }
+    
+    public String getCommentDate() {
+        if(TextUtils.isEmpty(mDate)) return "Сегодня";
+        return mDate;
     }
 
     public void setupData(JSONObject data, Picasso picasso, Session session) {
@@ -69,7 +80,7 @@ public class CommentView extends LinearLayout {
             if (data.has("date")) {
                 String[] date = data.getString("date").split("в ");
                 if (date.length == 2) {
-                    mDate.setText(date[0].trim());
+                    mDate = date[0].trim();
                     mTime.setText(date[1].trim());
                 } else {
                     mTime.setText(date[0].trim());

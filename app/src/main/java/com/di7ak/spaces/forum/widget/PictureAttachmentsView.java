@@ -80,4 +80,6 @@ public class PictureAttachmentsView extends LinearLayout {
 
         }
     }
+    
+    
 }

@@ -4,7 +4,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -37,7 +39,6 @@ public class BlogActivity extends AppCompatActivity
     private static final int PERCENTAGE_TO_SHOW_IMAGE = 20;
     
     private CollapsingToolbarLayout mCollapsingToolbar;
-    private View author;
     private int mMaxScrollSize;
     private boolean mIsImageHidden;
     private AppBarLayout appbar;
@@ -54,13 +55,18 @@ public class BlogActivity extends AppCompatActivity
     private FileAttachmentsView mFileAttachments;
     private FileAttachmentsView mAudioAttachments;
     private CommentsView mComments;
+    private View mHead;
+    private View mBody;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.blog);
 
-        author = findViewById(R.id.author);
+        mHead = findViewById(R.id.head);
+        mHead.setVisibility(View.INVISIBLE);
+        mBody = findViewById(R.id.body);
+        mBody.setVisibility(View.INVISIBLE);
         mAuthor = (TextView)findViewById(R.id.user_name);
         mText = (TextView)findViewById(R.id.text);
         mAvatar = (AvatarView)findViewById(R.id.avatar);
@@ -80,6 +86,10 @@ public class BlogActivity extends AppCompatActivity
 
         appbar = (AppBarLayout) findViewById(R.id.appbar);
         appbar.addOnOffsetChangedListener(this);
+        
+        
+        
+        ((NestedScrollView)findViewById(R.id.nested_scroll_view)).setOnScrollChangeListener(mComments);
 
         picasso = new Picasso.Builder(this) 
             .downloader(new OkHttpDownloader(this, Settings.CACHE_SIZE)) 
@@ -198,6 +208,10 @@ public class BlogActivity extends AppCompatActivity
         } catch (JSONException e) {
 
         }
+        mHead.setVisibility(View.VISIBLE);
+        mBody.setVisibility(View.VISIBLE);
+        ViewCompat.animate(mBody).alphaBy(0).alpha(1).start();
+        ViewCompat.animate(mHead).alphaBy(0).alpha(1).start();
     }
 
     public void setupActionBar(JSONObject data) {
@@ -210,36 +224,6 @@ public class BlogActivity extends AppCompatActivity
 
         }
     }
-    /*
-     public void showBlog() {
-     ((CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar)).setTitle(Html.fromHtml(blog.header));
-     ((TextView)findViewById(R.id.user_name)).setText(blog.username);
-     TextView body = (TextView)findViewById(R.id.body);
-     body.setMovementMethod(LinkMovementMethod.getInstance());
-     body.setText(Html.fromHtml(blog.subject, new PicassoImageGetter(body, getResources(), picasso), null));
-
-     picasso.load(blog.avatar.previewUrl.replace("41.40", "81.80"))
-     .into((CircleImageView)findViewById(R.id.user_avatar));
-
-     LinearLayout attachBlock = (LinearLayout)findViewById(R.id.attach_block);
-     for(AttachData attach : blog.attaches) {
-     if(attach == null || attach.fileext == null) return;
-     if(attach.fileext.equals("jpg") || attach.fileext.equals("png")) {
-     int index = attachesNames.size() - 1;
-     PictureAttach widget = new PictureAttach(attach, attachesNames, attachesUrls, index, this, picasso);
-     attachBlock.addView(widget.getView());
-     }
-
-     }
-
-     LinearLayout widgets = (LinearLayout)findViewById(R.id.widgets);
-
-     VotingWidget voting = new VotingWidget(session, BlogActivity.this, blog.voting);
-     widgets.addView(voting.getView());
-
-     ViewCompat.animate(author).translationY(0).alpha(1).start();
-     ViewCompat.animate(content).translationY(0).alpha(1).start();
-     }*/
 
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
@@ -253,14 +237,14 @@ public class BlogActivity extends AppCompatActivity
             if (!mIsImageHidden) {
                 mIsImageHidden = true;
 
-                ViewCompat.animate(author).translationY(-300).start();
+                //ViewCompat.animate(author).translationY(-300).start();
             }
         }
 
         if (currentScrollPercentage < PERCENTAGE_TO_SHOW_IMAGE) {
             if (mIsImageHidden) {
                 mIsImageHidden = false;
-                ViewCompat.animate(author).translationY(0).start();
+                //ViewCompat.animate(author).translationY(0).start();
             }
         }
     }

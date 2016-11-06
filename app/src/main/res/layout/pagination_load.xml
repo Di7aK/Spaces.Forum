@@ -1,0 +1,23 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.rey.material.widget.ProgressView
+        android:id="@+id/pagination_load_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_centerInParent="true"
+        app:v_styleId="@array/pv_linear_color"/>
+    
+    <com.rey.material.widget.Button
+        android:id="@+id/btn_more"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ЗАГРУЗИТЬ ЕЩЕ"
+        android:background="@null"
+        android:layout_centerInParent="true"
+        app:v_styleId="@array/button_flat_color"/>
+
+</RelativeLayout>
