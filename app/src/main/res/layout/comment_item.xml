@@ -59,8 +59,9 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
-            android:lineSpacingExtra="8dp"
 			android:text="text" />
+        
+        
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -84,6 +85,13 @@
             </HorizontalScrollView>
 
         </LinearLayout>
+        
+        <com.di7ak.spaces.forum.widget.FileAttachmentsView
+                        android:id="@+id/file_attachments"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                    
+                    
         
         <LinearLayout
             android:id="@+id/bottom_block"

@@ -43,7 +43,7 @@ public class Update {
                             } catch (Exception e) {}
                         }
                         if (latestVersion > versionCode) {
-                            Intent intent = new Intent(context, ViewPageActivity.class);
+                            Intent intent = new Intent(context, TopicActivity.class);
                             intent.setAction(Intent.ACTION_VIEW);
                             intent.setData(Uri.parse(url));
                             PendingIntent pintent = PendingIntent.getActivity(context,

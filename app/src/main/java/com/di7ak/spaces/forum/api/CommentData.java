@@ -25,6 +25,7 @@ public class CommentData {
     public boolean userFemale;
     public VotingData voting;
     public List<AttachData> attaches;
+    public JSONArray fileAttachments;
     
     public static CommentData fromJson(JSONObject json) throws SpacesException {
         CommentData result = new CommentData();
@@ -37,6 +38,11 @@ public class CommentData {
                     for(int i = 0; i < items.length(); i ++) {
                         result.attaches.add(AttachData.fromJson(items.getJSONObject(i)));
                     }
+                }
+                
+                if (attaches.has("list_items")) {
+                    result.fileAttachments = attaches.getJSONArray("list_items");
+                    
                 }
             }
             if(json.has("admin")) {

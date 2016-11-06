@@ -31,6 +31,7 @@ import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.api.TopicData;
 import com.di7ak.spaces.forum.util.PicassoImageGetter;
+import com.di7ak.spaces.forum.widget.FileAttachmentsView;
 import com.di7ak.spaces.forum.widget.PictureAttach;
 import com.di7ak.spaces.forum.widget.ReplyWidget;
 import com.di7ak.spaces.forum.widget.VotingWidget;
@@ -68,6 +69,8 @@ View.OnClickListener, NotificationManager.OnNewNotification {
     FloatingActionButton btnSend;
     boolean showing = false;
     String replyId = null;
+    FileAttachmentsView fileAttaches;
+    FileAttachmentsView musicAttaches;
     
     List<String> attachesNames;
     List<String> attachesUrls;
@@ -83,6 +86,8 @@ View.OnClickListener, NotificationManager.OnNewNotification {
         btnSend.setOnClickListener(this);
         commentBox = (EditText)findViewById(R.id.comment);
         fab = (FloatingActionButton)findViewById(R.id.fab);
+        fileAttaches = (FileAttachmentsView)findViewById(R.id.file_attachments);
+        musicAttaches = (FileAttachmentsView)findViewById(R.id.audio_attachments);
         commentBlock = findViewById(R.id.comment_block);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -364,12 +369,27 @@ View.OnClickListener, NotificationManager.OnNewNotification {
 	}
 
     public void showTopic() {
+
+        author.setVisibility(View.VISIBLE);
+        content.setVisibility(View.VISIBLE);
+        commentBlock.setVisibility(View.VISIBLE);
+        fab.setVisibility(View.VISIBLE);
+        ViewCompat.animate(author).translationY(0).alpha(1).start();
+        ViewCompat.animate(content).translationY(0).alpha(1).start();
         ((CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar)).setTitle(Html.fromHtml(topic.subject));
         ((TextView)findViewById(R.id.user_name)).setText(topic.user.name);
         TextView body = (TextView)findViewById(R.id.body);
         body.setMovementMethod(LinkMovementMethod.getInstance());
         body.setText(Html.fromHtml(topic.body, new PicassoImageGetter(body, getResources(), picasso), null));
-
+        try {if(topic.attachWidgets != null && topic.attachWidgets.length() > 0) {
+            fileAttaches.setupData(topic.attachWidgets);
+        }
+        if(topic.musicAttachWidgets != null && topic.musicAttachWidgets.length() > 0) {
+            musicAttaches.setupData(topic.musicAttachWidgets);
+        }
+        } catch(Exception e) {
+            android.util.Log.e("lol", "", e);
+        }
         picasso.load(topic.avatar.previewUrl.replace("41.40", "81.80"))
             .into((CircleImageView)findViewById(R.id.user_avatar));
         
@@ -391,12 +411,6 @@ View.OnClickListener, NotificationManager.OnNewNotification {
         VotingWidget voting = new VotingWidget(session, TopicActivity.this, topic.voting);
         widgets.addView(voting.getView());
             
-        author.setVisibility(View.VISIBLE);
-        content.setVisibility(View.VISIBLE);
-        commentBlock.setVisibility(View.VISIBLE);
-        fab.setVisibility(View.VISIBLE);
-        ViewCompat.animate(author).translationY(0).alpha(1).start();
-        ViewCompat.animate(content).translationY(0).alpha(1).start();
     }
 
     View decoration = null;
@@ -426,6 +440,9 @@ View.OnClickListener, NotificationManager.OnNewNotification {
             }
             
             //attaches
+            if(comment.fileAttachments != null) {
+                ((FileAttachmentsView)v.findViewById(R.id.file_attachments)).setupData(comment.fileAttachments);
+            }
             LinearLayout attachBlock = (LinearLayout)v.findViewById(R.id.attach_block);
             for(AttachData attach : comment.attaches) {
                 if(attach == null) return;

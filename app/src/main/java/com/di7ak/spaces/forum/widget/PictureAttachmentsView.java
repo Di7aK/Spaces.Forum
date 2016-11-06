@@ -32,37 +32,48 @@ public class PictureAttachmentsView extends LinearLayout {
                 if (attach.has("attach")) {
                     attach = attach.getJSONObject("attach");
                 }
-                if(attach.has("preview")) {
-                    float density = mContext.getResources().getDisplayMetrics().density;
-                    
-                    ImageView imageView = new ImageView(mContext);
-                    LinearLayout.LayoutParams lParams = new LinearLayout.LayoutParams(
+                if (attach.has("preview")) {
+                    JSONObject preview = attach.getJSONObject("preview");
+                    if (preview.has("player")) {
+                        VideoAttachmentView view = new VideoAttachmentView(mContext);
+                        view.setupData(attach, picasso);
+                        mAttachBlock.addView(view);
+                    } else {
+                        float density = mContext.getResources().getDisplayMetrics().density;
+
+                        ImageView imageView = new ImageView(mContext);
+                        LinearLayout.LayoutParams lParams = new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT);
-                    imageView.setLayoutParams(lParams);
-                    int padding = (int)(5 * density);
-                    imageView.setPadding(padding, padding, padding, padding);
-                    
-                    JSONObject preview = attach.getJSONObject("preview");
-                    if(preview.has("previewURL")) {
-                        String url = preview.getString("previewURL");
-                        picasso.load(url).placeholder(R.color.placeholder).into(imageView);
+                        imageView.setLayoutParams(lParams);
+                        int padding = (int)(5 * density);
+                        imageView.setPadding(padding, padding, padding, padding);
+
+
+                        if (preview.has("previewURL")) {
+                            String url = preview.getString("previewURL");
+                            picasso.load(url).placeholder(R.color.placeholder).into(imageView);
+                        }
+                        if (preview.has("size")) {
+                            JSONObject size = preview.getJSONObject("size");
+                            int width = 0, height = 0;
+                            if (size.has("width")) {
+                                width = (int)(size.getInt("width") * density);
+                            }
+                            if (size.has("height")) {
+                                height = (int)(size.getInt("height") * density);
+                            }
+                            if (width != 0 && height != 0) {
+                                lParams = new LinearLayout.LayoutParams(width, height);
+                                imageView.setLayoutParams(lParams);
+                            }
+                        }
+                        mAttachBlock.addView(imageView);
                     }
-                    if(preview.has("size")) {
-                        JSONObject size = preview.getJSONObject("size");
-                        int width = 0, height = 0;
-                        if(size.has("width")) {
-                            width = (int)(size.getInt("width") * density);
-                        }
-                        if(size.has("height")) {
-                            height = (int)(size.getInt("height") * density);
-                        }
-                        if(width != 0 && height != 0) {
-                            lParams = new LinearLayout.LayoutParams(width, height);
-                            imageView.setLayoutParams(lParams);
-                        }
-                    }
-                    mAttachBlock.addView(imageView);
+                } else if (attach.has("player")) {
+                    VideoAttachmentView view = new VideoAttachmentView(mContext);
+                    view.setupData(attach, picasso);
+                    mAttachBlock.addView(view);
                 }
             }
         } catch (JSONException e) {

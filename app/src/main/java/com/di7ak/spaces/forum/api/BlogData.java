@@ -27,6 +27,10 @@ public class BlogData {
     public boolean commentFormEnabled;
     
     private JSONObject source;
+    
+    public JSONArray mainAttachWidgets;
+    public JSONArray attachWidgets;
+    public JSONArray musicAttachWidgets;
 
     public BlogData(JSONObject json) throws SpacesException {
         source = json;
@@ -47,6 +51,7 @@ public class BlogData {
                             JSONObject mainAttachWidgets = topicWidget.getJSONObject("MainAttachWidget");
                             if (mainAttachWidgets.has("attachWidgets")) {
                                 JSONArray attachWidgets = mainAttachWidgets.getJSONArray("attachWidgets");
+                                this.mainAttachWidgets = attachWidgets;
                                 for (int i = 0; i < attachWidgets.length(); i ++) {
                                     JSONObject attach = attachWidgets.getJSONObject(i);
                                     if(attach.has("attach")) {
@@ -70,7 +75,8 @@ public class BlogData {
                             JSONObject mainAttachWidgets = topicWidget.getJSONObject("attachWidget");
                             
                             if (mainAttachWidgets.has("attachWidgets")) {
-                                JSONArray attachWidgets = mainAttachWidgets.getJSONArray("attachWidgets");
+                                attachWidgets = mainAttachWidgets.getJSONArray("attachWidgets");
+                                
                                 for (int i = 0; i < attachWidgets.length(); i ++) {
                                     JSONObject attach = attachWidgets.getJSONObject(i);
                                     if(attach.has("attach")) {
@@ -79,8 +85,9 @@ public class BlogData {
                                     attaches.add(AttachData.fromJson(attach));
                                 }
                             }
-                            if (mainAttachWidgets.has("musicFullWidget")) {
-                                JSONArray attachWidgets = mainAttachWidgets.getJSONArray("musicFullWidget");
+                            if (mainAttachWidgets.has("musicInlineWidgets")) {
+                                JSONArray attachWidgets = mainAttachWidgets.getJSONArray("musicInlineWidget");
+                                musicAttachWidgets = attachWidgets;
                                 for (int i = 0; i < attachWidgets.length(); i ++) {
                                     JSONObject attach = attachWidgets.getJSONObject(i);
                                     if(attach.has("attach")) {

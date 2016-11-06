@@ -23,6 +23,9 @@ public class TopicData {
     public String id;
     public int commentsCnt;
     public boolean commentFormEnabled;
+    
+    public JSONArray attachWidgets;
+    public JSONArray musicAttachWidgets;
 
     public static TopicData fromJson(JSONObject json) throws SpacesException {
         TopicData result = new TopicData();
@@ -53,7 +56,20 @@ public class TopicData {
                         if (topicWidget.has("attachWidgets")) {
 
                             JSONObject mainAttachWidgets = topicWidget.getJSONObject("attachWidgets");
-                            //android.util.Log.d("lol", "glob " + mainAttachWidgets.toString());
+                            if (mainAttachWidgets.has("attachWidgets")) {
+                                result.attachWidgets = mainAttachWidgets.getJSONArray("attachWidgets");
+
+                                for (int i = 0; i < result.attachWidgets.length(); i ++) {
+                                    JSONObject attach = result.attachWidgets.getJSONObject(i);
+                                    if(attach.has("attach")) {
+                                        attach = attach.getJSONObject("attach");
+                                    }
+                                    result.attaches.add(AttachData.fromJson(attach));
+                                }
+                            }
+                            if (mainAttachWidgets.has("musicInlineWidget")) {
+                                result.musicAttachWidgets = mainAttachWidgets.getJSONArray("musicInlineWidget");
+                            }
                         }
                         if (topicWidget.has("mainAttachWidgets")) {
                             
@@ -62,6 +78,7 @@ public class TopicData {
                             
                             if (mainAttachWidgets.has("attachWidgets")) {
                                 JSONArray attachWidgets = mainAttachWidgets.getJSONArray("attachWidgets");
+                                
                                 for (int i = 0; i < attachWidgets.length(); i ++) {
                                     JSONObject attach = attachWidgets.getJSONObject(i);
                                     if(attach.has("attach")) {
@@ -69,6 +86,9 @@ public class TopicData {
                                     }
                                     result.attaches.add(AttachData.fromJson(attach));
                                 }
+                            }
+                            if (mainAttachWidgets.has("musicInlineWidget")) {
+                                result.musicAttachWidgets = mainAttachWidgets.getJSONArray("musicInlineWidget");
                             }
                             if (mainAttachWidgets.has("pictureWidgets")) {
                                 JSONArray attachWidgets = mainAttachWidgets.getJSONArray("pictureWidgets");

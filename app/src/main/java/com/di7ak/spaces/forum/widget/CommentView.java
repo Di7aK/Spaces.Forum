@@ -84,7 +84,7 @@ public class CommentView extends LinearLayout {
                     ((android.widget.LinearLayout)findViewById(R.id.comment_block_right)).addView(reply, 1);
                 }
             }
-            if (data.has("text")) {
+            if (data.has("text") && !data.isNull("text")) {
                 String text = data.getString("text");
                 mText.setText(Html.fromHtml(text, new PicassoImageGetter(mText, mContext.getResources(), picasso), null));
             }

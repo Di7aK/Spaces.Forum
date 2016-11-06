@@ -132,10 +132,21 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-light"
-                        android:lineSpacingExtra="8dp"
+                        
                         android:textSize="20sp"
                         android:text="текст"
                     />
+                
+                <com.di7ak.spaces.forum.widget.FileAttachmentsView
+                        android:id="@+id/file_attachments"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                    
+                    <com.di7ak.spaces.forum.widget.FileAttachmentsView
+                        android:id="@+id/audio_attachments"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                    
                 
                     <LinearLayout
                         android:id="@+id/widgets"

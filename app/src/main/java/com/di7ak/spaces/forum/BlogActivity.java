@@ -20,8 +20,8 @@ import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.util.PicassoImageGetter;
 import com.di7ak.spaces.forum.widget.AvatarView;
 import com.di7ak.spaces.forum.widget.CommentsView;
-import com.di7ak.spaces.forum.widget.PictureAttachmentsView;
 import com.di7ak.spaces.forum.widget.FileAttachmentsView;
+import com.di7ak.spaces.forum.widget.PictureAttachmentsView;
 import com.di7ak.spaces.forum.widget.ProgressBar;
 import com.di7ak.spaces.forum.widget.VotingView;
 import com.squareup.picasso.OkHttpDownloader;
@@ -171,15 +171,19 @@ public class BlogActivity extends AppCompatActivity
                 JSONObject avatar = data.getJSONObject("avatar");
                 mAvatar.setupData(avatar, picasso);
             }
-            //main attachments
+            //header attachments
             if (data.has("MainAttachWidget")) {
                 JSONObject mainAttachWidgets = data.getJSONObject("MainAttachWidget");
                 if (mainAttachWidgets.has("pictureWidgets")) {
                     JSONArray pictureWidgets = mainAttachWidgets.getJSONArray("pictureWidgets");
                     mPictureAttachments.setupData(pictureWidgets, picasso);
                 }
+                if (mainAttachWidgets.has("attachWidgets")) {
+                    JSONArray pictureWidgets = mainAttachWidgets.getJSONArray("attachWidgets");
+                    mPictureAttachments.setupData(pictureWidgets, picasso);
+                }
             }
-            //attachments
+            //footer attachments
             if (data.has("attachWidget")) {
                 JSONObject mainAttachWidgets = data.getJSONObject("attachWidget");
                 if (mainAttachWidgets.has("attachWidgets")) {
