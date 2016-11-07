@@ -62,6 +62,11 @@
         <item>@style/LightCheckBoxDrawable</item>
     </array>
     
+
+    <array name="pv_circular_determinate_in">
+        <item>@style/LightDeterminateInCircularProgressView</item>
+    </array>
+    
     <array name="pv_linear_color">
         <item>@style/LightColorLinearProgressView</item>
     </array>

@@ -28,6 +28,16 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".GalleryActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="Просмотр" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.NONE" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".ViewerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/forum" >

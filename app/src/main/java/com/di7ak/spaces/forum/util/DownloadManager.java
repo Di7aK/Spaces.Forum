@@ -33,7 +33,7 @@ public class DownloadManager {
     public static File downloadsDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     private static HttpClient mHttpClient;
 
-    public static void download(final String url, DownloadListener listener) {
+    public static void download(final String url, DownloadListener listener, final File customFile) {
         downloads.put(url, new ArrayList<DownloadListener>());
         downloads.get(url).add(listener);
         AsyncTask<String, Integer, File> task = new  AsyncTask<String, Integer, File>() {
@@ -42,7 +42,7 @@ public class DownloadManager {
                 try {
                     String fileName = URLUtil.guessFileName(urls[0], null, null);
 
-                    File file = new File(downloadsDirectory, fileName.replaceAll("-spaces.ru", ""));
+                    File file = customFile == null ? new File(downloadsDirectory, fileName.replaceAll("-spaces.ru", "")) : customFile;
 
                     HttpClient client = getHttpClient();
                     HttpGet request = new HttpGet(urls[0]);

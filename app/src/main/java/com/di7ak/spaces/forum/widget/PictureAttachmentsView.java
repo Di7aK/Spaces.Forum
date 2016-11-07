@@ -1,19 +1,23 @@
 package com.di7ak.spaces.forum.widget;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import com.di7ak.spaces.forum.GalleryActivity;
 import com.di7ak.spaces.forum.R;
 import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PictureAttachmentsView extends LinearLayout {
+public class PictureAttachmentsView extends LinearLayout implements View.OnClickListener {
     private android.widget.LinearLayout mAttachBlock;
     private Context mContext;
+    private JSONObject mSource;
+    private JSONArray mAttachments;
 
     public PictureAttachmentsView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -23,6 +27,12 @@ public class PictureAttachmentsView extends LinearLayout {
         View view = li.inflate(R.layout.pictures_attachments, this, true);
 
         mAttachBlock = (android.widget.LinearLayout)view.findViewById(R.id.attach_block);
+        
+        mSource = new JSONObject();
+        mAttachments = new JSONArray();
+        try {
+            mSource.put("attachments", mAttachments);
+        } catch (JSONException e) {}
     }
 
     public void setupData(JSONArray data, Picasso picasso) {
@@ -32,6 +42,7 @@ public class PictureAttachmentsView extends LinearLayout {
                 if (attach.has("attach")) {
                     attach = attach.getJSONObject("attach");
                 }
+                mAttachments.put(attach);
                 if (attach.has("preview")) {
                     JSONObject preview = attach.getJSONObject("preview");
                     if (preview.has("player")) {
@@ -68,6 +79,9 @@ public class PictureAttachmentsView extends LinearLayout {
                                 imageView.setLayoutParams(lParams);
                             }
                         }
+                        imageView.setTag(mAttachments.length() - 1);
+                        imageView.setOnClickListener(this);
+                        
                         mAttachBlock.addView(imageView);
                     }
                 } else if (attach.has("player")) {
@@ -81,5 +95,11 @@ public class PictureAttachmentsView extends LinearLayout {
         }
     }
     
-    
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent(mContext, GalleryActivity.class);
+        intent.putExtra("attachments", mSource.toString());
+        intent.putExtra("current", (Integer)v.getTag());
+        mContext.startActivity(intent);
+    }
 }

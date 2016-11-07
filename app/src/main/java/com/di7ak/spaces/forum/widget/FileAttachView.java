@@ -215,7 +215,7 @@ DownloadManager.DownloadListener {
 
     private void startDownload() {
         mFabLoad.setLineMorphingState(STATE_CANCELL, true);
-        DownloadManager.download(mDownloadUrl, this);
+        DownloadManager.download(mDownloadUrl, this, null);
         urls.put(mNid, mDownloadUrl);
         onProgress(0, 0);
         showDownloadState();

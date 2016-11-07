@@ -8,8 +8,8 @@ android {
         applicationId "com.di7ak.spaces.forum"
         minSdkVersion 11
         targetSdkVersion 21
-        versionCode 35
-        versionName "0.3.4 mamku ebal"
+        versionCode 36
+        versionName "0.3.6 mamku ebal"
     }
     buildTypes {
         release {
@@ -28,5 +28,6 @@ dependencies {
 	compile 'jp.wasabeef:recyclerview-animators:2.2.4'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.daimajia.slider:library:1.1.5@aar'
-	compile project(':material')
+    compile project(':material')
+    compile project(':library')
 }
