@@ -17,7 +17,7 @@
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            app:title="Блог"
+            app:title=""
             app:expandedTitleGravity="bottom|center_horizontal"
             app:expandedTitleMarginBottom="96dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
@@ -141,5 +141,11 @@
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
+    
+    <com.di7ak.spaces.forum.widget.AddCommentView
+        android:id="@+id/comment_panel"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_gravity="bottom"/>
 
 </android.support.design.widget.CoordinatorLayout>

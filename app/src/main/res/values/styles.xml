@@ -297,6 +297,30 @@
         <item name="fab_elevation">0dp</item>
     </style>
     
+    <array name="fab_send_comment">
+        <item>@style/LightFABSendComment</item>
+    </array>
+    
+    <style name="LightFloatingActionButtonSendCommentIcon" >
+        <item name="lmd_state">@xml/fab_send_comment</item>
+        <item name="lmd_curState">0</item>
+        <item name="lmd_padding">2dp</item>
+        <item name="lmd_animDuration">400</item>
+        <item name="lmd_interpolator">@android:anim/accelerate_decelerate_interpolator</item>
+        <item name="lmd_strokeSize">3dp</item>
+        <item name="lmd_strokeColor">#FFFFFFFF</item>
+        <item name="lmd_strokeCap">butt</item>
+        <item name="lmd_strokeJoin">miter</item>
+        <item name="lmd_clockwise">true</item>
+    </style>
+
+    <style name="LightFABSendComment" parent="Material.Widget.FloatingActionButton.Light">
+        <item name="rd_rippleColor">#33000000</item>
+        <item name="fab_backgroundColor">@android:color/transparent</item>
+        <item name="fab_iconLineMorphing">@style/LightFloatingActionButtonSendCommentIcon</item>
+        <item name="fab_elevation">0dp</item>
+    </style>
+    
     <array name="fab_line">
         <item>@style/LightFABLine</item>
     </array>
@@ -341,8 +365,9 @@
 
     <style name="LightFABSend" parent="Material.Widget.FloatingActionButton.Light">
         <item name="rd_rippleColor">#33000000</item>
-        <item name="fab_backgroundColor">@color/colorPrimary</item>
+        <item name="fab_backgroundColor">@android:color/transparent</item>
         <item name="fab_iconLineMorphing">@style/LightFloatingActionButtonIconSend</item>
+        <item name="fab_elevation">0dp</item>
     </style>
 	
 	<array name="button_raise_wave_color">

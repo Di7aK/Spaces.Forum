@@ -19,7 +19,7 @@ public class Animations {
         @Override
         protected void applyTransformation(float interpolatedTime, Transformation t) {
             v.getLayoutParams().height = interpolatedTime == 1
-                    ? LayoutParams.WRAP_CONTENT
+                ? targetHeight
                     : (int)(targetHeight * interpolatedTime);
             v.requestLayout();
         }
@@ -61,5 +61,7 @@ public static void collapse(final View v, int duration) {
     a.setDuration(duration);
     v.startAnimation(a);
 }
+
+
 	
 }

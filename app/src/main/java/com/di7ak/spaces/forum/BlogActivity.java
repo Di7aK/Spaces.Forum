@@ -4,7 +4,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +19,7 @@ import com.di7ak.spaces.forum.api.RequestListener;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.util.PicassoImageGetter;
+import com.di7ak.spaces.forum.widget.AddCommentView;
 import com.di7ak.spaces.forum.widget.AvatarView;
 import com.di7ak.spaces.forum.widget.CommentsView;
 import com.di7ak.spaces.forum.widget.FileAttachmentsView;
@@ -57,6 +57,7 @@ public class BlogActivity extends AppCompatActivity
     private CommentsView mComments;
     private View mHead;
     private View mBody;
+    private AddCommentView mCommentPanel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +76,9 @@ public class BlogActivity extends AppCompatActivity
         mFileAttachments = (FileAttachmentsView)findViewById(R.id.file_attachments);
         mAudioAttachments = (FileAttachmentsView)findViewById(R.id.audio_attachments);
         mComments = (CommentsView) findViewById(R.id.comments);
+        mCommentPanel = (AddCommentView) findViewById(R.id.comment_panel);
+        mCommentPanel.setVisibility(View.INVISIBLE);
+        mComments.setCommentPanel(mCommentPanel);
         mCollapsingToolbar = (CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -104,6 +108,7 @@ public class BlogActivity extends AppCompatActivity
         if (session == null) finish();
         else {
             this.session = session;
+            mCommentPanel.setSession(session);
 
             uri = getIntent().getData();
             if (uri == null) {
@@ -132,10 +137,23 @@ public class BlogActivity extends AppCompatActivity
             if (json.has("commentsBlock")) {
                 JSONObject commentsBlock = json.getJSONObject("commentsBlock");
                 mComments.setupData(commentsBlock, picasso, session);
+                mComments.setUrl(uri.toString());
             }
         } catch (JSONException e) {
 
         }
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        Application.notificationManager.removeListener(mComments);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Application.notificationManager.addListener(mComments);
     }
 
     public void onError(SpacesException e) {
@@ -210,8 +228,10 @@ public class BlogActivity extends AppCompatActivity
         }
         mHead.setVisibility(View.VISIBLE);
         mBody.setVisibility(View.VISIBLE);
+        mCommentPanel.setVisibility(View.VISIBLE);
         ViewCompat.animate(mBody).alphaBy(0).alpha(1).start();
         ViewCompat.animate(mHead).alphaBy(0).alpha(1).start();
+        ViewCompat.animate(mCommentPanel).alphaBy(0).alpha(1).start();
     }
 
     public void setupActionBar(JSONObject data) {

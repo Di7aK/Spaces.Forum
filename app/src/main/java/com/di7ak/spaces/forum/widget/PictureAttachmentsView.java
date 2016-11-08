@@ -2,12 +2,14 @@ package com.di7ak.spaces.forum.widget;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import com.di7ak.spaces.forum.GalleryActivity;
 import com.di7ak.spaces.forum.R;
+import com.di7ak.spaces.forum.util.ImageDownloader;
 import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,7 +65,12 @@ public class PictureAttachmentsView extends LinearLayout implements View.OnClick
 
                         if (preview.has("previewURL")) {
                             String url = preview.getString("previewURL");
-                            picasso.load(url).placeholder(R.color.placeholder).into(imageView);
+                            Uri uri = Uri.parse(url);
+                            String query = uri.getQuery();
+                            url = url.replace(query, "");
+                            
+                            String hash = ImageDownloader.md5(url);
+                            new ImageDownloader(mContext).downloadImage(url, hash, imageView, null);
                         }
                         if (preview.has("size")) {
                             JSONObject size = preview.getJSONObject("size");

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<state-list>
+    <state>             
+        <points>
+            <item>0</item>    
+            <item>0.1</item>
+            <item>1</item>
+            <item>0.5</item>
+            
+            <item>1</item>
+            <item>0.5</item>
+            <item>0</item>
+            <item>0.9</item>
+            
+            <item>0</item>    
+            <item>0.9</item>
+            <item>0</item>
+            <item>0.6</item>
+
+            <item>0</item>
+            <item>0.6</item>
+            <item>0.9</item>
+            <item>0.5</item>
+            
+            <item>0.9</item>    
+            <item>0.5</item>
+            <item>0</item>
+            <item>0.4</item>
+            
+            <item>0</item>    
+            <item>0.4</item>
+            <item>0</item>
+            <item>0.1</item>
+        </points>        
+        
+        <links>
+            <item>0</item>          
+            <item>1</item>
+            
+            <item>1</item>          
+            <item>2</item>
+            
+            <item>2</item>          
+            <item>3</item>
+            
+            <item>3</item>          
+            <item>4</item>
+            
+            <item>4</item>          
+            <item>5</item>
+            
+            <item>5</item>          
+            <item>0</item>
+        </links>
+    </state>
+    
+    <state>        
+        <points>
+            <item>0.15</item>
+            <item>0</item>
+            <item>0.85</item>
+            <item>0</item>
+            
+            <item>0.15</item>    
+            <item>1</item>
+            <item>0.85</item>
+            <item>1</item>
+            
+            <item>0.15</item>
+            <item>0</item>
+            <item>0.85</item>
+            <item>1</item>
+
+            <item>0.15</item>    
+            <item>1</item>
+            <item>0.85</item>
+            <item>0</item>
+            
+        </points>
+    </state>
+    
+    <state>        
+        <points>
+            <item>1</item>
+            <item>0</item>
+            <item>0.5</item>
+            <item>1</item>
+
+            <item>0.5</item>    
+            <item>1</item>
+            <item>0</item>
+            <item>0</item>
+
+            <item>0</item>
+            <item>0</item>
+            <item>0.3</item>
+            <item>0</item>
+
+            <item>0.45</item>
+            <item>0</item>
+            <item>0.55</item>
+            <item>0</item>
+
+            <item>0.5</item>    
+            <item>0.2</item>
+            <item>0.5</item>
+            <item>0.7</item>
+        </points>
+    </state>
+
+</state-list>
+

@@ -80,8 +80,10 @@ public class DownloadManager {
             protected void onProgressUpdate(Integer... progress) {
                 if (!isCancelled()) {
                     List<DownloadListener> listeners = downloads.get(url);
-                    for (DownloadListener listener : listeners) {
-                        listener.onProgress(progress[0], progress[1]);
+                    if(listeners != null) {
+                        for (DownloadListener listener : listeners) {
+                            listener.onProgress(progress[0], progress[1]);
+                        }
                     }
                 }
             }

@@ -10,13 +10,18 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.NotificationCompat;
+import com.di7ak.spaces.forum.api.Request;
 import org.json.JSONException;
 import org.json.JSONObject;
+import com.di7ak.spaces.forum.api.RequestListener;
+import com.di7ak.spaces.forum.api.SpacesException;
 
-public class NotificationService extends Service implements NotificationManager.OnNewNotification { 
+public class NotificationService extends Service implements NotificationManager.OnNewNotification, 
+        RequestListener {
     public static boolean running = false;
     private static String channel;
     private static long lastChecking;
+    private static String mSid;
 
     @Override 
     public IBinder onBind(Intent intent) { 
@@ -26,6 +31,7 @@ public class NotificationService extends Service implements NotificationManager.
     String mailUser;
     @Override
     public void onNewNotification(JSONObject message) {
+        android.util.Log.d("lol", message.toString());
         if(System.currentTimeMillis() - lastChecking > 60 * 60 * 1000) {
             lastChecking = System.currentTimeMillis();
             Update.check(this);
@@ -108,9 +114,58 @@ public class NotificationService extends Service implements NotificationManager.
                 running = false;
             }
             lastChecking = System.currentTimeMillis();
+            
+            mSid = am.peekAuthToken(accounts[0], Authenticator.TOKEN_FULL_ACCESS);
+            
+            checkNotifications();
+            
             Update.check(this);
         }
     } 
+    
+    private void checkNotifications() {
+        String url = "http://spaces.ru/ajax/events/?sid=" + mSid;
+            
+            new Request(Uri.parse(url))
+                    .disableXProxy()
+                    .executeWithListener(this);
+    }
+    
+    @Override
+    public void onSuccess(JSONObject json) {
+        try {
+            if(json.has("topCounters")) {
+                JSONObject counters = json.getJSONObject("topCounters");
+                if(counters.has("mail_new")) {
+                    int count = counters.getInt("mail_new");
+                    if (count > 0) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://spaces.ru/mail/"));
+                        PendingIntent pintent = PendingIntent.getActivity(this,
+                                                                          0, intent,
+                                                                          PendingIntent.FLAG_CANCEL_CURRENT);
+                        showNotification(2, "Почта", "Непрочитанные сообщения: " + count, pintent);
+                    }
+                }
+                if(counters.has("journal")) {
+                    int count = counters.getInt("journal");
+                    if (count > 0) {
+                        Intent intent = new Intent(this, JournalActivity.class);
+                        PendingIntent pintent = PendingIntent.getActivity(this,
+                                                                          0, intent,
+                                                                          PendingIntent.FLAG_UPDATE_CURRENT);
+                        showNotification(1, "Форум", "Журнал: " + count, pintent);
+                    }
+                }
+            }
+        } catch(JSONException e) {
+            
+        }
+    }
+
+    @Override
+    public void onError(SpacesException e) {
+        checkNotifications();
+    }
 
     @Override 
     public void onDestroy() { 

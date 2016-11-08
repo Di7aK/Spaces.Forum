@@ -133,6 +133,10 @@ public class CommentView extends LinearLayout {
         }
     }
     
+    public void setOnButtonClickListener(OnButtonClick listener) {
+        mListener = listener;
+    }
+    
     public interface OnButtonClick{
         public void onButtonClick(int commentId, int buttonType);
     }

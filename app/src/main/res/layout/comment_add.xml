@@ -1,0 +1,57 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/comment_block"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#77000000">
+    
+    <LinearLayout
+        android:id="@+id/resize"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_weight="0"
+        android:gravity="center">
+        
+        <View
+            android:layout_width="60dp"
+            android:layout_height="3dp"
+            android:background="#ffffff" />
+        
+    </LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/resize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:padding="5dp">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout_name"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+         
+        <EditText
+            android:id="@+id/comment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:singleLine="false"
+            android:textColor="#ffffff"
+            android:gravity="top"
+            android:hint="ОТВЕТИТЬ" />
+    </android.support.design.widget.TextInputLayout>
+     
+    <com.rey.material.widget.FloatingActionButton
+        android:id="@+id/fab_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:layout_gravity="top"
+        app:v_styleId="@array/fab_send_comment" />
+    
+    </LinearLayout>
+
+</LinearLayout>

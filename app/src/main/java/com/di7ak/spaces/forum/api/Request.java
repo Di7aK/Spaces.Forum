@@ -13,9 +13,16 @@ import org.json.JSONObject;
 public class Request extends AsyncTask<Void, Void, String> {
     private Uri mUri;
     private RequestListener mListener;
+    private boolean mUseXProxy;
 
     public Request(Uri uri) {
         mUri = uri;
+        mUseXProxy = true;
+    }
+    
+    public Request disableXProxy() {
+        mUseXProxy = false;
+        return this;
     }
 
     @Override
@@ -24,7 +31,7 @@ public class Request extends AsyncTask<Void, Void, String> {
             HttpURLConnection con = (HttpURLConnection) new URL(mUri.toString()).openConnection();
 
             con.setRequestMethod("GET");
-            con.addRequestProperty("X-proxy", "spaces");
+            if(mUseXProxy) con.addRequestProperty("X-proxy", "spaces");
 
             BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));

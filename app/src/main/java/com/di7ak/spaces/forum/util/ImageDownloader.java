@@ -17,15 +17,17 @@ public class ImageDownloader {
         mContext = context;
     }
 
-    public void downloadImage(String iUrl, final ImageView into, final OnProgressListener listener) {
-        File file = new File(mContext.getExternalCacheDir(), md5(iUrl) + ".cache");
+    public void downloadImage(String iUrl, String hash, final ImageView into, final OnProgressListener listener) {
+        File file = new File(mContext.getExternalCacheDir(), hash);
         if (file.exists()) {
+            android.util.Log.d("lol", "from cache " + iUrl);
             try {
                 Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
                 into.setImageBitmap(bitmap);
                 if(listener != null) listener.onProgress(1, 1);
             } catch (FileNotFoundException e) {}
         } else {
+            android.util.Log.d("lol", "download " + iUrl);
             DownloadManager.download(iUrl, new DownloadManager.DownloadListener() {
 
                     @Override
@@ -43,7 +45,7 @@ public class ImageDownloader {
 
                     @Override
                     public void onError() {
-
+                        if(listener != null) listener.onError();
                     }
                 }, file);
         }
@@ -67,5 +69,7 @@ public class ImageDownloader {
     
     public interface OnProgressListener {
         public void onProgress(int current, int total);
+        
+        public void onError();
     }
 }
