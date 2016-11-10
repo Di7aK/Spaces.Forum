@@ -88,6 +88,25 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        
+                    <com.di7ak.spaces.forum.widget.ImagedTextView
+                        android:id="@+id/date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"/>
+                    
+                    <com.di7ak.spaces.forum.widget.ChannelView
+                        android:id="@+id/channel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"/>
+                    
+                    </LinearLayout>
 
                     <com.di7ak.spaces.forum.widget.PictureAttachmentsView
                         android:id="@+id/picture_attachments"
@@ -114,16 +133,22 @@
                     
 
                     <LinearLayout
-                        android:id="@+id/widgets"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="right"
+                        android:gravity="center_vertical"
                         android:orientation="horizontal">
+                        
+                        <com.di7ak.spaces.forum.widget.ImagedTextView
+                        android:id="@+id/views"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"/>
 
                         <com.di7ak.spaces.forum.widget.VotingView
                             android:id="@+id/voting"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content" 
+                            android:layout_weight="0" />
 
                     </LinearLayout>
                     

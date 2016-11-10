@@ -103,6 +103,8 @@ public class CommentsView extends LinearLayout
     
     public void setCommentPanel(AddCommentView view) {
         mCommentPanel = view;
+        setPadding(0, 0, 0,
+            (int)(mContext.getResources().getDisplayMetrics().density * 30));
     }
 
     public void setupData(JSONObject data, Picasso picasso, Session session) {
@@ -190,6 +192,7 @@ public class CommentsView extends LinearLayout
     }
     
     public void updateComments() {
+        addLoadNextIndicator();
         readComments(mCurrentUrl);
         mBtnLoadNext.setVisibility(View.INVISIBLE);
         mLoadNext = true;

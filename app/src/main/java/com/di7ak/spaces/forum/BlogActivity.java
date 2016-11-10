@@ -21,8 +21,10 @@ import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.util.PicassoImageGetter;
 import com.di7ak.spaces.forum.widget.AddCommentView;
 import com.di7ak.spaces.forum.widget.AvatarView;
+import com.di7ak.spaces.forum.widget.ChannelView;
 import com.di7ak.spaces.forum.widget.CommentsView;
 import com.di7ak.spaces.forum.widget.FileAttachmentsView;
+import com.di7ak.spaces.forum.widget.ImagedTextView;
 import com.di7ak.spaces.forum.widget.PictureAttachmentsView;
 import com.di7ak.spaces.forum.widget.ProgressBar;
 import com.di7ak.spaces.forum.widget.VotingView;
@@ -58,6 +60,9 @@ public class BlogActivity extends AppCompatActivity
     private View mHead;
     private View mBody;
     private AddCommentView mCommentPanel;
+    private ChannelView mChannel;
+    private ImagedTextView mDate;
+    private ImagedTextView mViews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +82,10 @@ public class BlogActivity extends AppCompatActivity
         mAudioAttachments = (FileAttachmentsView)findViewById(R.id.audio_attachments);
         mComments = (CommentsView) findViewById(R.id.comments);
         mCommentPanel = (AddCommentView) findViewById(R.id.comment_panel);
+        mChannel = (ChannelView) findViewById(R.id.channel);
+        mDate = (ImagedTextView) findViewById(R.id.date);
+        mViews = (ImagedTextView) findViewById(R.id.views);
+        
         mCommentPanel.setVisibility(View.INVISIBLE);
         mComments.setCommentPanel(mCommentPanel);
         mCollapsingToolbar = (CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
@@ -126,6 +135,11 @@ public class BlogActivity extends AppCompatActivity
         blog = json;
         bar.hide();
         try {
+            if(json.has("views")) {
+                String views = json.getString("views");
+                mViews.setIcon(R.drawable.ic_remove_red_eye_black_18dp);
+                mViews.setText(views);
+            }
             if (json.has("topicWidget")) {
                 JSONObject topicWidget = json.getJSONObject("topicWidget");
                 setupTopicData(topicWidget);
@@ -222,6 +236,17 @@ public class BlogActivity extends AppCompatActivity
                     JSONArray attachWidgets = mainAttachWidgets.getJSONArray("musicInlineWidget");
                     mAudioAttachments.setupData(attachWidgets);
                 }
+            }
+            //date
+            if(data.has("time")) {
+                String date = data.getString("time");
+                mDate.setIcon(R.drawable.ic_access_time_black_18dp);
+                mDate.setText(date);
+            }
+            //channel
+            if(data.has("tagsWidget")) {
+                JSONObject tags = data.getJSONObject("tagsWidget");
+                mChannel.setupData(tags);
             }
         } catch (JSONException e) {
 

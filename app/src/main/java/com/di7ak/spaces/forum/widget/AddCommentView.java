@@ -93,6 +93,8 @@ public class AddCommentView extends LinearLayout implements View.OnClickListener
                             @Override
                             public void run() {
                                 mSend.setLineMorphingState(STATE_ERR, true);
+                                mSend.setEnabled(true);
+                                mEditText.setEnabled(true);
                             }
                         });
                     }
