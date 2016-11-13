@@ -5,29 +5,34 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.ImageView;
 import java.io.File;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class ImageDownloader {
     private Context mContext;
-
+    
     public ImageDownloader(Context context) {
         mContext = context;
     }
 
-    public void downloadImage(String iUrl, String hash, final ImageView into, final OnProgressListener listener) {
+    public void downloadImage(String iUrl, final String hash, final ImageView into, final OnProgressListener listener) {
         File file = new File(mContext.getExternalCacheDir(), hash);
         if (file.exists()) {
-            android.util.Log.d("lol", "from cache " + iUrl);
             try {
                 Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
-                into.setImageBitmap(bitmap);
-                if(listener != null) listener.onProgress(1, 1);
+                
+                if(into != null) into.setImageBitmap(bitmap);
+                if(listener != null) {
+                    listener.onProgress(1, 1);
+                    listener.onSuccess(bitmap);
+                }
             } catch (FileNotFoundException e) {}
         } else {
-            android.util.Log.d("lol", "download " + iUrl);
             DownloadManager.download(iUrl, new DownloadManager.DownloadListener() {
 
                     @Override
@@ -39,7 +44,8 @@ public class ImageDownloader {
                     public void onSuccess(File file) {
                         try {
                             Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
-                            into.setImageBitmap(bitmap);
+                            if(listener != null) listener.onSuccess(bitmap);
+                            if(into != null) into.setImageBitmap(bitmap);
                         } catch (FileNotFoundException e) {}
                     }
 
@@ -71,5 +77,7 @@ public class ImageDownloader {
         public void onProgress(int current, int total);
         
         public void onError();
+        
+        public void onSuccess(Bitmap bitmap);
     }
 }

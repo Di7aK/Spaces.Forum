@@ -29,7 +29,7 @@ public class ImagedTextView extends LinearLayout {
     
     public void init(Context context) {
         mContext = context;
-        setVisibility(GONE);
+        setVisibility(INVISIBLE);
         LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         setLayoutParams(params);
         float density = mContext.getResources().getDisplayMetrics().density;
@@ -48,7 +48,7 @@ public class ImagedTextView extends LinearLayout {
         params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         mText.setLayoutParams(params);
         mText.setPadding(padding, padding, padding, padding);
-        int size = (int)(density * 18);
+        int size = (int)(18);
         mText.setTextSize(size);
         mText.setTextColor(0xff000000);
         

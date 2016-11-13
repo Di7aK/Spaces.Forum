@@ -31,7 +31,6 @@ public class NotificationService extends Service implements NotificationManager.
     String mailUser;
     @Override
     public void onNewNotification(JSONObject message) {
-        android.util.Log.d("lol", message.toString());
         if(System.currentTimeMillis() - lastChecking > 60 * 60 * 1000) {
             lastChecking = System.currentTimeMillis();
             Update.check(this);
@@ -55,7 +54,7 @@ public class NotificationService extends Service implements NotificationManager.
                                     PendingIntent pintent = PendingIntent.getActivity(this,
                                                                                       0, intent,
                                                                                       PendingIntent.FLAG_CANCEL_CURRENT);
-                                    showNotification(2, "Почта (" + count + ")", "Новое сообщение от: " + mailUser, pintent);
+                                    showNotification(2, "Почта (" + count + ")", "Новое сообщение" + (mailUser == null ? "" : " от: " + mailUser), pintent);
                                 }
                             }
                             if (type == 1) {
@@ -124,7 +123,7 @@ public class NotificationService extends Service implements NotificationManager.
     } 
     
     private void checkNotifications() {
-        String url = "http://spaces.ru/ajax/events/?sid=" + mSid;
+        String url = "http://spaces.ru/events/?sid=" + mSid;
             
             new Request(Uri.parse(url))
                     .disableXProxy()

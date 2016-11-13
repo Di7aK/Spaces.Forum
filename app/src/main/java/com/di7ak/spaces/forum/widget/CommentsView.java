@@ -17,7 +17,6 @@ import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
 import com.rey.material.widget.Button;
 import com.rey.material.widget.ProgressView;
-import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
@@ -31,7 +30,6 @@ public class CommentsView extends LinearLayout
         CommentView.OnButtonClick,
         NotificationManager.OnNewNotification {
     private Context mContext;
-    private Picasso mPicasso;
     private Session mSession;
     private AddCommentView mCommentPanel;
     private android.widget.LinearLayout mCommentsList;
@@ -107,8 +105,7 @@ public class CommentsView extends LinearLayout
             (int)(mContext.getResources().getDisplayMetrics().density * 30));
     }
 
-    public void setupData(JSONObject data, Picasso picasso, Session session) {
-        mPicasso = picasso;
+    public void setupData(JSONObject data, Session session) {
         mSession = session;
         try {
             
@@ -117,8 +114,8 @@ public class CommentsView extends LinearLayout
             }
             if (data.has("comments")) {
                 JSONObject comments = data.getJSONObject("comments");
-                if (comments.has("commentsCnt")) {
-                    mCount = comments.getInt("commentsCnt");
+                if (comments.has("comments_cnt")) {
+                    mCount = comments.getInt("comments_cnt");
                     updateCommentsCount();
                 }
                 if(comments.has("type")) {
@@ -133,7 +130,7 @@ public class CommentsView extends LinearLayout
                     for (int i = 0; i < commentsList.length(); i ++) {
                         JSONObject comment = commentsList.getJSONObject(mLoadNext ? i : (commentsList.length() - i - 1));
                         CommentView view = new CommentView(mContext);
-                        view.setupData(comment, picasso, session);
+                        view.setupData(comment, session);
                         if(!mShowingIds.contains(view.getCommentId())) {
                             view.setOnButtonClickListener(this);
                             if(mLoadNext) {
@@ -192,11 +189,12 @@ public class CommentsView extends LinearLayout
     }
     
     public void updateComments() {
-        addLoadNextIndicator();
-        readComments(mCurrentUrl);
-        mBtnLoadNext.setVisibility(View.INVISIBLE);
+        String url = mPagination.getCurrentPageUrl();
+        if(url == null) url = mCurrentUrl;
+        readComments(url);
+        
         mLoadNext = true;
-        mProgressNext.start();
+        
     }
     
     public void readPrevComments() {
@@ -263,7 +261,7 @@ public class CommentsView extends LinearLayout
         try {
             if(json.has("commentsBlock")) {
                 JSONObject commentsBlock = json.getJSONObject("commentsBlock");
-                setupData(commentsBlock, mPicasso, mSession);
+                setupData(commentsBlock, mSession);
             }
         } catch(JSONException e) {
             

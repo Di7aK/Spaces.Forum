@@ -52,38 +52,5 @@ public class Blogs {
 		}
     }
     
-    public static BlogData getBlog(Session session, String id, int page) throws SpacesException {
-        StringBuilder url = new StringBuilder()
-            .append("http://spaces.ru/diary/read/")
-            .append("?P=").append(Integer.toString(page))
-            .append("&sid=").append(session.sid)
-            .append("&id=").append(id);
-
-        try {
-            HttpURLConnection con = (HttpURLConnection) new URL(url.toString()).openConnection();
-
-            con.setRequestMethod("POST");
-            con.addRequestProperty("X-proxy", "spaces");
-            con.addRequestProperty("Cookie", "beta=1;");
-
-            BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-
-            JSONObject json = new JSONObject(response.toString());
-            int code = json.getInt("code");
-            if (code != 0) throw new SpacesException(code);
-            return new BlogData(json);
-        } catch (IOException e) {
-            throw new SpacesException(-1);
-        } catch (JSONException e) {
-            throw new SpacesException(-2);
-        }
-    }
+    
 }

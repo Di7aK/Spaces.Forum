@@ -40,7 +40,7 @@
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <TextView
+        <com.di7ak.spaces.forum.widget.UserView
             android:id="@+id/author"
             android:layout_margin="5dp"
             android:textSize="20sp"

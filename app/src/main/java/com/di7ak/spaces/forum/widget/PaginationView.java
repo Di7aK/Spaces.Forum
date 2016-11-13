@@ -1,6 +1,7 @@
 package com.di7ak.spaces.forum.widget;
 
 import android.content.Context;
+import android.text.Html;
 import android.util.AttributeSet;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,6 +73,11 @@ public class PaginationView extends LinearLayout {
     
     public int getCurrentPage() {
         return mCurrentPage;
+    }
+    
+    public String getCurrentPageUrl() {
+        if(mUrl == null) return null;
+        return Html.fromHtml(mUrl).toString() + mPageParam + "=" +  mCurrentPage;
     }
     
     public boolean hasNextPage() {

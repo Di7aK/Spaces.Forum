@@ -57,12 +57,12 @@ public class NotificationManager extends WebSocketClient {
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-        
+        connect();
     }
 
     @Override
     public void onError(Exception ex) {
-        
+        connect();
     }
 
     public interface OnNewNotification {

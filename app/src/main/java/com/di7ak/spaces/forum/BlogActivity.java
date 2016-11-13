@@ -18,7 +18,7 @@ import com.di7ak.spaces.forum.api.Request;
 import com.di7ak.spaces.forum.api.RequestListener;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
-import com.di7ak.spaces.forum.util.PicassoImageGetter;
+import com.di7ak.spaces.forum.util.SpImageGetter;
 import com.di7ak.spaces.forum.widget.AddCommentView;
 import com.di7ak.spaces.forum.widget.AvatarView;
 import com.di7ak.spaces.forum.widget.ChannelView;
@@ -28,8 +28,7 @@ import com.di7ak.spaces.forum.widget.ImagedTextView;
 import com.di7ak.spaces.forum.widget.PictureAttachmentsView;
 import com.di7ak.spaces.forum.widget.ProgressBar;
 import com.di7ak.spaces.forum.widget.VotingView;
-import com.squareup.picasso.OkHttpDownloader;
-import com.squareup.picasso.Picasso;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,29 +39,28 @@ public class BlogActivity extends AppCompatActivity
         RequestListener {
     private static final int PERCENTAGE_TO_SHOW_IMAGE = 20;
     
-    private CollapsingToolbarLayout mCollapsingToolbar;
+    protected CollapsingToolbarLayout mCollapsingToolbar;
     private int mMaxScrollSize;
     private boolean mIsImageHidden;
     private AppBarLayout appbar;
-    private Session session;
-    private JSONObject blog;
-    private Uri uri;
-    private ProgressBar bar;
-    private Picasso picasso;
-    private TextView mAuthor;
-    private TextView mText;
-    private AvatarView mAvatar;
-    private VotingView mVoting;
-    private PictureAttachmentsView mPictureAttachments;
-    private FileAttachmentsView mFileAttachments;
-    private FileAttachmentsView mAudioAttachments;
-    private CommentsView mComments;
-    private View mHead;
-    private View mBody;
-    private AddCommentView mCommentPanel;
-    private ChannelView mChannel;
-    private ImagedTextView mDate;
-    private ImagedTextView mViews;
+    protected Session session;
+    protected JSONObject blog;
+    protected Uri uri;
+    protected ProgressBar bar;
+    protected TextView mAuthor;
+    protected TextView mText;
+    protected AvatarView mAvatar;
+    protected VotingView mVoting;
+    protected PictureAttachmentsView mPictureAttachments;
+    protected FileAttachmentsView mFileAttachments;
+    protected FileAttachmentsView mAudioAttachments;
+    protected CommentsView mComments;
+    protected View mHead;
+    protected View mBody;
+    protected AddCommentView mCommentPanel;
+    protected ChannelView mChannel;
+    protected ImagedTextView mDate;
+    protected ImagedTextView mViews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,9 +102,6 @@ public class BlogActivity extends AppCompatActivity
         
         ((NestedScrollView)findViewById(R.id.nested_scroll_view)).setOnScrollChangeListener(mComments);
 
-        picasso = new Picasso.Builder(this) 
-            .downloader(new OkHttpDownloader(this, Settings.CACHE_SIZE)) 
-            .build();
         bar = new ProgressBar(this);
 
         Authenticator.getSession(this, this);
@@ -118,19 +113,18 @@ public class BlogActivity extends AppCompatActivity
         else {
             this.session = session;
             mCommentPanel.setSession(session);
-
             uri = getIntent().getData();
-            if (uri == null) {
-                bar.showError("Ошибка", null, null);
-            } else readTopic();
+            if(uri == null) bar.showError("Ошибка", null, null);
+            else readTopic();
         }
     }
 
-    private void readTopic() {
+    public void readTopic() {
         bar.showProgress("Загрузка данных");
         new Request(uri).executeWithListener(this);
     }
 
+    @Override
     public void onSuccess(JSONObject json) {
         blog = json;
         bar.hide();
@@ -150,12 +144,18 @@ public class BlogActivity extends AppCompatActivity
             }
             if (json.has("commentsBlock")) {
                 JSONObject commentsBlock = json.getJSONObject("commentsBlock");
-                mComments.setupData(commentsBlock, picasso, session);
+                mComments.setupData(commentsBlock, session);
                 mComments.setUrl(uri.toString());
             }
         } catch (JSONException e) {
 
         }
+        mHead.setVisibility(View.VISIBLE);
+        mBody.setVisibility(View.VISIBLE);
+        mCommentPanel.setVisibility(View.VISIBLE);
+        ViewCompat.animate(mBody).alphaBy(0).alpha(1).translationYBy(-100).translationY(0).start();
+        ViewCompat.animate(mHead).alphaBy(0).alpha(1).translationYBy(100).translationY(0).start();
+        ViewCompat.animate(mCommentPanel).alphaBy(0).alpha(1).start();
     }
     
     @Override
@@ -180,7 +180,7 @@ public class BlogActivity extends AppCompatActivity
             });
     }
 
-    private void setupTopicData(JSONObject data) {
+    protected void setupTopicData(JSONObject data) {
         try {
             //author
             if (data.has("username")) {
@@ -192,7 +192,7 @@ public class BlogActivity extends AppCompatActivity
                 JSONObject topicModel = data.getJSONObject("topicModel");
                 if (topicModel.has("header")) {
                     String title = topicModel.getString("header");
-                    if (!TextUtils.isEmpty(title)) mCollapsingToolbar.setTitle(title);
+                    if (!TextUtils.isEmpty(title)) mCollapsingToolbar.setTitle(Html.fromHtml(title));
                 }
             }
             //text
@@ -206,23 +206,23 @@ public class BlogActivity extends AppCompatActivity
                 } else text = subject.toString();
 
                 mText.setMovementMethod(LinkMovementMethod.getInstance());
-                mText.setText(Html.fromHtml(text, new PicassoImageGetter(mText, getResources(), picasso), null));
+                mText.setText(Html.fromHtml(text, new SpImageGetter(mText), null));
             }
             //avatar
             if (data.has("avatar")) {
                 JSONObject avatar = data.getJSONObject("avatar");
-                mAvatar.setupData(avatar, picasso);
+                mAvatar.setupData(avatar);
             }
             //header attachments
             if (data.has("MainAttachWidget")) {
                 JSONObject mainAttachWidgets = data.getJSONObject("MainAttachWidget");
                 if (mainAttachWidgets.has("pictureWidgets")) {
                     JSONArray pictureWidgets = mainAttachWidgets.getJSONArray("pictureWidgets");
-                    mPictureAttachments.setupData(pictureWidgets, picasso);
+                    mPictureAttachments.setupData(pictureWidgets);
                 }
                 if (mainAttachWidgets.has("attachWidgets")) {
                     JSONArray pictureWidgets = mainAttachWidgets.getJSONArray("attachWidgets");
-                    mPictureAttachments.setupData(pictureWidgets, picasso);
+                    mPictureAttachments.setupData(pictureWidgets);
                 }
             }
             //footer attachments
@@ -240,6 +240,7 @@ public class BlogActivity extends AppCompatActivity
             //date
             if(data.has("time")) {
                 String date = data.getString("time");
+                if(date.startsWith("в ")) date = "Сегодня " + date;
                 mDate.setIcon(R.drawable.ic_access_time_black_18dp);
                 mDate.setText(date);
             }
@@ -251,12 +252,6 @@ public class BlogActivity extends AppCompatActivity
         } catch (JSONException e) {
 
         }
-        mHead.setVisibility(View.VISIBLE);
-        mBody.setVisibility(View.VISIBLE);
-        mCommentPanel.setVisibility(View.VISIBLE);
-        ViewCompat.animate(mBody).alphaBy(0).alpha(1).start();
-        ViewCompat.animate(mHead).alphaBy(0).alpha(1).start();
-        ViewCompat.animate(mCommentPanel).alphaBy(0).alpha(1).start();
     }
 
     public void setupActionBar(JSONObject data) {

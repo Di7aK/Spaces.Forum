@@ -51,6 +51,7 @@ public class VotingView extends LinearLayout implements View.OnClickListener {
     public void setupData(JSONObject data, Session session) {
         this.session = session;
         try {
+            if(data.has("voting")) data = data.getJSONObject("voting");
             if (data.has("like")) {
                 JSONObject like = data.getJSONObject("like");
                 if (like.has("URL") && !like.isNull("URL")) {

@@ -9,19 +9,27 @@ import android.view.View;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.api.Session;
-import com.di7ak.spaces.forum.util.PicassoImageGetter;
+import com.di7ak.spaces.forum.util.ImageDownloader;
+import com.di7ak.spaces.forum.util.SpImageGetter;
 import com.rey.material.widget.Button;
-import com.squareup.picasso.Picasso;
+import java.util.Random;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class CommentView extends LinearLayout {
     private static final int BUTTON_TYPE_REPLY = 0;
+    private static final String[] KOLYA = {
+        "ЕБАТЬ ТЫ ЛАХ",
+        "ЭГЕГЕГЕЕЕЕЙ ТЫ ПРОСТА ГЕЙ",
+        "ВАТ ЭТА ДА ТЫ ТАК САСИРУУУУУЕШЬ",
+        "ЧОООООООООООООООООО?? закрываю твою тему нахуй",
+        "за то ты можешь сделать супер миниетус"
+    };
     
     private OnButtonClick mListener;
     private Context mContext;
-    private TextView mAuthor;
+    private UserView mAuthor;
     private TextView mText;
     //private TextView mDate;
     private TextView mTime;
@@ -38,7 +46,7 @@ public class CommentView extends LinearLayout {
         mContext = context;
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.comment, this, true);
-        mAuthor = (TextView)view.findViewById(R.id.author);
+        mAuthor = (UserView)view.findViewById(R.id.author);
         mText = (TextView)view.findViewById(R.id.text);
         //mDate = (TextView)view.findViewById(R.id.date);
         mTime = (TextView)view.findViewById(R.id.time);
@@ -59,13 +67,13 @@ public class CommentView extends LinearLayout {
         return mDate;
     }
 
-    public void setupData(JSONObject data, Picasso picasso, Session session) {
+    public void setupData(JSONObject data, Session session) {
         try {
             if (data.has("attaches_widgets") && !data.isNull("attaches_widgets")) {
                 JSONObject attaches = data.getJSONObject("attaches_widgets");
                 if (attaches.has("tile_items")) {
                     JSONArray items = attaches.getJSONArray("tile_items");
-                    mPictureAttachments.setupData(items, picasso);
+                    mPictureAttachments.setupData(items);
                 }
                 if (attaches.has("list_items")) {
                     JSONArray items = attaches.getJSONArray("list_items");
@@ -74,7 +82,7 @@ public class CommentView extends LinearLayout {
             }
             if (data.has("avatar") && !data.isNull("avatar")) {
                 JSONObject avatar = data.getJSONObject("avatar");
-                mAvatar.setupData(avatar, picasso);
+                mAvatar.setupData(avatar);
             }
             if (data.has("comment_type")) mCommentType = data.getInt("comment_type");
             if (data.has("date")) {
@@ -91,21 +99,36 @@ public class CommentView extends LinearLayout {
                 String replyUserName = data.getString("reply_user_name");
                 if (data.has("reply_comment_text")) {
                     String replyCommentText = data.getString("reply_comment_text");
-                    View reply = new CommentReplyView(mContext, replyUserName, replyCommentText, picasso);
+                    View reply = new CommentReplyView(mContext, replyUserName, replyCommentText);
                     ((android.widget.LinearLayout)findViewById(R.id.comment_block_right)).addView(reply, 1);
                 }
             }
+            String text ="";
             if (data.has("text") && !data.isNull("text")) {
-                String text = data.getString("text");
-                mText.setText(Html.fromHtml(text, new PicassoImageGetter(mText, mContext.getResources(), picasso), null));
+                text = data.getString("text");
+                mText.setText(Html.fromHtml(text, new SpImageGetter(mText), null));
             }
             if (data.has("user")) {
                 JSONObject user = data.getJSONObject("user");
+                mAuthor.setupData(user);
                 if (user.has("siteLink")) {
                     JSONObject siteLink = user.getJSONObject("siteLink");
                     if (siteLink.has("user_name")) {
                         String userName = siteLink.getString("user_name");
-                        mAuthor.setText(userName);
+                        if(userName.equals("Система")) {
+                            mAuthor.setText("Коля");
+                            String hash = ImageDownloader.md5("https://pp.vk.me/c521/u320362/d_fbb34cda.jpg");
+                            new ImageDownloader(mContext).downloadImage("https://pp.vk.me/c521/u320362/d_fbb34cda.jpg", hash, mAvatar, null);
+                            if(text.startsWith("Тема перенесена") && text.toLowerCase().contains("архив")) {
+                                String[] txt = Html.fromHtml(text).toString().split(" ");
+                                String[] txt2 = Html.fromHtml(text).toString().split(" в ");
+                                String pattern = " %1$s перенес твою темку в %2$s";
+                                Random r = new Random();
+                                pattern = KOLYA[r.nextInt(KOLYA.length)] + pattern;
+                                text = String.format(pattern, txt[2], txt2[txt2.length - 1]);
+                                mText.setText(text);
+                            }
+                        }// else mAuthor.setText(userName);
                     }
                 }
             }

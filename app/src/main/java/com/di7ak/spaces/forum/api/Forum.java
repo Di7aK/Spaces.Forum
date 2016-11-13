@@ -57,41 +57,7 @@ public class Forum {
 		}
 	}
 	
-	public static TopicData getTopic(Session session, String topicId, int page) throws SpacesException {
-		TopicData result = new TopicData();
-		StringBuilder url = new StringBuilder()
-			.append("http://spaces.ru/ajax/forums/")
-			.append("?id=").append(topicId)
-			.append("&p=").append(Integer.toString(page))
-			.append("&sid=").append(session.sid);
-
-		try {
-			HttpURLConnection con = (HttpURLConnection) new URL(url.toString()).openConnection();
-
-			con.setRequestMethod("GET");
-			con.addRequestProperty("X-proxy", "spaces");
-            con.addRequestProperty("User-Agent", "android_app");
-			con.addRequestProperty("Cookie", "beta=1; json=1;");
-			BufferedReader in = new BufferedReader(
-				new InputStreamReader(con.getInputStream()));
-			String inputLine;
-			StringBuffer response = new StringBuffer();
-
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
-			}
-			in.close();
-            
-			JSONObject json = new JSONObject(response.toString());
-			result = TopicData.fromJson(json);
-		} catch (IOException e) {
-			throw new SpacesException(-1);
-		} catch (JSONException e) {
-			throw new SpacesException(-2);
-		}
-		return result;
-	}
-    
+	
     public static List<ForumCategoryData> getCategories() throws SpacesException {
         List<ForumCategoryData> result = new ArrayList<ForumCategoryData>();
         StringBuilder url = new StringBuilder()

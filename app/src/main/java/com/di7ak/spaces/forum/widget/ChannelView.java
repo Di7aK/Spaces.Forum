@@ -45,7 +45,7 @@ public class ChannelView extends LinearLayout implements View.OnClickListener {
         
         mName = new TextView(mContext);
         mName.setPadding(padding, padding, padding, padding);
-        int size = (int)(density * 18);
+        int size = (int)(18);
         mName.setTextSize(size);
         mName.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
         

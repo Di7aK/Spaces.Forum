@@ -3,6 +3,7 @@ package com.di7ak.spaces.forum.fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -199,14 +200,13 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
                             attach.setImageResource(R.drawable.ic_attachment_black_18dp);
                             prop.addView(attach);
 						}
-						final String topicId = topic.id;
+						final Uri uri = topic.uri;
 						v.findViewById(R.id.layout).setOnClickListener(new View.OnClickListener() {
 							
 							@Override
 							public void onClick(View v) {
-								Intent intent = new Intent(getContext(), TopicActivity.class);
-								intent.putExtra("topic_id", topicId);
-                                
+								Intent intent = new Intent(getActivity(), TopicActivity.class);
+                                intent.setData(uri);
 								startActivity(intent);
 							}
 						});

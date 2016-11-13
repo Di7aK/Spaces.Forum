@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import com.di7ak.spaces.forum.GalleryActivity;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.util.ImageDownloader;
-import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +36,7 @@ public class PictureAttachmentsView extends LinearLayout implements View.OnClick
         } catch (JSONException e) {}
     }
 
-    public void setupData(JSONArray data, Picasso picasso) {
+    public void setupData(JSONArray data) {
         try {
             for (int i = 0; i < data.length(); i ++) {
                 JSONObject attach = data.getJSONObject(i);
@@ -49,7 +48,7 @@ public class PictureAttachmentsView extends LinearLayout implements View.OnClick
                     JSONObject preview = attach.getJSONObject("preview");
                     if (preview.has("player")) {
                         VideoAttachmentView view = new VideoAttachmentView(mContext);
-                        view.setupData(attach, picasso);
+                        view.setupData(attach);
                         mAttachBlock.addView(view);
                     } else {
                         float density = mContext.getResources().getDisplayMetrics().density;
@@ -93,7 +92,7 @@ public class PictureAttachmentsView extends LinearLayout implements View.OnClick
                     }
                 } else if (attach.has("player")) {
                     VideoAttachmentView view = new VideoAttachmentView(mContext);
-                    view.setupData(attach, picasso);
+                    view.setupData(attach);
                     mAttachBlock.addView(view);
                 }
             }

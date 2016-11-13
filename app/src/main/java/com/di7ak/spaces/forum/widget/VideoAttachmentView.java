@@ -11,8 +11,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.di7ak.spaces.forum.R;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
+import com.di7ak.spaces.forum.util.ImageDownloader;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -79,13 +78,14 @@ public class VideoAttachmentView extends RelativeLayout implements View.OnClickL
         addView(mDuration);
     }
 
-    public void setupData(JSONObject attach, Picasso picasso) {
+    public void setupData(JSONObject attach) {
         try {
             if (attach.has("player") || attach.has("preview")) {
                 JSONObject player = attach.has("player") ? attach.getJSONObject("player") : attach.getJSONObject("preview");
                 if (player.has("showLink")) {
                     String previewUrl = player.getString("showLink");
-                    picasso.load(previewUrl).into(mPreview);
+                    String hash = ImageDownloader.md5(previewUrl);
+                    new ImageDownloader(getContext()).downloadImage(previewUrl, hash, mPreview, null);
                 }
                 if (player.has("downloadLink")) {
                     mDownloadLink = player.getString("downloadLink");

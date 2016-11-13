@@ -1,6 +1,7 @@
 package com.di7ak.spaces.forum.widget;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,5 +74,10 @@ public class GalleryItemView extends LinearLayout implements ImageDownloader.OnP
     @Override
     public void onError() {
         load();
+    }
+    
+    @Override
+    public void onSuccess(Bitmap result) {
+        
     }
 }

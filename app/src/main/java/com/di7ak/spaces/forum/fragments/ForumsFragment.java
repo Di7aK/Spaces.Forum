@@ -158,7 +158,7 @@ public class ForumsFragment extends Fragment implements RecyclerItemClickListene
                     for (ForumCategoryData data : categories) {
                         Card card = new Card.Builder(getContext())
                             .withProvider(new CardProvider())
-                            .setLayout(R.layout.category_item)
+                            .setLayout(R.layout.comm_item)
                             .setTitle(data.name)
                             .setDescription(data.description)
                             .setDrawable(R.drawable.ic_forum)

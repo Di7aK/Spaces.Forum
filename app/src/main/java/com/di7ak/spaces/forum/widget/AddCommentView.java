@@ -137,6 +137,7 @@ public class AddCommentView extends LinearLayout implements View.OnClickListener
             break;
 
         case MotionEvent.ACTION_MOVE:
+            Y -= mTY;
             if(mDrag) {
                 mLastDrag = Y;
                 int height = getHeight() - Y;
@@ -163,6 +164,9 @@ public class AddCommentView extends LinearLayout implements View.OnClickListener
                 if(mTX == X && mTY == Y) {
                     if(getTranslationY() == 0) hide();
                     else show();
+                }
+                if(getTranslationY() == 0) {
+                    mEditText.setEnabled(true);
                 }
             }
             break;

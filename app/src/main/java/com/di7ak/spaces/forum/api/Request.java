@@ -28,6 +28,12 @@ public class Request extends AsyncTask<Void, Void, String> {
     @Override
     protected String doInBackground(Void... v) {
         try {
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme("http");
+            builder.authority("spaces.ru");
+            builder.appendPath("ajax");
+            String ajaxPath = builder.build().toString() + mUri.getPath();
+            mUri = Uri.parse(ajaxPath + "?" + mUri.getQuery());
             HttpURLConnection con = (HttpURLConnection) new URL(mUri.toString()).openConnection();
 
             con.setRequestMethod("GET");

@@ -22,8 +22,7 @@ import com.di7ak.spaces.forum.api.PreviewBlogData;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.interfaces.OnPageSelectedListener;
-import com.di7ak.spaces.forum.util.PicassoImageGetter;
-import com.di7ak.spaces.forum.widget.PictureAttach;
+import com.di7ak.spaces.forum.util.SpImageGetter;
 import com.di7ak.spaces.forum.widget.ProgressBar;
 import com.di7ak.spaces.forum.widget.VotingWidget;
 import com.rey.material.widget.Button;
@@ -175,7 +174,7 @@ import java.util.List;
                             TextView text = (TextView)v.findViewById(R.id.subject);
                             text.setMovementMethod(LinkMovementMethod.getInstance());
                             if (blog.subject != null && !blog.subject.equals("null")) {
-                                text.setText(Html.fromHtml(blog.subject, new PicassoImageGetter(text, getResources(), picasso), null));
+                                text.setText(Html.fromHtml(blog.subject, new SpImageGetter(text), null));
                             }
                             if(blog.header != null) ((TextView)v.findViewById(R.id.header)).setText(blog.header);
                             
@@ -191,8 +190,7 @@ import java.util.List;
                                     attachesNames.add(attach.filename);
                                     attachesUrls.add(attach.downloadLink);
                                     int index = attachesNames.size() - 1;
-                                    PictureAttach widget = new PictureAttach(attach, attachesNames, attachesUrls, index, getActivity(), picasso);
-                                    attachBlock.addView(widget.getView());
+                                    
                                 }
                             }
 

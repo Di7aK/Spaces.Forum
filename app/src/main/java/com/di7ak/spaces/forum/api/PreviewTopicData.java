@@ -1,5 +1,7 @@
 package com.di7ak.spaces.forum.api;
 
+import android.net.Uri;
+import android.text.Html;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
@@ -18,11 +20,17 @@ public class PreviewTopicData {
     public boolean locked;
     public boolean newTopic;
     public List<AttachData> attaches;
+    public Uri uri;
     
     public static PreviewTopicData fromJson(JSONObject json) throws SpacesException {
         PreviewTopicData data = new PreviewTopicData();
         data.attaches = new ArrayList<AttachData>();
         try {
+            if(json.has("topicLink")) {
+                String link = json.getString("topicLink");
+                link = Html.fromHtml(link).toString();
+                data.uri = Uri.parse(link);
+            }
             if (json.has("topicUser")) data.user = json.getString("topicUser");
             if (json.has("date")) data.date = json.getString("date");
             if (json.has("subject")) data.subject = json.getString("subject");
