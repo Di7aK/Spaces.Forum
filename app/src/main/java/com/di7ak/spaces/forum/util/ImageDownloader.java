@@ -20,7 +20,7 @@ public class ImageDownloader {
         mContext = context;
     }
 
-    public void downloadImage(String iUrl, final String hash, final ImageView into, final OnProgressListener listener) {
+    public void downloadImage(final String iUrl, final String hash, final ImageView into, final OnProgressListener listener) {
         File file = new File(mContext.getExternalCacheDir(), hash);
         if (file.exists()) {
             try {
@@ -42,6 +42,7 @@ public class ImageDownloader {
 
                     @Override
                     public void onSuccess(File file) {
+                        android.util.Log.d("lol", "error " + iUrl);
                         try {
                             Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
                             if(listener != null) listener.onSuccess(bitmap);
@@ -51,7 +52,8 @@ public class ImageDownloader {
 
                     @Override
                     public void onError() {
-                        if(listener != null) listener.onError();
+                        downloadImage(iUrl, hash, into, listener);
+                        //if(listener != null) listener.onError();
                     }
                 }, file);
         }

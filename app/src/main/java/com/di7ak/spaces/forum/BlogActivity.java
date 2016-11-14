@@ -9,6 +9,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -28,7 +29,6 @@ import com.di7ak.spaces.forum.widget.ImagedTextView;
 import com.di7ak.spaces.forum.widget.PictureAttachmentsView;
 import com.di7ak.spaces.forum.widget.ProgressBar;
 import com.di7ak.spaces.forum.widget.VotingView;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -206,7 +206,13 @@ public class BlogActivity extends AppCompatActivity
                 } else text = subject.toString();
 
                 mText.setMovementMethod(LinkMovementMethod.getInstance());
-                mText.setText(Html.fromHtml(text, new SpImageGetter(mText), null));
+                Spanned sText = Html.fromHtml(text, new SpImageGetter(mText), null);
+                mText.setText(sText);
+                String line = sText.toString().split("\n")[0];
+                int offset = line.length() > 100 ? 100 : line.length();
+                String title = line.substring(0, offset);
+                CharSequence currentTitle = mCollapsingToolbar.getTitle();
+                if(TextUtils.isEmpty(currentTitle)) mCollapsingToolbar.setTitle(title);
             }
             //avatar
             if (data.has("avatar")) {
@@ -242,7 +248,7 @@ public class BlogActivity extends AppCompatActivity
                 String date = data.getString("time");
                 if(date.startsWith("в ")) date = "Сегодня " + date;
                 mDate.setIcon(R.drawable.ic_access_time_black_18dp);
-                mDate.setText(date);
+                mDate.setText(date.toUpperCase());
             }
             //channel
             if(data.has("tagsWidget")) {

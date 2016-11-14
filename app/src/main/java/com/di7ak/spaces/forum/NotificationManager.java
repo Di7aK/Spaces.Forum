@@ -44,7 +44,6 @@ public class NotificationManager extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
-        
         try {
             JSONObject json = new JSONObject(message);
             for(OnNewNotification listener : listeners) {
@@ -57,12 +56,11 @@ public class NotificationManager extends WebSocketClient {
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-        connect();
     }
 
     @Override
     public void onError(Exception ex) {
-        connect();
+        android.util.Log.e("lol", "socket", ex);
     }
 
     public interface OnNewNotification {

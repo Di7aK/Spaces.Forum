@@ -71,7 +71,7 @@ public class DownloadManager {
                 } catch (MalformedURLException e) {
                     android.util.Log.e("lol", "", e);
                     return null;
-                } catch (IOException e) {
+                } catch (Exception e) {
                     android.util.Log.e("lol", "", e);
                     return null;
                 }
@@ -89,6 +89,7 @@ public class DownloadManager {
             }
 
             protected void onPostExecute(File result) {
+                try {
                 if (!isCancelled()) {
                     List<DownloadListener> listeners = downloads.get(url);
                     for (DownloadListener listener : listeners) {
@@ -98,6 +99,7 @@ public class DownloadManager {
                     downloads.remove(url);
                     tasks.remove(url);
                 }
+                } catch(Exception e) {}
             }
         };
         tasks.put(url, task);

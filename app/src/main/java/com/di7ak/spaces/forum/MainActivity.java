@@ -1,6 +1,7 @@
 package com.di7ak.spaces.forum;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -13,10 +14,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import com.di7ak.spaces.forum.R;
-import com.di7ak.spaces.forum.api.Communities;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.fragments.CommFragment;
-import com.di7ak.spaces.forum.fragments.ForumsFragment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +27,7 @@ public class MainActivity extends AppCompatActivity implements
 	private TabLayout tabLayout;
 	private ViewPager viewPager;
 	private CommFragment myComm;
-    private ForumsFragment forumsFragment;
 	private Session session;
-    private Bundle args;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +54,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onPageSelected(int page) {
-        if(page == 0) myComm.onSelected();
-        else forumsFragment.onSelected();
+        
     }
 
     @Override
@@ -68,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case R.id.journal:
                 Intent intent = new Intent(MainActivity.this, JournalActivity.class);
@@ -91,8 +86,9 @@ public class MainActivity extends AppCompatActivity implements
 		if (session == null) finish();
 		else {
 			this.session = session;
-			myComm = new CommFragment(session, Communities.TYPE_MYCOMM);
-			forumsFragment = new ForumsFragment();
+            String url = "http://spaces.ru/comm/?List=1&sid=" + session.sid;
+			myComm = new CommFragment();
+            myComm.setData(Uri.parse(url));
 			setupViewPager(viewPager);
 			tabLayout.setupWithViewPager(viewPager);
             if (!NotificationService.running) startService(new Intent(this, NotificationService.class));
@@ -107,9 +103,7 @@ public class MainActivity extends AppCompatActivity implements
 	private void setupViewPager(ViewPager viewPager) {
 		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 		adapter.addFragment(myComm, "Форумы сообществ");
-		adapter.addFragment(forumsFragment, "Общий форум");
 		viewPager.setAdapter(adapter);
-        myComm.onSelected();
 	}
 
 

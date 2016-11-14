@@ -8,8 +8,8 @@ android {
         applicationId "com.di7ak.spaces.forum"
         minSdkVersion 11
         targetSdkVersion 21
-        versionCode 39
-        versionName "0.3.9 journal shatal"
+        versionCode 40
+        versionName "0.4 avatarki teryal"
     }
     buildTypes {
         release {
@@ -24,10 +24,6 @@ dependencies {
 	compile 'com.android.support:design:23.1.1'
 	compile 'com.android.support:appcompat-v7:23.0.1'
 	compile 'de.hdodenhof:circleimageview:2.1.0'
-	compile 'com.github.dexafree:materiallist:+'
-	compile 'jp.wasabeef:recyclerview-animators:2.2.4'
-    compile 'com.nineoldandroids:library:2.4.0'
-    compile 'com.daimajia.slider:library:1.1.5@aar'
     compile project(':material')
     compile project(':library')
 }

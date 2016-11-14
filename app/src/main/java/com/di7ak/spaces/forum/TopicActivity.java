@@ -10,17 +10,13 @@ import com.di7ak.spaces.forum.util.SpImageGetter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import android.text.Spanned;
 
 public class TopicActivity extends BlogActivity {
     
     @Override
     protected void setupTopicData(JSONObject data) {
         try {
-            //title
-            if (data.has("subject")) {
-                String title = data.getString("subject");
-                if (!TextUtils.isEmpty(title)) mCollapsingToolbar.setTitle(Html.fromHtml(title));
-            }
             //text
             if (data.has("body")) {
                 Object subject = data.get("body");
@@ -30,9 +26,16 @@ public class TopicActivity extends BlogActivity {
                         text = ((JSONObject)subject).getString("subject");
                     }
                 } else text = subject.toString();
-
                 mText.setMovementMethod(LinkMovementMethod.getInstance());
-                mText.setText(Html.fromHtml(text, new SpImageGetter(mText), null));
+                Spanned sText = Html.fromHtml(text, new SpImageGetter(mText), null);
+                mText.setText(sText);
+            }
+            //title
+            if (data.has("subject")) {
+                String title = data.getString("subject");
+                if(!TextUtils.isEmpty(title)) {
+                    mCollapsingToolbar.setTitle(Html.fromHtml(title));
+                }
             }
             //avatar
             if (data.has("avatar")) {
@@ -84,12 +87,7 @@ public class TopicActivity extends BlogActivity {
                 String date = data.getString("date");
                 if(date.startsWith("в ")) date = "Сегодня " + date;
                 mDate.setIcon(R.drawable.ic_access_time_black_18dp);
-                mDate.setText(date);
-            }
-            //channel
-            if(data.has("tagsWidget")) {
-                JSONObject tags = data.getJSONObject("tagsWidget");
-                mChannel.setupData(tags);
+                mDate.setText(date.toUpperCase());
             }
         } catch (JSONException e) {
 
