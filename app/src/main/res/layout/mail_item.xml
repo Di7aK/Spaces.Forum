@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.di7ak.spaces.forum.widget.LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="#ffffff"
+    style="@style/Material.Drawable.Ripple.Touch.Light">
+
+    <com.di7ak.spaces.forum.widget.AvatarView
+        android:id="@+id/avatar"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_weight="0"
+        android:layout_marginLeft="5dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="top">
+        
+        <TextView 
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:textSize="16dp"
+            android:layout_weight="1"
+            android:gravity="left"
+            style="@style/comm_name"/>
+        
+            <TextView
+                style="@style/comm_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:layout_weight="0"
+                android:gravity="right"
+                android:padding="0dp"
+                android:layout_marginRight="4dp"
+                android:id="@+id/date"/>
+
+        </LinearLayout>
+        
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="top">
+
+        <TextView
+            style="@style/comm_description"
+            android:textSize="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="left"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:id="@+id/description"/>
+        
+        <TextView
+            style="@style/comm_description"
+            android:textColor="#ffffff"
+            android:background="@drawable/bg_circle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="12dp"
+            android:layout_weight="0"
+            android:gravity="center"
+            android:padding="0dp"
+            android:layout_marginRight="4dp"
+            android:id="@+id/new_cnt"/>
+        
+        </LinearLayout>
+        
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#cccccc" />
+
+    </LinearLayout>
+
+</com.di7ak.spaces.forum.widget.LinearLayout>

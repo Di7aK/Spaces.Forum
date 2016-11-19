@@ -15,6 +15,7 @@ import org.json.JSONObject;
 public class ChannelView extends LinearLayout implements View.OnClickListener {
     private Context mContext;
     private TextView mName;
+    private ImageView icon;
     private String mUrl;
     
     public ChannelView(Context context) {
@@ -34,7 +35,7 @@ public class ChannelView extends LinearLayout implements View.OnClickListener {
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER_VERTICAL);
         
-        ImageView icon = new ImageView(mContext);
+        icon = new ImageView(mContext);
         icon.setImageResource(R.drawable.ic_rss_feed_black_18dp);
         int w = (int)(density * 28);
         int h = w;
@@ -65,6 +66,13 @@ public class ChannelView extends LinearLayout implements View.OnClickListener {
                 setOnClickListener(this);
             }
         } catch(JSONException e) {}
+    }
+    
+    public void invert() {
+        removeView(icon);
+        removeView(mName);
+        addView(icon);
+        addView(mName);
     }
     
     @Override

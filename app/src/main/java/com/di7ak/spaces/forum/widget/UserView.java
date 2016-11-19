@@ -18,25 +18,25 @@ public class UserView extends LinearLayout implements View.OnClickListener {
     private TextView mUserName;
     private ImageView mOnline;
     private String mLink;
-    
+
     public UserView(Context context) {
         super(context);
         mUserName = new TextView(context);
         init(context);
     }
-    
+
     public UserView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mUserName = new TextView(context, attrs);
         init(context);
     }
-    
+
     private void init(Context context) {
         mContext = context;
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER_VERTICAL);
         addView(mUserName);
-        
+
         mOnline = new ImageView(mContext);
         int w = (int)(mUserName.getTextSize() / 2);
         int h = w;
@@ -44,35 +44,44 @@ public class UserView extends LinearLayout implements View.OnClickListener {
         float density = mContext.getResources().getDisplayMetrics().density;
         params.setMargins((int)(5 * density), 0, 0, 0);
         mOnline.setLayoutParams(params);
-        
+
         addView(mOnline);
     }
-    
+
     public void setupData(JSONObject data) {
         try {
-            if(data.has("siteLink")) {
-                JSONObject siteLink = data.getJSONObject("siteLink");
-                if(siteLink.has("mysite_link")) {
-                    mLink = siteLink.getString("mysite_link");
+            if (data.has("siteLink")) {
+                if (data.get("siteLink") instanceof JSONObject) {
+                    JSONObject siteLink = data.getJSONObject("siteLink");
+                    if (siteLink.has("mysite_link")) {
+                        mLink = siteLink.getString("mysite_link");
+                        setOnClickListener(this);
+                    }
+                    if (siteLink.has("user_name")) {
+                        String userName = siteLink.getString("user_name");
+                        mUserName.setText(userName);
+                    }
+                } else {
+                    mLink = data.getString("siteLink");
                     setOnClickListener(this);
                 }
-                if(siteLink.has("user_name")) {
-                    String userName = siteLink.getString("user_name");
-                    mUserName.setText(userName);
-                }
             }
-            if(data.has("onlineStatus")) {
+            if (data.has("onlineStatus")) {
                 JSONObject onlineStatus = data.getJSONObject("onlineStatus");
-                if(onlineStatus.has("is_online")) {
-                    if(onlineStatus.getInt("is_online") != 0) {
+                if (onlineStatus.has("is_online")) {
+                    if (onlineStatus.getInt("is_online") != 0) {
                         Drawable d = mContext.getResources().getDrawable(R.drawable.bg_circle);
                         mOnline.setImageDrawable(d);
                     }
                 }
             }
-        } catch(JSONException e) {}
+            if(data.has("name")) {
+                String userName = data.getString("name");
+                mUserName.setText(userName);
+            }
+        } catch (JSONException e) {}
     }
-    
+
     @Override
     public void onClick(View v) {
         Intent intent = new Intent();
@@ -80,7 +89,7 @@ public class UserView extends LinearLayout implements View.OnClickListener {
         intent.setData(Uri.parse(mLink));
         mContext.startActivity(intent);
     }
-    
+
     public void setText(String text) {
         mUserName.setText(text);
     }

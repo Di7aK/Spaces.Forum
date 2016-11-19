@@ -1,6 +1,7 @@
 package com.di7ak.spaces.forum;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -13,7 +14,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import com.di7ak.spaces.forum.api.Blogs;
 import com.di7ak.spaces.forum.api.CommunityData;
 import com.di7ak.spaces.forum.api.Forum;
 import com.di7ak.spaces.forum.api.Session;
@@ -21,11 +21,11 @@ import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.fragments.BlogsFragment;
 import com.di7ak.spaces.forum.fragments.ForumCategoryFragment;
 import com.di7ak.spaces.forum.fragments.ForumFragment;
+import com.di7ak.spaces.forum.interfaces.OnPageSelectedListener;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.di7ak.spaces.forum.interfaces.OnPageSelectedListener;
 
 public class ForumActivity extends AppCompatActivity implements 
         Authenticator.OnResult,
@@ -135,10 +135,12 @@ public class ForumActivity extends AppCompatActivity implements
 			this.session = session;
 			
 			Bundle extra = getIntent().getExtras();
-			String commData = extra.getString("comm");
+			String commSource = extra.getString("comm");
+            JSONObject commData;
 			try {
-                JSONObject json = new JSONObject(commData);
-                comm = new CommunityData(json);
+                
+                commData = new JSONObject(commSource);
+                comm = new CommunityData(commData);
             } catch (SpacesException e) {
                 finish();
                 return;
@@ -151,10 +153,14 @@ public class ForumActivity extends AppCompatActivity implements
             args = extra.getBundle("args");
 			
 			adapter = new ViewPagerAdapter(getSupportFragmentManager());
-			if(comm.blogEnabled) {
-                blogsFragment = new BlogsFragment(session, comm.id, Blogs.TYPE_COMM);
+            try {
+			if(commData.has("diary_url")) {
+                String url = commData.getString("diary_url");
+                blogsFragment = new BlogsFragment();
+                blogsFragment.setData(Uri.parse(url), session);
                 adapter.addFragment(blogsFragment, "Блоги");
             }
+            } catch(JSONException e) {}
 
             if(comm.forumEnabled) {
                 categoryFragment = new ForumCategoryFragment(session, comm.cid, comm.id != null);

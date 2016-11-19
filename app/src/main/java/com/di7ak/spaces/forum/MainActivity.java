@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.fragments.CommFragment;
+import com.di7ak.spaces.forum.fragments.MailFragment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements
 	private TabLayout tabLayout;
 	private ViewPager viewPager;
 	private CommFragment myComm;
+    private MailFragment mMail;
 	private Session session;
 
 	@Override
@@ -89,6 +91,9 @@ public class MainActivity extends AppCompatActivity implements
             String url = "http://spaces.ru/comm/?List=1&sid=" + session.sid;
 			myComm = new CommFragment();
             myComm.setData(Uri.parse(url));
+            url = "http://spaces.ru/mail/?sid=" + session.sid;
+            mMail = new MailFragment();
+            mMail.setData(Uri.parse(url));
 			setupViewPager(viewPager);
 			tabLayout.setupWithViewPager(viewPager);
             if (!NotificationService.running) startService(new Intent(this, NotificationService.class));
@@ -103,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements
 	private void setupViewPager(ViewPager viewPager) {
 		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 		adapter.addFragment(myComm, "Форумы сообществ");
+        adapter.addFragment(mMail, "Диалоги");
 		viewPager.setAdapter(adapter);
 	}
 

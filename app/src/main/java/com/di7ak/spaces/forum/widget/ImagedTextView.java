@@ -65,4 +65,11 @@ public class ImagedTextView extends LinearLayout {
         mIcon.setImageResource(res);
     }
     
+    public void invert() {
+        removeView(mIcon);
+        removeView(mText);
+        addView(mText);
+        addView(mIcon);
+    }
+    
 }

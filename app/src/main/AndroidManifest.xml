@@ -57,6 +57,16 @@
                 <category android:name="android.intent.category.NONE" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".DialogActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="Диалог" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.NONE" />
+            </intent-filter>
+        </activity>
 		<activity
             android:name=".TopicActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
