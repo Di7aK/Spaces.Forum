@@ -44,61 +44,25 @@ public class PictureAttachmentsView extends LinearLayout implements View.OnClick
                     attach = attach.getJSONObject("attach");
                 }
                 mAttachments.put(attach);
-                if (attach.has("preview")) {
-                    JSONObject preview = attach.getJSONObject("preview");
-                    if (preview.has("player")) {
-                        VideoAttachmentView view = new VideoAttachmentView(mContext);
-                        view.setupData(attach);
-                        mAttachBlock.addView(view);
-                    } else {
-                        float density = mContext.getResources().getDisplayMetrics().density;
-
-                        ImageView imageView = new ImageView(mContext);
-                        LinearLayout.LayoutParams lParams = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT);
-                        imageView.setLayoutParams(lParams);
-                        int padding = (int)(5 * density);
-                        imageView.setPadding(padding, padding, padding, padding);
-
-
-                        if (preview.has("previewURL")) {
-                            String url = preview.getString("previewURL");
-                            Uri uri = Uri.parse(url);
-                            String query = uri.getQuery();
-                            url = url.replace(query, "");
-                            
-                            String hash = ImageDownloader.md5(url);
-                            new ImageDownloader(mContext).downloadImage(url, hash, imageView, null);
-                        }
-                        if (preview.has("size")) {
-                            JSONObject size = preview.getJSONObject("size");
-                            int width = 0, height = 0;
-                            if (size.has("width")) {
-                                width = (int)(size.getInt("width") * density);
-                            }
-                            if (size.has("height")) {
-                                height = (int)(size.getInt("height") * density);
-                            }
-                            if (width != 0 && height != 0) {
-                                lParams = new LinearLayout.LayoutParams(width, height);
-                                imageView.setLayoutParams(lParams);
-                            }
-                        }
-                        imageView.setTag(mAttachments.length() - 1);
-                        imageView.setOnClickListener(this);
-                        
-                        mAttachBlock.addView(imageView);
-                    }
-                } else if (attach.has("player")) {
-                    VideoAttachmentView view = new VideoAttachmentView(mContext);
-                    view.setupData(attach);
-                    mAttachBlock.addView(view);
+                if(attach.getInt("type") == 7) {
+                    PictureAttachmentView item = new PictureAttachmentView(mContext);
+                    item.setupData(attach);
+                    mAttachBlock.addView(item);
+                    item.setOnClickListener(this);
+                    item.setTag(mAttachments.length() - 1);
+                } else {
+                    VideoAttachmentView item = new VideoAttachmentView(mContext);
+                    item.setupData(attach);
+                    mAttachBlock.addView(item);
                 }
             }
         } catch (JSONException e) {
 
         }
+    }
+    
+    public JSONArray getAttachments() {
+        return mAttachments;
     }
     
     @Override

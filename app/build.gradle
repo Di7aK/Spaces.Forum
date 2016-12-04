@@ -8,8 +8,8 @@ android {
         applicationId "com.di7ak.spaces.forum"
         minSdkVersion 11
         targetSdkVersion 21
-        versionCode 41
-        versionName "0.4.1 forum proebal"
+        versionCode 42
+        versionName "0.4.2 delai sasaj"
     }
     buildTypes {
         release {

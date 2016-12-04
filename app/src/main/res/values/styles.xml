@@ -6,6 +6,9 @@
 		<item name="colorPrimary">@color/colorPrimary</item>
 		<item name="colorPrimaryDark">@color/colorPrimaryDark</item>
 		<item name="colorAccent">@color/colorAccent</item>
+        <item name="colorControlNormal">#5566ff</item>
+        <item name="colorControlActivated">#5566ff</item>
+        <item name="colorControlHighlight">#5566ff</item>
 	</style>
 	
 	<style name="AppTheme" parent="AppTheme.Base">
@@ -301,6 +304,10 @@
         <item>@style/LightFABSendComment</item>
     </array>
     
+    <array name="fab_send_message">
+        <item>@style/LightFABSendMessage</item>
+    </array>
+    
     <style name="LightFloatingActionButtonSendCommentIcon" >
         <item name="lmd_state">@xml/fab_send_comment</item>
         <item name="lmd_curState">0</item>
@@ -318,6 +325,26 @@
         <item name="rd_rippleColor">#33000000</item>
         <item name="fab_backgroundColor">@android:color/transparent</item>
         <item name="fab_iconLineMorphing">@style/LightFloatingActionButtonSendCommentIcon</item>
+        <item name="fab_elevation">0dp</item>
+    </style>
+    
+    <style name="LightFloatingActionButtonSendMessageIcon" >
+        <item name="lmd_state">@xml/fab_send_comment</item>
+        <item name="lmd_curState">0</item>
+        <item name="lmd_padding">2dp</item>
+        <item name="lmd_animDuration">400</item>
+        <item name="lmd_interpolator">@android:anim/accelerate_decelerate_interpolator</item>
+        <item name="lmd_strokeSize">3dp</item>
+        <item name="lmd_strokeColor">#5566ff</item>
+        <item name="lmd_strokeCap">butt</item>
+        <item name="lmd_strokeJoin">miter</item>
+        <item name="lmd_clockwise">true</item>
+    </style>
+
+    <style name="LightFABSendMessage" parent="Material.Widget.FloatingActionButton.Light">
+        <item name="rd_rippleColor">#33000000</item>
+        <item name="fab_backgroundColor">@android:color/transparent</item>
+        <item name="fab_iconLineMorphing">@style/LightFloatingActionButtonSendMessageIcon</item>
         <item name="fab_elevation">0dp</item>
     </style>
     

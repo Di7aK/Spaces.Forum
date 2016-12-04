@@ -1,5 +1,7 @@
 package com.di7ak.spaces.forum;
 
+import com.di7ak.spaces.forum.widget.*;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -9,9 +11,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
@@ -19,16 +19,6 @@ import com.di7ak.spaces.forum.api.Request;
 import com.di7ak.spaces.forum.api.RequestListener;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
-import com.di7ak.spaces.forum.util.SpImageGetter;
-import com.di7ak.spaces.forum.widget.AddCommentView;
-import com.di7ak.spaces.forum.widget.AvatarView;
-import com.di7ak.spaces.forum.widget.ChannelView;
-import com.di7ak.spaces.forum.widget.CommentsView;
-import com.di7ak.spaces.forum.widget.FileAttachmentsView;
-import com.di7ak.spaces.forum.widget.ImagedTextView;
-import com.di7ak.spaces.forum.widget.PictureAttachmentsView;
-import com.di7ak.spaces.forum.widget.ProgressBar;
-import com.di7ak.spaces.forum.widget.VotingView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,7 +38,7 @@ public class BlogActivity extends AppCompatActivity
     protected Uri uri;
     protected ProgressBar bar;
     protected TextView mAuthor;
-    protected TextView mText;
+    protected SubjectView mText;
     protected AvatarView mAvatar;
     protected VotingView mVoting;
     protected PictureAttachmentsView mPictureAttachments;
@@ -72,7 +62,7 @@ public class BlogActivity extends AppCompatActivity
         mBody = findViewById(R.id.body);
         mBody.setVisibility(View.INVISIBLE);
         mAuthor = (TextView)findViewById(R.id.user_name);
-        mText = (TextView)findViewById(R.id.text);
+        mText = (SubjectView)findViewById(R.id.subject);
         mAvatar = (AvatarView)findViewById(R.id.avatar);
         mVoting = (VotingView)findViewById(R.id.voting);
         mPictureAttachments = (PictureAttachmentsView)findViewById(R.id.picture_attachments);
@@ -195,30 +185,6 @@ public class BlogActivity extends AppCompatActivity
                     if (!TextUtils.isEmpty(title)) mCollapsingToolbar.setTitle(Html.fromHtml(title));
                 }
             }
-            //text
-            if (data.has("subject")) {
-                Object subject = data.get("subject");
-                String text = new String();
-                if (subject instanceof JSONObject) {
-                    if (((JSONObject)subject).has("subject")) {
-                        text = ((JSONObject)subject).getString("subject");
-                    }
-                } else text = subject.toString();
-
-                mText.setMovementMethod(LinkMovementMethod.getInstance());
-                Spanned sText = Html.fromHtml(text, new SpImageGetter(mText), null);
-                mText.setText(sText);
-                String line = sText.toString().split("\n")[0];
-                int offset = line.length() > 100 ? 100 : line.length();
-                String title = line.substring(0, offset);
-                CharSequence currentTitle = mCollapsingToolbar.getTitle();
-                if(TextUtils.isEmpty(currentTitle)) mCollapsingToolbar.setTitle(title);
-            }
-            //avatar
-            if (data.has("avatar")) {
-                JSONObject avatar = data.getJSONObject("avatar");
-                mAvatar.setupData(avatar);
-            }
             //header attachments
             if (data.has("MainAttachWidget")) {
                 JSONObject mainAttachWidgets = data.getJSONObject("MainAttachWidget");
@@ -231,6 +197,30 @@ public class BlogActivity extends AppCompatActivity
                     mPictureAttachments.setupData(pictureWidgets);
                 }
             }
+            //text
+            if (data.has("subject")) {
+                Object subject = data.get("subject");
+                String text = new String();
+                if (subject instanceof JSONObject) {
+                    if (((JSONObject)subject).has("subject")) {
+                        text = ((JSONObject)subject).getString("subject");
+                    }
+                } else text = subject.toString();
+
+                mText.setAttachments(mPictureAttachments);
+                mText.setText(text);
+                String line = text.toString().split("\n")[0];
+                int offset = line.length() > 100 ? 100 : line.length();
+                String title = line.substring(0, offset);
+                CharSequence currentTitle = mCollapsingToolbar.getTitle();
+                if(TextUtils.isEmpty(currentTitle)) mCollapsingToolbar.setTitle(title);
+            }
+            //avatar
+            if (data.has("avatar")) {
+                JSONObject avatar = data.getJSONObject("avatar");
+                mAvatar.setupData(avatar);
+            }
+            
             //footer attachments
             if (data.has("attachWidget")) {
                 JSONObject mainAttachWidgets = data.getJSONObject("attachWidget");

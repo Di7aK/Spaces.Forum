@@ -181,7 +181,7 @@ public class MailFragment extends Fragment implements
             mProgressNext.start();
             new Request(mData).executeWithListener(this);
         } else if(v.getTag() != null) {
-            Intent intent = new Intent(getActivity(), DialogActivity.class);
+            Intent intent = new Intent();
             intent.setData(Uri.parse((String)v.getTag()));
             intent.setAction(Intent.ACTION_VIEW);
             getActivity().startActivity(intent);

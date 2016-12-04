@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#77000000">
+    android:background="#f0ffffff">
     
     <LinearLayout
         android:id="@+id/resize"
@@ -17,7 +17,7 @@
         <View
             android:layout_width="60dp"
             android:layout_height="3dp"
-            android:background="#ffffff" />
+            android:background="#000000" />
         
     </LinearLayout>
     
@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:singleLine="false"
-            android:textColor="#ffffff"
+            android:textColor="#333333"
             android:gravity="top"
             android:hint="ОТВЕТИТЬ" />
     </android.support.design.widget.TextInputLayout>
@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="0"
         android:layout_gravity="top"
-        app:v_styleId="@array/fab_send_comment" />
+        app:v_styleId="@array/fab_send_message" />
     
     </LinearLayout>
 
