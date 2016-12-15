@@ -184,6 +184,7 @@ public class MailFragment extends Fragment implements
             Intent intent = new Intent();
             intent.setData(Uri.parse((String)v.getTag()));
             intent.setAction(Intent.ACTION_VIEW);
+            intent.setClass(getContext(), DialogActivity.class);
             getActivity().startActivity(intent);
         } else new Request(mData).executeWithListener(this);
     }

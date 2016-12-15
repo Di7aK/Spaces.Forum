@@ -23,11 +23,13 @@
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
         android:orientation="vertical"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="60dp">
+        android:paddingTop="0dp"
+        android:paddingBottom="60dp">
          
-        
+        <ListView
+            android:id="@+id/messages"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
         
     </LinearLayout>
     

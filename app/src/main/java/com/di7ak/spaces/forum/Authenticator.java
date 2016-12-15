@@ -51,7 +51,8 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		AccountManager am = AccountManager.get(context.getApplicationContext());
 		String authToken = am.peekAuthToken(account, authTokenType);
         String channelId = am.getUserData(account, "channel");
-        if (TextUtils.isEmpty(authToken) || TextUtils.isEmpty(channelId)) {
+        String avatar = am.getUserData(account, "avatar");
+        if (TextUtils.isEmpty(authToken) || TextUtils.isEmpty(channelId) || TextUtils.isEmpty(avatar)) {
 			final String password = am.getPassword(account);
 			if (!TextUtils.isEmpty(password)) {
 				try {
@@ -61,7 +62,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
                     am.setUserData(account, "ck", session.ck);
                     am.setUserData(account, "login", session.login);
                     am.setUserData(account, "avatar", session.avatar);
-				} catch (SpacesException e) {}
+                } catch (SpacesException e) {}
 			}
 		}
 		if (!TextUtils.isEmpty(authToken)) {
@@ -117,6 +118,11 @@ public class Authenticator extends AbstractAccountAuthenticator {
                             session.ck = am.getUserData(accounts[0], "ck");
                             session.login = am.getUserData(accounts[0], "login");
                             session.avatar = am.getUserData(accounts[0], "avatar");
+                            if(TextUtils.isEmpty(session.avatar)) {
+                                am.invalidateAuthToken(ACCOUNT_TYPE, session.sid);
+                                getSession(activity, onResult);
+                                return;
+                            }
                             onResult.onAuthenticatorResult(session);
                         } catch (Exception e) {
 							onResult.onAuthenticatorResult(null);
