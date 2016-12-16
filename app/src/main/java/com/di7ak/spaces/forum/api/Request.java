@@ -73,6 +73,7 @@ public class Request extends AsyncTask<Void, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
+        
         JSONObject json = null;
         SpacesException exception = null;
         if (result == null) exception = new SpacesException(-1);

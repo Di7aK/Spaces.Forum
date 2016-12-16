@@ -11,62 +11,52 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.api.Session;
+import com.di7ak.spaces.forum.models.Message;
 import com.di7ak.spaces.forum.util.SpImageGetter;
 import com.di7ak.spaces.forum.widget.AvatarView;
-import org.json.JSONArray;
+import java.util.ArrayList;
+import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MessageAdapter extends BaseAdapter {
-    private JSONArray mMessages;
-    private JSONObject mJson;
+    private List<Message> mMessages;
     private Context mContext;
-    private Session mSession;
 
-    public MessageAdapter(Context context, JSONObject json, Session session) {
+    public MessageAdapter(Context context) {
         super();
         mContext = context;
-        mJson = json;
-        mSession = session;
-        try {
-            mMessages = json.getJSONArray("msg_list");
-        } catch(JSONException e) {
-            
-        }
+        mMessages = new ArrayList<Message>();
     }
-    
-    public void appendMessage(String text) {
-        JSONObject msg = new JSONObject();
-        try {
-            msg.put("not_read", 1);
-            msg.put("text", text);
-            msg.put("human_date", "отправка");
-            mMessages.put(0, msg);
-            notifyDataSetChanged();
-        } catch (JSONException e) {}
+
+    public void appendMessage(Message message) {
+        mMessages.add(message);
     }
-    
-    public void setData(JSONObject json) {
-        mJson = json;
-        try {
-            mMessages = json.getJSONArray("msg_list");
-        } catch(JSONException e) {
-            
+
+    public void removeMessage(int index) {
+        mMessages.remove(index);
+    }
+
+    public void removeMessage(Message message) {
+        mMessages.remove(message);
+    }
+
+    public void makeAsRead() {
+        for (Message message : mMessages) {
+            message.read = true;
         }
+        notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return mMessages.length();
+        return mMessages.size();
     }
 
     @Override
     public Object getItem(int i) {
-        try {
-            return mMessages.get(i);
-        } catch (JSONException e) {
-            return null;
-        }
+        if(i >= mMessages.size()) i = mMessages.size() -1;
+        return mMessages.get(i);
     }
 
     @Override
@@ -74,67 +64,35 @@ public class MessageAdapter extends BaseAdapter {
         return i;
     }
 
-    final static int TYPE_SYSTEM = 0;
-    final static int TYPE_MY = 1;
-    final static int TYPE_RECEIVED = 2;
-    final static int TYPE_SENDING = 3;
     @Override
     public View getView(int i, View v, ViewGroup parent) {
-        JSONObject message = (JSONObject) getItem(getCount() - i - 1);
-        try {
-            int type;
-            
-            if (message.has("system")) type = TYPE_SYSTEM;
-            else {
-                if(message.has("received")) type = TYPE_RECEIVED;
-                else type = TYPE_MY;
-            }
-            if (type == TYPE_MY) {
-                v = LayoutInflater.from(mContext).inflate(R.layout.my_message_item, parent, false);
-            } else if (type == TYPE_RECEIVED) {
-                v = LayoutInflater.from(mContext).inflate(R.layout.message_item, parent, false);
-            } else if (type == TYPE_SYSTEM) {
-                v = LayoutInflater.from(mContext).inflate(R.layout.sys_message_item, parent, false);
-            }
-            
-            TextView textV = (TextView) v.findViewById(R.id.text);
-            TextView dateV = (TextView) v.findViewById(R.id.date);
+        Message message = (Message) getItem(i);
+        if (message.type == Message.TYPE_MY) {
+            v = LayoutInflater.from(mContext).inflate(R.layout.my_message_item, parent, false);
+        } else if (message.type == Message.TYPE_RECEIVED) {
+            v = LayoutInflater.from(mContext).inflate(R.layout.message_item, parent, false);
+        } else if (message.type == Message.TYPE_SYSTEM) {
+            v = LayoutInflater.from(mContext).inflate(R.layout.sys_message_item, parent, false);
+        }
 
-            
-            String text = message.getString("text");
-            textV.setMovementMethod(LinkMovementMethod.getInstance());
-            Spanned sText = Html.fromHtml(text, new SpImageGetter(textV), null);
-            textV.setText(sText);
-            String date = message.getString("human_date");
+        TextView textV = (TextView) v.findViewById(R.id.text);
+        TextView dateV = (TextView) v.findViewById(R.id.date);
 
-            if(type != TYPE_SYSTEM) {
-                AvatarView avatarV = (AvatarView) v.findViewById(R.id.avatar);
-                JSONObject avatar;
-                if(message.has("contact") && !message.getJSONObject("contact").isNull("avatar")) {
-                    avatar = message.getJSONObject("contact").getJSONObject("avatar");
-                } else if(type == TYPE_RECEIVED) {
-                    avatar = mJson.getJSONObject("contact_info").getJSONObject("widget").getJSONObject("avatar");
-                } else {
-                    avatar = new JSONObject();
-                    avatar.put("previewURL", "" + mSession.avatar);
-                }
-                avatarV.setupData(avatar);
-                if(message.has("contact") && mJson.getJSONObject("contact_info").has("talk")) {
-                String contact = message.getJSONObject("contact").getJSONObject("widget").getJSONObject("siteLink").getString("user_name");
-                dateV.setText(contact + ", " + date);
-                } else dateV.setText(date);
-            } else {
-                dateV.setText(date);
-            }
-            if(type == TYPE_MY) {
-                boolean notRead = message.has("not_read") && message.getInt("not_read") == 1;
-                if (notRead) {
-                    v.setBackgroundColor(0x44888888);
-                }
-            }
-            
-        } catch (JSONException e) {
-            android.util.Log.e("lol", "", e);
+        textV.setMovementMethod(LinkMovementMethod.getInstance());
+        Spanned sText = Html.fromHtml(message.text, new SpImageGetter(textV), null);
+        textV.setText(sText);
+
+        if (message.type != Message.TYPE_SYSTEM) {
+            AvatarView avatarV = (AvatarView) v.findViewById(R.id.avatar);
+            avatarV.setUrl(message.avatar);
+            if(message.talk) {
+                dateV.setText(message.user + ", " + message.time);
+            } else dateV.setText(message.time);
+        } else {
+            dateV.setText(message.time);
+        }
+        if (!message.read) {
+            v.setBackgroundColor(0x44888888);
         }
         return v;
     }

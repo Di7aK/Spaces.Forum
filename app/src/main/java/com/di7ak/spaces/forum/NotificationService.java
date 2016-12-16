@@ -48,14 +48,7 @@ public class NotificationService extends Service implements NotificationManager.
                         if (text.has("type")) {
                             int type = text.getInt("type");
                             if (type == 3) {
-                                notificationManager.cancel(2);
-                                if (count > 0) {
-                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://spaces.ru/mail/"));
-                                    PendingIntent pintent = PendingIntent.getActivity(this,
-                                                                                      0, intent,
-                                                                                      PendingIntent.FLAG_CANCEL_CURRENT);
-                                    showNotification(2, "Почта (" + count + ")", "Новое сообщение" + (mailUser == null ? "" : " от: " + mailUser), pintent);
-                                }
+                                
                             }
                             if (type == 1) {
                                 notificationManager.cancel(1);
@@ -72,7 +65,15 @@ public class NotificationService extends Service implements NotificationManager.
                     } else if (act == 1) {
                         JSONObject contact = text.getJSONObject("data").getJSONObject("contact");
                         mailUser = contact.getString("user");
+                        int nid = contact.getInt("nid");
                         
+                        notificationManager.cancel(2);
+                        Intent intent = new Intent(this, DialogActivity.class);
+                        intent.setData(Uri.parse("http://spaces.ru/mail/message_list/?Contact=" + nid));
+                                    PendingIntent pintent = PendingIntent.getActivity(this,
+                                                                                      0, intent,
+                                                                                      PendingIntent.FLAG_CANCEL_CURRENT);
+                                    showNotification(2, "Почта", "Новое сообщение" + (mailUser == null ? "" : " от: " + mailUser), pintent);
                     }
                 }
             }

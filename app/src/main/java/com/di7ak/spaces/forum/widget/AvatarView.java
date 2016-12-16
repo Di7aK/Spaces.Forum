@@ -16,14 +16,17 @@ public class AvatarView extends CircleImageView {
     public void setupData(JSONObject data) {
         try {
             if (data.has("previewURL")) {
-                String previewUrl = data.getString("previewURL");
-                //replace link to the larger size
-                previewUrl = previewUrl.replace("41.40", "81.80");
-                String hash = ImageDownloader.md5(previewUrl);
-                new ImageDownloader(getContext()).downloadImage(previewUrl, hash, this, null);
+                String url = data.getString("previewURL");
+                setUrl(url);
             }
         } catch (JSONException e) {
 
         }
+    }
+    
+    public void setUrl(String url) {
+        url = url.replace("41.40", "81.80");
+        String hash = ImageDownloader.md5(url);
+        new ImageDownloader(getContext()).downloadImage(url, hash, this, null);
     }
 }
