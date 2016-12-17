@@ -87,11 +87,11 @@ NotificationManager.OnNewNotification {
         mAdapter = new MessageAdapter(this);
         mMessageList.setAdapter(mAdapter);
         mMessageList.setDivider(null);
-        
+
         Authenticator.getSession(this, this);
 
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -100,8 +100,8 @@ NotificationManager.OnNewNotification {
         customUpdate();
         return true;
     }
-    
-    
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -129,20 +129,20 @@ NotificationManager.OnNewNotification {
         //Application.notificationManager.addListener(this);
         //customUpdate();
     }
-    
+
     boolean mUpdating;
     MenuItem mUpdateItem;
     public void customUpdate() {
-        if(mUpdating || mUpdateItem == null) return;
+        if (mUpdating || mUpdateItem == null) return;
         mUpdating = true;
         View snackView = getLayoutInflater().inflate(R.layout.progress_snackbar, null);
         ProgressView pv = (ProgressView)snackView.findViewById(R.id.progress_pv_circular_determinate);
         pv.start();
-        
+
         mUpdateItem.setActionView(pv);
         getMessages(mUri);
     }
-    
+
     public void stopUpdating() {
         mUpdateItem.setActionView(null);
         mUpdating = false;
@@ -232,19 +232,19 @@ NotificationManager.OnNewNotification {
 
                     @Override
                     public void onFocusChange(View p1, boolean p2) {
-                        if(p2) {
+                        if (p2) {
                             mMessageList.setSelection(mMessageList.getCount() - 1);
-                            
+
                         }
                     }
-                    
-                
-            });
+
+
+                });
             Application.notificationManager.addListener(this);
-            
+
             showFromDb();
             customUpdate();
-            
+
             mMessageBox.setEnabled(true);
             mMessageBox.setFocusableInTouchMode(true);
             mMessageBox.setFocusable(true);
@@ -256,17 +256,17 @@ NotificationManager.OnNewNotification {
         if (uri == null) return;
         Request request = new Request(uri);
         request.executeWithListener(this);
-        
+
     }
-    
+
     boolean mUpdatingLast;
     private void getNewMessages() {
-        if(mUpdatingLast) return;
+        if (mUpdatingLast) return;
         mUpdatingLast = true;
         String msgIds = "";
-        for(String id : mLastReceivedMsgs)
+        for (String id : mLastReceivedMsgs)
             msgIds += id + ",";
-        
+
         String post =     "sid=" + mSession.sid
             + "&MeSsages=" + msgIds
             + "&Pag=0"
@@ -278,13 +278,13 @@ NotificationManager.OnNewNotification {
 
                 @Override
                 public void onSuccess(JSONObject json) {
-                    if(json.has("messages")) {
+                    if (json.has("messages")) {
                         try {
                             JSONObject messages = json.getJSONObject("messages");
                             JSONArray result = new JSONArray();
                             List<String> toRemove = new ArrayList<String>();
-                            for(String id : mLastReceivedMsgs) {
-                                if(messages.has(id)) {
+                            for (String id : mLastReceivedMsgs) {
+                                if (messages.has(id)) {
                                     result.put(messages.getJSONObject(id));
                                     toRemove.add(id);
                                 }
@@ -294,8 +294,8 @@ NotificationManager.OnNewNotification {
                             handleMessages(result);
                             if (bottom) mMessageList.setSelection(mMessageList.getCount() - 1);
                             mUpdatingLast = false;
-                            if(mLastReceivedMsgs.size() > 0) getNewMessages();
-                        } catch(JSONException e) {
+                            if (mLastReceivedMsgs.size() > 0) getNewMessages();
+                        } catch (JSONException e) {
                             mMessageBox.setText(e.getMessage());
                         }
                     }
@@ -349,16 +349,35 @@ NotificationManager.OnNewNotification {
 
                 @Override
                 public void onSuccess(JSONObject json) {
+
                     try {
                         JSONObject data = json.getJSONObject("message");
                         message.time = data.getString("human_date");
                         message.text = data.getString("text");
                         message.read = !data.has("not_read");
                         message.nid = data.getInt("nid");
+                        mAdapter.removeMessage(message);
+                        mAdapter.appendMessage(message);
                         mAdapter.notifyDataSetChanged();
-                    } catch(JSONException e) {
+
+                        Cursor cursor;
+                        cursor = mDb.query("messages", null, "msg_id = ?", new String[]{Integer.toString(message.nid)}, null, null, null);
+                        if (cursor.getCount() == 0) {
+                            ContentValues cv = new ContentValues();
+                            cv.put("msg_id", message.nid);
+                            cv.put("contact_id", mContact);
+                            cv.put("type", message.type);
+                            cv.put("date", message.time);
+                            cv.put("message", message.text);
+                            cv.put("user_id", mSession.nid);
+                            cv.put("talk", mTalk ? 1 : 0);
+                            cv.put("not_read", message.read ? 0 : 1);
+                            mDb.insert("messages", null, cv);
+                        }
+                    } catch (JSONException e) {
                         Toast.makeText(DialogActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                     }
+
                     mSending.remove(message);
                     mRetryCount = 0;
                     sendMessages();
@@ -366,7 +385,7 @@ NotificationManager.OnNewNotification {
 
                 @Override
                 public void onError(SpacesException e) {
-                    if(mRetryCount < 3) {
+                    if (mRetryCount < 3) {
                         mRetryCount ++;
                         mSending.remove(message);
                     } else {
@@ -386,11 +405,11 @@ NotificationManager.OnNewNotification {
             mContact = contact.getInt("nid");
             mTalk = contact.has("talk");
             mLastReceivedMsgId = contact.getInt("last_received_msg_id");
-            if(contact.has("user_id")) mUserId = contact.getInt("user_id");
+            if (contact.has("user_id")) mUserId = contact.getInt("user_id");
             if (mTalk) {
                 mMembers = contact.getString("members_cnt");
                 mTalkId = contact.getInt("talk_id");
-                
+
                 setSub(mMembers);
             } 
             if (contact.has("avatar")) {
@@ -405,7 +424,7 @@ NotificationManager.OnNewNotification {
                 }
             }
             if (json.has("new_msg_form")) {
-                if(json.getJSONObject("new_msg_form").isNull("action")) {
+                if (json.getJSONObject("new_msg_form").isNull("action")) {
                     if (mMessageBox.isFocusable()) {
                         mMessageBox.setEnabled(false);
                         mMessageBox.setFocusableInTouchMode(false);
@@ -416,19 +435,19 @@ NotificationManager.OnNewNotification {
             } 
             mAddr = contact.getString("text_addr");
             setTitle(mAddr);
-            
+
             Cursor cursor;
             ContentValues cv;
-            
-                cursor = mDb.query("contacts", null, "contact_id = ?", new String[]{Integer.toString(mContact)}, null, null, null);
-                if (cursor.getCount() == 0) {
-                    cv = new ContentValues();
-                    cv.put("name", mAddr);
-                    cv.put("user_id", mUserId);
-                    cv.put("talk_id", mTalkId);
-                    cv.put("contact_id", mContact);
-                    cv.put("avatar", mAvatar);
-                    mDb.insert("contacts", null, cv);
+
+            cursor = mDb.query("contacts", null, "contact_id = ?", new String[]{Integer.toString(mContact)}, null, null, null);
+            if (cursor.getCount() == 0) {
+                cv = new ContentValues();
+                cv.put("name", mAddr);
+                cv.put("user_id", mUserId);
+                cv.put("talk_id", mTalkId);
+                cv.put("contact_id", mContact);
+                cv.put("avatar", mAvatar);
+                mDb.insert("contacts", null, cv);
             }
 
             boolean bottom = mMessageList.getLastVisiblePosition() == mMessageList.getAdapter().getCount() - 1;
@@ -449,7 +468,7 @@ NotificationManager.OnNewNotification {
             message.text = data.getString("text");
             message.read = !data.has("not_read");
             message.nid = data.getInt("nid");
-            
+
             if (data.has("system")) message.type = Message.TYPE_SYSTEM;
             else if (data.has("received")) message.type = Message.TYPE_RECEIVED;
             else message.type = Message.TYPE_MY;
@@ -504,7 +523,7 @@ NotificationManager.OnNewNotification {
                 cursor.moveToFirst();
                 int iRead = cursor.getColumnIndex("not_read");
                 int read = cursor.getInt(iRead);
-                if(read == 1 && message.read) {
+                if (read == 1 && message.read) {
                     mAdapter.makeAsRead();
                     ContentValues cv2 = new ContentValues();
                     cv2.put("not_read", 0);
@@ -525,7 +544,7 @@ NotificationManager.OnNewNotification {
             int iUserId = cursor.getColumnIndex("user_id");
             int iRead = cursor.getColumnIndex("not_read");
             int iTalk = cursor.getColumnIndex("talk");
-            if(cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
                 do {
                     Message message = new Message();
                     message.nid = cursor.getInt(iMsgId);
@@ -543,11 +562,11 @@ NotificationManager.OnNewNotification {
                         message.user = contact.getString(iName);
                         message.avatar = contact.getString(iAvatar);
                     }
-                    if(message.nid >= mLastMessageId) mLastMessageId = message.nid;
+                    if (message.nid >= mLastMessageId) mLastMessageId = message.nid;
                     mAdapter.appendMessage(message);
                 } while (cursor.moveToNext());
                 mAdapter.notifyDataSetChanged();
-                
+
                 if (bottom) mMessageList.setSelection(mMessageList.getCount() - 1);
             }
         }
