@@ -76,7 +76,7 @@ public class CommentsView extends LinearLayout
     }
     
     @Override
-    public void onNewNotification(JSONObject message) {
+    public boolean onNewNotification(JSONObject message) {
         try {
             if (message.has("text")) {
                 JSONObject text = message.getJSONObject("text");
@@ -85,7 +85,10 @@ public class CommentsView extends LinearLayout
                     if (act == 40) {
                         if(text.has("objectId")) {
                             int objectId = text.getInt("objectId");
-                            if(objectId == mObjectId) updateComments();
+                            if(objectId == mObjectId) {
+                                updateComments();
+                                return true;
+                            }
                         }
                     } 
                 }
@@ -93,6 +96,7 @@ public class CommentsView extends LinearLayout
         } catch (JSONException e) {
 
         }
+        return false;
     }
     
     public void setUrl(String url) {

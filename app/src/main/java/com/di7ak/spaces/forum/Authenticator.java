@@ -52,7 +52,8 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		String authToken = am.peekAuthToken(account, authTokenType);
         String channelId = am.getUserData(account, "channel");
         String avatar = am.getUserData(account, "avatar");
-        if (TextUtils.isEmpty(authToken) || TextUtils.isEmpty(channelId) || TextUtils.isEmpty(avatar)) {
+        String nid = am.getUserData(account, "nid");
+        if (TextUtils.isEmpty(authToken) || TextUtils.isEmpty(nid) || TextUtils.isEmpty(avatar)) {
 			final String password = am.getPassword(account);
 			if (!TextUtils.isEmpty(password)) {
 				try {
@@ -62,6 +63,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
                     am.setUserData(account, "ck", session.ck);
                     am.setUserData(account, "login", session.login);
                     am.setUserData(account, "avatar", session.avatar);
+                    am.setUserData(account, "nid", Integer.toString(session.nid));
                 } catch (SpacesException e) {}
 			}
 		}
@@ -118,11 +120,13 @@ public class Authenticator extends AbstractAccountAuthenticator {
                             session.ck = am.getUserData(accounts[0], "ck");
                             session.login = am.getUserData(accounts[0], "login");
                             session.avatar = am.getUserData(accounts[0], "avatar");
-                            if(TextUtils.isEmpty(session.avatar)) {
+                            String nid = am.getUserData(accounts[0], "nid");
+                            if(TextUtils.isEmpty(session.avatar) || TextUtils.isEmpty(nid)) {
                                 am.invalidateAuthToken(ACCOUNT_TYPE, session.sid);
                                 getSession(activity, onResult);
                                 return;
                             }
+                            session.nid = Integer.valueOf(nid);
                             onResult.onAuthenticatorResult(session);
                         } catch (Exception e) {
 							onResult.onAuthenticatorResult(null);

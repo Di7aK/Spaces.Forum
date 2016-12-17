@@ -14,4 +14,5 @@ public class Message {
     public boolean talk;
     public int type;
     public int nid;
+    public int userId;
 }

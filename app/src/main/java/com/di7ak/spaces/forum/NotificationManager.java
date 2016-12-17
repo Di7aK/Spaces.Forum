@@ -26,7 +26,7 @@ public class NotificationManager extends WebSocketClient {
     
     public void addListener(OnNewNotification listener) {
         synchronized(listener) {
-            listeners.add(listener);
+            listeners.add(0, listener);
         }
     }
     
@@ -47,7 +47,7 @@ public class NotificationManager extends WebSocketClient {
         try {
             JSONObject json = new JSONObject(message);
             for(OnNewNotification listener : listeners) {
-                listener.onNewNotification(json);
+                if(listener.onNewNotification(json)) break;
             }
         } catch (JSONException e) {
             
@@ -64,7 +64,7 @@ public class NotificationManager extends WebSocketClient {
     }
 
     public interface OnNewNotification {
-        public void onNewNotification(JSONObject message);
+        public boolean onNewNotification(JSONObject message);
     }
 }
 

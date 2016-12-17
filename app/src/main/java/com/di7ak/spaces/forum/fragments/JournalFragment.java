@@ -91,7 +91,7 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
     }
 
     @Override
-    public void onNewNotification(JSONObject message) {
+    public boolean onNewNotification(JSONObject message) {
         try {
 
             if (message.has("text")) {
@@ -104,6 +104,7 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
                             currentPage = 1;
                             update = true;
                             loadRecords();
+                            return true;
                         }
                     } 
                 }
@@ -111,6 +112,7 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
         } catch (JSONException e) {
 
         }
+        return false;
     }
 
    

@@ -34,11 +34,15 @@ public class MessageAdapter extends BaseAdapter {
     }
 
     public void removeMessage(int index) {
-        mMessages.remove(index);
+        synchronized(mMessages) {
+            mMessages.remove(index);
+        }
     }
 
     public void removeMessage(Message message) {
-        mMessages.remove(message);
+        synchronized(mMessages) {
+            mMessages.remove(message);
+        }
     }
 
     public void makeAsRead() {

@@ -24,15 +24,18 @@
         android:layout_marginTop="?attr/actionBarSize"
         android:orientation="vertical"
         android:paddingTop="0dp"
-        android:paddingBottom="60dp">
+        >
          
         <ListView
             android:id="@+id/messages"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+        
+        <include layout="@layout/message_box"/>
         
     </LinearLayout>
     
-    <include layout="@layout/message_box"/>
+    
      
 </android.support.design.widget.CoordinatorLayout>

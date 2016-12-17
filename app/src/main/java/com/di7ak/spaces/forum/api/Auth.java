@@ -45,6 +45,7 @@ public class Auth {
 			session.login = json.getString("name");
             session.channel = json.getString("channel_id");
             session.avatar = json.getString("avatar");
+            session.nid = json.getInt("nid");
 		} catch (IOException e) {
 			throw new SpacesException(-1);
 		} catch (JSONException e) {

@@ -36,7 +36,7 @@ public class DownloadManager {
     public static void download(final String url, DownloadListener listener, final File customFile) {
         downloads.put(url, new ArrayList<DownloadListener>());
         downloads.get(url).add(listener);
-        AsyncTask<String, Integer, File> task = new  AsyncTask<String, Integer, File>() {
+        final AsyncTask<String, Integer, File> task = new  AsyncTask<String, Integer, File>() {
 
             protected File doInBackground(String... urls) {
                 try {
@@ -71,7 +71,7 @@ public class DownloadManager {
                 } catch (MalformedURLException e) {
                     android.util.Log.e("lol", "", e);
                     return null;
-                } catch (Exception e) {
+                } catch (IOException e) {
                     android.util.Log.e("lol", "", e);
                     return null;
                 }

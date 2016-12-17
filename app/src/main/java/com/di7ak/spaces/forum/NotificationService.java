@@ -6,15 +6,18 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.NotificationCompat;
 import com.di7ak.spaces.forum.api.Request;
-import org.json.JSONException;
-import org.json.JSONObject;
 import com.di7ak.spaces.forum.api.RequestListener;
 import com.di7ak.spaces.forum.api.SpacesException;
+import com.di7ak.spaces.forum.util.DBHelper;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class NotificationService extends Service implements NotificationManager.OnNewNotification, 
         RequestListener {
@@ -22,6 +25,8 @@ public class NotificationService extends Service implements NotificationManager.
     private static String channel;
     private static long lastChecking;
     private static String mSid;
+    DBHelper mDBHelper;
+    SQLiteDatabase mDb;
 
     @Override 
     public IBinder onBind(Intent intent) { 
@@ -30,7 +35,7 @@ public class NotificationService extends Service implements NotificationManager.
 
     String mailUser;
     @Override
-    public void onNewNotification(JSONObject message) {
+    public boolean onNewNotification(JSONObject message) {
         if(System.currentTimeMillis() - lastChecking > 60 * 60 * 1000) {
             lastChecking = System.currentTimeMillis();
             Update.check(this);
@@ -64,7 +69,19 @@ public class NotificationService extends Service implements NotificationManager.
                         
                     } else if (act == 1) {
                         JSONObject contact = text.getJSONObject("data").getJSONObject("contact");
-                        mailUser = contact.getString("user");
+                        if(contact.has("user")) mailUser = contact.getString("user");
+                        else {
+                            android.util.Log.d("lol", text.toString());
+                            int contactId = contact.getInt("nid");
+                            Cursor c = mDb.query("contacts", null, "contact_id = ?", new String[]{Integer.toString(contactId)}, null, null, null);
+                            if (c.getCount() != 0) {
+                                c.moveToFirst();
+                                int iName = c.getColumnIndex("name");
+                                //int iAvatar = contact.getColumnIndex("avatar");
+                                mailUser = c.getString(iName);
+                                //contact.getString(iAvatar);
+                            }
+                        }
                         int nid = contact.getInt("nid");
                         
                         notificationManager.cancel(2);
@@ -78,8 +95,9 @@ public class NotificationService extends Service implements NotificationManager.
                 }
             }
         } catch (JSONException e) {
-
+            android.util.Log.d("lol", e.getMessage() + " " + message.toString());
         }
+        return false;
     }
 
     public void showNotification(int id, String title, String text, PendingIntent intent) {
@@ -98,6 +116,8 @@ public class NotificationService extends Service implements NotificationManager.
 
     @Override 
     public void onCreate() {
+        mDBHelper = new DBHelper(this);
+        mDb = mDBHelper.getWritableDatabase();
     } 
 
     @Override 

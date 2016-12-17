@@ -25,6 +25,7 @@ public class AvatarView extends CircleImageView {
     }
     
     public void setUrl(String url) {
+        if(url == null) return;
         url = url.replace("41.40", "81.80");
         String hash = ImageDownloader.md5(url);
         new ImageDownloader(getContext()).downloadImage(url, hash, this, null);
