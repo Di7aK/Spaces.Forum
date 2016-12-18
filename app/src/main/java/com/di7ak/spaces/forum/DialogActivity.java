@@ -1,10 +1,15 @@
 package com.di7ak.spaces.forum;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -125,6 +130,8 @@ NotificationManager.OnNewNotification {
     @Override
     public void onResume() {
         super.onResume();
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.cancel(2);
         mPaused = false;
         //Application.notificationManager.addListener(this);
         //customUpdate();
@@ -148,10 +155,9 @@ NotificationManager.OnNewNotification {
         mUpdating = false;
     }
 
-    int lastAct;
     @Override
     public boolean onNewNotification(JSONObject message) {
-        // android.util.Log.d("lol", message.toString());
+        //android.util.Log.d("lol", message.toString());
         try {
             if (message.has("text")) {
                 JSONObject text = message.getJSONObject("text");
@@ -162,7 +168,7 @@ NotificationManager.OnNewNotification {
                         if (text.has("talk_id")) id = text.getInt("talk_id");
                         else id = text.getInt("contact_id");
 
-                        if (id == mContact || id == mTalkId) {
+                        if (id == mContact) {
                             if (mTalk) {
                                 setSub(text.getString("user") + " печатает");
                             } else setSub("печатает");
@@ -184,7 +190,7 @@ NotificationManager.OnNewNotification {
                         if (nid == mContact) {
                             mLastReceivedMsgs.add(text.getJSONObject("data").getString("nid"));
                             getNewMessages();
-                            return !mPaused;
+                            return true;
                         }
                     }
                     if (act == 2) {//read
@@ -202,7 +208,6 @@ NotificationManager.OnNewNotification {
                             return true;
                         }
                     }
-                    lastAct = act;
                 }
             }
         } catch (JSONException e) {
@@ -461,6 +466,7 @@ NotificationManager.OnNewNotification {
     }
 
     public void handleMessages(JSONArray messages) throws JSONException {
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         for (int i = messages.length() - 1; i >= 0; i --) {
             JSONObject data = messages.getJSONObject(i);
             Message message = new Message();
@@ -519,6 +525,26 @@ NotificationManager.OnNewNotification {
                 if (message.nid <= mLastMessageId) continue;
                 mLastMessageId = message.nid;
                 mAdapter.appendMessage(message);
+                if(mPaused) {
+                    notificationManager.cancel(2);
+                    Intent intent = new Intent(this, DialogActivity.class);
+                    PendingIntent pintent = PendingIntent.getActivity(this,
+                                                                      0, intent,
+                                                                      PendingIntent.FLAG_UPDATE_CURRENT);
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                    String from = mAddr;
+                    if(mTalk) from += ": " + message.user;
+                    builder.setContentIntent(pintent)
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setContentTitle(from)
+                        .setAutoCancel(true)
+                        .setContentText(message.text);
+
+                    Notification notification = builder.build();
+
+                    notificationManager.notify(2, notification);
+                    
+                }
             } else {
                 cursor.moveToFirst();
                 int iRead = cursor.getColumnIndex("not_read");
