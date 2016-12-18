@@ -168,7 +168,7 @@ NotificationManager.OnNewNotification {
                         if (text.has("talk_id")) id = text.getInt("talk_id");
                         else id = text.getInt("contact_id");
 
-                        if (id == mContact) {
+                        if (id == mContact || id == mTalkId) {
                             if (mTalk) {
                                 setSub(text.getString("user") + " печатает");
                             } else setSub("печатает");
@@ -195,7 +195,7 @@ NotificationManager.OnNewNotification {
                     }
                     if (act == 2) {//read
                         int nid = text.getJSONObject("data").getInt("nid");
-                        if (nid == mContact && lastAct != 18) {
+                        if (nid == mContact) {
                             runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -530,7 +530,7 @@ NotificationManager.OnNewNotification {
                     Intent intent = new Intent(this, DialogActivity.class);
                     PendingIntent pintent = PendingIntent.getActivity(this,
                                                                       0, intent,
-                                                                      PendingIntent.FLAG_UPDATE_CURRENT);
+                                                                      PendingIntent.FLAG_IMMUTABLE);
                     NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
                     String from = mAddr;
                     if(mTalk) from += ": " + message.user;
