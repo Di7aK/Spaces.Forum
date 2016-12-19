@@ -245,7 +245,7 @@ NotificationManager.OnNewNotification {
 
 
                 });
-            Application.notificationManager.addListener(this);
+            Application.getNotificationManager().addListener(this);
 
             showFromDb();
             customUpdate();

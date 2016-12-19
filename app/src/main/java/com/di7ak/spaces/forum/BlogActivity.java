@@ -151,13 +151,13 @@ public class BlogActivity extends AppCompatActivity
     @Override
     public void onPause() {
         super.onPause();
-        Application.notificationManager.removeListener(mComments);
+        Application.getNotificationManager().removeListener(mComments);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Application.notificationManager.addListener(mComments);
+        Application.getNotificationManager().addListener(mComments);
     }
 
     public void onError(SpacesException e) {

@@ -22,9 +22,7 @@ import org.json.JSONObject;
 public class NotificationService extends Service implements NotificationManager.OnNewNotification, 
         RequestListener {
     public static boolean running = false;
-    private static String channel;
     private static long lastChecking;
-    private static String mSid;
     DBHelper mDBHelper;
     SQLiteDatabase mDb;
 
@@ -122,29 +120,14 @@ public class NotificationService extends Service implements NotificationManager.
 
     @Override 
     public void onStart(Intent intent, int startid) {
-        AccountManager am = AccountManager.get(this);
-        Account[] accounts = am.getAccountsByType(Authenticator.ACCOUNT_TYPE);
-        if (accounts.length != 0) {
-            channel = am.getUserData(accounts[0], "channel");
-            running = true;
-            try {
-                Application.notificationManager = new NotificationManager(channel);
-                Application.notificationManager.addListener(this);
-            } catch (Exception e) {
-                running = false;
-            }
+        Application.getNotificationManager().addListener(this);
             lastChecking = System.currentTimeMillis();
-            
-            mSid = am.peekAuthToken(accounts[0], Authenticator.TOKEN_FULL_ACCESS);
-            
             checkNotifications();
-            
             Update.check(this);
-        }
     } 
     
     private void checkNotifications() {
-        String url = "http://spaces.ru/events/?sid=" + mSid;
+        String url = "http://spaces.ru/events/?sid=" + Application.getSessionId();
             
             new Request(Uri.parse(url))
                     .disableXProxy()
@@ -189,7 +172,6 @@ public class NotificationService extends Service implements NotificationManager.
 
     @Override 
     public void onDestroy() { 
-        
         running = false;
     } 
 }

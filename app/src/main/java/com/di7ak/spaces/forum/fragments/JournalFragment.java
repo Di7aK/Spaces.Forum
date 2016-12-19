@@ -74,7 +74,7 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
         super.onPause();
         paused = true;
         if(type != 2) return;
-        Application.notificationManager.removeListener(this);
+        Application.getNotificationManager().removeListener(this);
     }
     
     boolean paused = false;
@@ -87,7 +87,7 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
         if(type != 2) return;
         if(paused) loadRecords();
         paused = false;
-        Application.notificationManager.addListener(this);
+        Application.getNotificationManager().addListener(this);
     }
 
     @Override
