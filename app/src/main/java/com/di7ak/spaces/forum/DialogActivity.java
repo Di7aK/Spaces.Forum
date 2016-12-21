@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -17,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -64,7 +66,7 @@ NotificationManager.OnNewNotification {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog);
+        setContentView(R.layout.dialogs);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -94,7 +96,6 @@ NotificationManager.OnNewNotification {
         mMessageList.setDivider(null);
 
         Authenticator.getSession(this, this);
-
     }
 
     @Override
@@ -157,7 +158,6 @@ NotificationManager.OnNewNotification {
 
     @Override
     public boolean onNewNotification(JSONObject message) {
-        //android.util.Log.d("lol", message.toString());
         try {
             if (message.has("text")) {
                 JSONObject text = message.getJSONObject("text");
@@ -525,15 +525,16 @@ NotificationManager.OnNewNotification {
                 if (message.nid <= mLastMessageId) continue;
                 mLastMessageId = message.nid;
                 mAdapter.appendMessage(message);
-                if(mPaused) {
+                if (mPaused) {
                     notificationManager.cancel(2);
                     Intent intent = new Intent(this, DialogActivity.class);
+                    intent.putExtra("contact", mContact);
                     PendingIntent pintent = PendingIntent.getActivity(this,
                                                                       0, intent,
                                                                       PendingIntent.FLAG_IMMUTABLE);
                     NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
                     String from = mAddr;
-                    if(mTalk) from += ": " + message.user;
+                    if (mTalk) from += ": " + message.user;
                     builder.setContentIntent(pintent)
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setContentTitle(from)
@@ -543,7 +544,7 @@ NotificationManager.OnNewNotification {
                     Notification notification = builder.build();
 
                     notificationManager.notify(2, notification);
-                    
+
                 }
             } else {
                 cursor.moveToFirst();

@@ -83,11 +83,11 @@ public class NotificationService extends Service implements NotificationManager.
                         int nid = contact.getInt("nid");
                         
                         notificationManager.cancel(2);
-                        Intent intent = new Intent(this, DialogActivity.class);
+                        Intent intent = new Intent(this, DialogsActivity.class);
                         intent.setData(Uri.parse("http://spaces.ru/mail/message_list/?Contact=" + nid));
                                     PendingIntent pintent = PendingIntent.getActivity(this,
                                                                                       0, intent,
-                                                                                      PendingIntent.FLAG_CANCEL_CURRENT);
+                                                                                      PendingIntent.FLAG_UPDATE_CURRENT);
                                     showNotification(2, "Почта", "Новое сообщение" + (mailUser == null ? "" : " от: " + mailUser), pintent);
                     }
                 }

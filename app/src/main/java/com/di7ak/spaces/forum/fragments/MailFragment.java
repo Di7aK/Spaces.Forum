@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import com.di7ak.spaces.forum.DialogActivity;
+import com.di7ak.spaces.forum.DialogsActivity;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.api.Request;
 import com.di7ak.spaces.forum.api.RequestListener;
@@ -184,7 +184,8 @@ public class MailFragment extends Fragment implements
             Intent intent = new Intent();
             intent.setData(Uri.parse((String)v.getTag()));
             intent.setAction(Intent.ACTION_VIEW);
-            intent.setClass(getContext(), DialogActivity.class);
+            intent.setClass(getContext(), DialogsActivity.class);
+            //intent.setFlags(Intent.FLAG_FROM_BACKGROUND);
             getActivity().startActivity(intent);
         } else new Request(mData).executeWithListener(this);
     }
