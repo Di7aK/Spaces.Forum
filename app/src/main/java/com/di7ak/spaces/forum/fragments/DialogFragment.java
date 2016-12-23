@@ -14,7 +14,11 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.NotificationCompat;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -33,6 +37,7 @@ import com.di7ak.spaces.forum.models.Message;
 import com.di7ak.spaces.forum.util.SpImageGetter;
 import com.di7ak.spaces.forum.widget.AvatarView;
 import com.rey.material.widget.FloatingActionButton;
+import com.rey.material.widget.ProgressView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -55,30 +60,34 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
     private boolean mRefreshing;
     private boolean mTalk;
     private TypingTask mTypingTask;
+    private OnNewMessage mListener;
+    private OnDialogCreated mOnDialogCreated;
     private Timer mTimer;
     private String mMembers;
     private String mAddr;
     private String mAvatar;
     private int mLastMsgId;
+    private int mLastReceivedMsgId;
     private int mUserId;
     private boolean mPaused = true;
-    
+
     public int contactId;
     public int talkId;
-    
-    public DialogFragment(Session session, int contact, SQLiteDatabase db) {
+
+    public DialogFragment(Session session, int contact, SQLiteDatabase db, OnDialogCreated onCreated) {
         super();
-        
+
         mSession = session;
         contactId = contact;
         mDb = db;
-        
+        mOnDialogCreated = onCreated;
+
         mSending = new ArrayList<Message>();
         mLastReceivedMsgs = new ArrayList<Integer>();
         mTimer = new Timer();
         mTypingTask = new TypingTask();
     }
-    
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -88,7 +97,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
     }
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog, parent, false);
@@ -96,102 +105,284 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
         mMsgList = (ListView) view.findViewById(R.id.messages);
         mBtnSend = (FloatingActionButton) view.findViewById(R.id.fab_send);
         mBtnSend.setOnClickListener(this);
-        
-        /*mMsgBox.setEnabled(false);
-        mMsgBox.setFocusable(false);
-        mBtnSend.setEnabled(false);*/
-        
+
         mMsgAdapter = new MessageAdapter(getActivity());
         mMsgList.setAdapter(mMsgAdapter);
         mMsgList.setDivider(null);
-        
+
         mTitleView = getActivity().getLayoutInflater().inflate(R.layout.mail_title_item, parent, false);
-        
+
         mDropDownTitleView = getActivity().getLayoutInflater().inflate(R.layout.mail_drop_down, parent, false);
         AbsListView.LayoutParams params = new AbsListView.LayoutParams(
             AbsListView.LayoutParams.MATCH_PARENT,
             AbsListView.LayoutParams.WRAP_CONTENT);
         mDropDownTitleView.setLayoutParams(params);
-        
+
         showFromDb();
+
+        if(mOnDialogCreated != null) mOnDialogCreated.onDialogCreated(this);
         
         return view;
     }
     
+    public void setOnNewMessageListener(OnNewMessage listener) {
+        mListener = listener;
+    }
+    
+    public void setOnDialogCreatedListener(OnDialogCreated listener) {
+        mOnDialogCreated = listener;
+    }
+    
+    boolean mLoaded;
+    MenuItem mUpdateItem;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.menu_dialog, menu);
+        mUpdateItem = menu.getItem(0);
+        if(!mLoaded) {
+            mLoaded = true;
+            refresh();
+        }
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.update:
+                mUpdateItem = item;
+                refresh();
+                return true;
+        }
+        return false;
+    }
+
     public View getTitleView(View convert, ViewGroup parent) {
         return mTitleView;
     }
-    
+
     public View getDropDownTitleView(View convert, ViewGroup parent) {
         return mDropDownTitleView;
     }
-    
+
     public void refresh() {
-        if(mRefreshing) return;
+        if (mRefreshing || mUpdateItem == null) return;
         mRefreshing = true;
+        View snackView = getActivity().getLayoutInflater().inflate(R.layout.progress_snackbar, null);
+        ProgressView pv = (ProgressView)snackView.findViewById(R.id.progress_pv_circular_determinate);
+        pv.start();
+        mUpdateItem.setActionView(pv);
+        getMessages(1);
     }
     
-    
+    public void stopUpdating() {
+        mUpdateItem.setActionView(null);
+        mRefreshing = false;
+    }
     
     public void onReceived(int msgId) {
         mLastReceivedMsgs.add(msgId);
         getNewMessages();
     }
-    
+
     public void onRead() {
         mMsgAdapter.makeAsRead();
         ContentValues cv = new ContentValues();
         cv.put("not_read", 0);
         mDb.update("messages", cv, "contact_id=" + contactId, null);
     }
-    
+
     public void onTyping(String user) {
         mTimer.cancel();
         mTimer = new Timer();
+        mTypingTask = new TypingTask();
         mTimer.schedule(mTypingTask, 6000);
-        if(mTalk) setSubtitle(user + " печатает");
+        if (mTalk) setSubtitle(user + " печатает");
         else setSubtitle("печатает");
     }
-    
+
     public void setUser(String text) {
         mAddr = text;
         ((TextView)mTitleView.findViewById(R.id.name)).setText(text);
         ((TextView)mDropDownTitleView.findViewById(R.id.name)).setText(text);
     }
-    
+
     public void setSubtitle(String text) {
         ((TextView)mTitleView.findViewById(R.id.description)).setText(text);
     }
-    
+
     public void setDropDownSubtitle(String text) {
         TextView textV = (TextView)mDropDownTitleView.findViewById(R.id.description);
         Spanned sText = Html.fromHtml(text, new SpImageGetter(textV), null);
         textV.setText(sText);
     }
-    
+
     public void setAvatar(String url) {
         mAvatar = url;
         ((AvatarView)mTitleView.findViewById(R.id.avatar)).setUrl(url);
         ((AvatarView)mDropDownTitleView.findViewById(R.id.avatar)).setUrl(url);
     }
-    
+
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.fab_send) {
-            
+        if (v.getId() == R.id.fab_send) {
+            Message message = new Message();
+            message.text = mMsgBox.getText().toString();
+            message.read = false;
+            message.talk = mTalk;
+            message.time = "отправка";
+            message.avatar = mSession.avatar;
+            message.user = mSession.login;
+            message.type = Message.TYPE_MY;
+            mSending.add(message);
+            boolean bottom = mMsgList.getLastVisiblePosition() == mMsgList.getAdapter().getCount() - 1;
+
+            mMsgAdapter.appendMessage(message);
+            mMsgAdapter.notifyDataSetChanged();
+            if (bottom) mMsgList.setSelection(mMsgList.getCount() - 1);
+
+            mMsgBox.setText("");
+            if (mSending.size() == 1) sendMessages();
         }
     }
     
+    int mRetryCount;
+    public void sendMessages() {
+        if (mSending.size() == 0) return;
+        final Message message = mSending.get(0);
+        StringBuilder args = new StringBuilder();
+        args.append("method=").append("sendMessage")
+            .append("&Contact=").append(Integer.toString(contactId))
+            .append("&sid=").append(Uri.encode(mSession.sid))
+            .append("&CK=").append(Uri.encode(mSession.ck))
+            .append("&texttT=").append(Uri.encode(message.text));
+        Request request = new Request(Uri.parse("http://spaces.ru/neoapi/mail/"));
+        request.setPost(args.toString());
+        request.executeWithListener(new RequestListener() {
+
+                @Override
+                public void onSuccess(JSONObject json) {
+
+                    try {
+                        JSONObject data = json.getJSONObject("message");
+                        message.time = data.getString("human_date");
+                        message.text = data.getString("text");
+                        message.read = !data.has("not_read");
+                        message.nid = data.getInt("nid");
+                        mMsgAdapter.removeMessage(message);
+                        mMsgAdapter.appendMessage(message);
+                        mMsgAdapter.notifyDataSetChanged();
+
+                        Cursor cursor;
+                        cursor = mDb.query("messages", null, "msg_id = ?", new String[]{Integer.toString(message.nid)}, null, null, null);
+                        if (cursor.getCount() == 0) {
+                            ContentValues cv = new ContentValues();
+                            cv.put("msg_id", message.nid);
+                            cv.put("contact_id", contactId);
+                            cv.put("type", message.type);
+                            cv.put("date", message.time);
+                            cv.put("message", message.text);
+                            cv.put("user_id", mSession.nid);
+                            cv.put("talk", mTalk ? 1 : 0);
+                            cv.put("not_read", message.read ? 0 : 1);
+                            mDb.insert("messages", null, cv);
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    mSending.remove(message);
+                    mRetryCount = 0;
+                    sendMessages();
+                }
+
+                @Override
+                public void onError(SpacesException e) {
+                    if (mRetryCount < 3) {
+                        mRetryCount ++;
+                        mSending.remove(message);
+                    } else {
+                        mRetryCount = 0;
+                        Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                    sendMessages();
+                }
+            });
+    }
+    
+    private void getMessages(int page) {
+        Uri uri = Uri.parse("http://spaces.ru/mail/message_list/?Contact=" + contactId + "&sid=" + mSession.sid);
+        Request request = new Request(uri);
+        request.executeWithListener(this);
+    }
+
     @Override
     public void onSuccess(JSONObject json) {
-        
+        stopUpdating();
+        try {
+            JSONObject contact = json.getJSONObject("contact_info");
+            contactId = contact.getInt("nid");
+            mTalk = contact.has("talk");
+            mLastReceivedMsgId = contact.getInt("last_received_msg_id");
+            if (contact.has("user_id")) mUserId = contact.getInt("user_id");
+            if (mTalk) {
+                mMembers = contact.getString("members_cnt");
+                talkId = contact.getInt("talk_id");
+
+                setSubtitle(mMembers);
+            } 
+            if (contact.has("avatar")) {
+                setAvatar(contact.getJSONObject("avatar").getString("previewURL"));
+            } else if (contact.has("widget")) {
+                JSONObject widget = contact.getJSONObject("widget");
+                setAvatar(widget.getJSONObject("avatar").getString("previewURL"));
+                if (widget.has("lastVisit")) {
+                    String lastVisit = widget.getString("lastVisit");
+                    if (TextUtils.isEmpty(lastVisit)) setSubtitle("онлайн");
+                    else setSubtitle("был в сети " + lastVisit);
+                }
+            }
+            if (json.has("new_msg_form")) {
+                if (json.getJSONObject("new_msg_form").isNull("action")) {
+                    if (mMsgBox.isFocusable()) {
+                        mMsgBox.setEnabled(false);
+                        mMsgBox.setFocusableInTouchMode(false);
+                        mMsgBox.setFocusable(false);
+                        mBtnSend.setEnabled(false);
+                    }
+                }
+            } 
+            setUser(contact.getString("text_addr"));
+
+            Cursor cursor;
+            ContentValues cv;
+
+            cursor = mDb.query("contacts", null, "contact_id = ?", new String[]{Integer.toString(contactId)}, null, null, null);
+            if (cursor.getCount() == 0) {
+                cv = new ContentValues();
+                cv.put("name", mAddr);
+                cv.put("user_id", mUserId);
+                cv.put("talk_id", talkId);
+                cv.put("contact_id", contactId);
+                cv.put("avatar", mAvatar);
+                mDb.insert("contacts", null, cv);
+            }
+
+            boolean bottom = mMsgList.getLastVisiblePosition() == mMsgList.getAdapter().getCount() - 1;
+            JSONArray messages = json.getJSONArray("msg_list");
+            handleMessages(messages);
+            mMsgAdapter.notifyDataSetChanged();
+            if (bottom) mMsgList.setSelection(mMsgList.getCount() - 1);
+        } catch (JSONException e) {
+            Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
+        }
     }
-    
+
     @Override
     public void onError(SpacesException e) {
-        
+        Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
+        getMessages(1);
     }
-    
+
     boolean mUpdatingLast;
     private void getNewMessages() {
         if (mUpdatingLast) return;
@@ -245,7 +436,20 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
             });
     }
     
+    @Override
+    public void onResume() {
+        super.onResume();
+        mPaused = false;
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        mPaused = true;
+    }
+
     public void handleMessages(JSONArray messages) throws JSONException {
+        if(getActivity() == null) return;
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getActivity());
         for (int i = messages.length() - 1; i >= 0; i --) {
             JSONObject data = messages.getJSONObject(i);
@@ -306,6 +510,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
                 mLastMsgId = message.nid;
                 mMsgAdapter.appendMessage(message);
                 setDropDownSubtitle(message.text);
+                if(mListener != null) mListener.onNewMessage(contactId);
                 if (mPaused) {
                     notificationManager.cancel(2);
                     Intent intent = new Intent(getActivity(), DialogsActivity.class);
@@ -340,8 +545,8 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
             }
         }
     }
-    
-    
+
+
     public void showFromDb() {
         Cursor contact = mDb.query("contacts", null, "contact_id = ?", new String[]{Integer.toString(contactId)}, null, null, null);
         if (contact.getCount() != 0) {
@@ -385,17 +590,30 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
                 mMsgAdapter.notifyDataSetChanged();
 
                 mMsgList.setSelection(mMsgList.getCount() - 1);
-                setSubtitle("онлайн");
+                
             }
         }
     }
-    
+
     private class TypingTask extends TimerTask {
-        
+
         @Override
         public void run() {
-            if(mTalk) setSubtitle(mMembers);
-            else setSubtitle("онлайн");
+            getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mTalk) setSubtitle(mMembers);
+                        else setSubtitle("онлайн");
+                    }
+                });
         }
+    } 
+    
+    public interface OnNewMessage {
+        public void onNewMessage(int contact);
+    }
+    
+    public interface OnDialogCreated {
+        public void onDialogCreated(DialogFragment dialog);
     }
 }

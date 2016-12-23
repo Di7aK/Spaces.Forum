@@ -1,6 +1,5 @@
 package com.di7ak.spaces.forum;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -11,15 +10,20 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.adapters.ContactAdapter;
 import com.di7ak.spaces.forum.adapters.DialogAdapter;
+import com.di7ak.spaces.forum.api.Request;
+import com.di7ak.spaces.forum.api.RequestListener;
 import com.di7ak.spaces.forum.api.Session;
+import com.di7ak.spaces.forum.api.SpacesException;
 import com.di7ak.spaces.forum.fragments.DialogFragment;
 import com.di7ak.spaces.forum.util.DBHelper;
+import java.util.ArrayList;
+import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,7 +31,9 @@ public class DialogsActivity extends AppCompatActivity implements
 Authenticator.OnResult,
 NotificationManager.OnNewNotification,
 ActionBar.OnNavigationListener,
-ViewPager.OnPageChangeListener {
+ViewPager.OnPageChangeListener,
+DialogFragment.OnNewMessage,
+DialogFragment.OnDialogCreated {
     Toolbar toolbar;
     DBHelper mDBHelper;
     SQLiteDatabase mDb;
@@ -38,6 +44,8 @@ ViewPager.OnPageChangeListener {
     ContactAdapter mContactAdapter;
     ActionBar mActionBar;
     Intent mIntent;
+    List<Integer> mNewCnt;
+    TextView mCurrentTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +65,7 @@ ViewPager.OnPageChangeListener {
                 }
             });
 
+        mNewCnt = new ArrayList<Integer>();
         mDBHelper = new DBHelper(this);
         mDb = mDBHelper.getWritableDatabase();
         mAdapter = new DialogAdapter(getSupportFragmentManager());
@@ -66,8 +75,29 @@ ViewPager.OnPageChangeListener {
         mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         mContactAdapter = new ContactAdapter();
         mActionBar.setListNavigationCallbacks(mContactAdapter, this);
-
+        
         Authenticator.getSession(this, this);
+    }
+    
+    @Override
+    public void onNewMessage(int contact) {
+        for(int i = 0; i < mAdapter.getCount(); i ++) {
+            DialogFragment dialog = (DialogFragment) mAdapter.getItem(i);
+            if(dialog.contactId == contact) {
+                int current = mViewPager.getCurrentItem();
+                if(i != current) {
+                    int n = mNewCnt.get(i);
+                    mNewCnt.set(i, n + 1);
+                    
+                    mCurrentTitle.setVisibility(View.VISIBLE);
+                    mCurrentTitle.setText(Integer.toString(getNewMessages()));
+                    
+                    TextView v = (TextView)dialog.getDropDownTitleView(null, null).findViewById(R.id.new_cnt);
+                    v.setVisibility(View.VISIBLE);
+                    v.setText(Integer.toString(mNewCnt.get(i)));
+                } else makeAsRead(contact);
+            }
+        }
     }
 
     @Override
@@ -83,12 +113,75 @@ ViewPager.OnPageChangeListener {
 
     @Override
     public void onPageSelected(int i) {
-        mActionBar.setSelectedNavigationItem(i);
+        setItem(i);
     }
 
     @Override
     public void onPageScrollStateChanged(int i) {
 
+    }
+    
+    @Override
+    public void onDialogCreated(DialogFragment dialog) {
+        android.util.Log.d("lol", "created " + dialog.contactId);
+        
+        mNewCnt.add(0);
+        mContactAdapter.add(dialog);
+        mContactAdapter.notifyDataSetChanged();
+        dialog.setOnNewMessageListener(this);
+        setItem(mAdapter.indexOf(dialog.contactId));
+    }
+    
+    public void setItem(int i) {
+        mViewPager.setCurrentItem(i);
+        mActionBar.setSelectedNavigationItem(i);
+        if(mCurrentTitle != null) {
+            mCurrentTitle.setVisibility(View.GONE);
+        }
+        DialogFragment selected = (DialogFragment)mAdapter.getItem(i);
+        mCurrentTitle = (TextView) selected.getTitleView(null, null).findViewById(R.id.new_cnt);
+                    
+        mNewCnt.set(i, 0);
+        markAsRead(selected.contactId);
+        int newCnt = getNewMessages();
+        mCurrentTitle.setText(Integer.toString(newCnt));
+        mCurrentTitle.setVisibility(newCnt > 0 ? View.VISIBLE : View.GONE);
+        
+        TextView v = (TextView) selected.getDropDownTitleView(null, null).findViewById(R.id.new_cnt);
+        v.setVisibility(View.GONE);
+        
+        invalidateOptionsMenu();
+        
+        
+    }
+    
+    private void markAsRead(final int contact) {
+        StringBuilder args = new StringBuilder();
+        args.append("method=").append("markContactsAsRead")
+            .append("&CoNtacts=").append(Integer.toString(contact))
+            .append("&sid=").append(Uri.encode(mSession.sid))
+            .append("&CK=").append(Uri.encode(mSession.ck));
+        Request request = new Request(Uri.parse("http://spaces.ru/neoapi/mail/"));
+        request.setPost(args.toString());
+        request.executeWithListener(new RequestListener() {
+
+                @Override
+                public void onSuccess(JSONObject json) {
+
+                    
+                }
+
+                @Override
+                public void onError(SpacesException e) {
+                    markAsRead(contact);
+                }
+            });
+    }
+    
+    private int getNewMessages() {
+        int total = 0;
+        for(int cnt : mNewCnt) total += cnt;
+        return total;
     }
 
     @Override
@@ -98,37 +191,35 @@ ViewPager.OnPageChangeListener {
             mIntent = intent;
             return;
         }
+        android.util.Log.d("lol", "on new intent");
+        try {
         Uri uri = intent.getData();
         int contact = Integer.valueOf(uri.getQueryParameter("Contact"));
         int idx = mAdapter.indexOf(contact);
         if (idx == -1) {
-            DialogFragment dialog = new DialogFragment(mSession, contact, mDb);
-            idx = mAdapter.appendDialog(dialog);
+            DialogFragment dialog = new DialogFragment(mSession, contact, mDb, this);
+            mAdapter.appendDialog(dialog);
             mAdapter.notifyDataSetChanged();
-            mContactAdapter.add(dialog);
-            mContactAdapter.notifyDataSetChanged();
+            android.util.Log.d("lol", "create dialog " + contact);
+        } else setItem(idx);
+        } catch(Exception e) {
+            android.util.Log.e("lol", "", e);
         }
-        mViewPager.setCurrentItem(idx);
-        mActionBar.setSelectedNavigationItem(idx);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_dialog, menu);
-        return true;
+        if(mAdapter.getCount() == 0) return false;
+        int idx = mViewPager.getCurrentItem();
+        return ((DialogFragment)mAdapter.getItem(idx)).onCreateOptionsMenu(menu);
     }
 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.update:
-
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        if(mAdapter.getCount() == 0) return false;
+        int idx = mViewPager.getCurrentItem();
+        return ((DialogFragment)mAdapter.getItem(idx)).onOptionsItemSelected(item);
     }
 
     @Override
