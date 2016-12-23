@@ -95,7 +95,7 @@ DialogFragment.OnDialogCreated {
                     TextView v = (TextView)dialog.getDropDownTitleView(null, null).findViewById(R.id.new_cnt);
                     v.setVisibility(View.VISIBLE);
                     v.setText(Integer.toString(mNewCnt.get(i)));
-                } else makeAsRead(contact);
+                } else markAsRead(contact);
             }
         }
     }

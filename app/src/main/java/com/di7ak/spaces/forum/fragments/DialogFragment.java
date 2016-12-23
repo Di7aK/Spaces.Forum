@@ -12,9 +12,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.NotificationCompat;
+import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -105,6 +107,16 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
         mMsgList = (ListView) view.findViewById(R.id.messages);
         mBtnSend = (FloatingActionButton) view.findViewById(R.id.fab_send);
         mBtnSend.setOnClickListener(this);
+        mMsgBox.addTextChangedListener(new TextWatcher() {
+                
+                public void afterTextChanged(Editable s) {
+                    typing();
+                }
+
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            });
 
         mMsgAdapter = new MessageAdapter(getActivity());
         mMsgList.setAdapter(mMsgAdapter);
@@ -120,26 +132,26 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
 
         showFromDb();
 
-        if(mOnDialogCreated != null) mOnDialogCreated.onDialogCreated(this);
-        
+        if (mOnDialogCreated != null) mOnDialogCreated.onDialogCreated(this);
+
         return view;
     }
-    
+
     public void setOnNewMessageListener(OnNewMessage listener) {
         mListener = listener;
     }
-    
+
     public void setOnDialogCreatedListener(OnDialogCreated listener) {
         mOnDialogCreated = listener;
     }
-    
+
     boolean mLoaded;
     MenuItem mUpdateItem;
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.menu_dialog, menu);
         mUpdateItem = menu.getItem(0);
-        if(!mLoaded) {
+        if (!mLoaded) {
             mLoaded = true;
             refresh();
         }
@@ -173,12 +185,12 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
         mUpdateItem.setActionView(pv);
         getMessages(1);
     }
-    
+
     public void stopUpdating() {
         mUpdateItem.setActionView(null);
         mRefreshing = false;
     }
-    
+
     public void onReceived(int msgId) {
         mLastReceivedMsgs.add(msgId);
         getNewMessages();
@@ -198,6 +210,36 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
         mTimer.schedule(mTypingTask, 6000);
         if (mTalk) setSubtitle(user + " печатает");
         else setSubtitle("печатает");
+    }
+
+    private long mLastTyping;
+    public void typing() {
+        long time = System.currentTimeMillis();
+        if (time - mLastTyping < 4000) return;
+        android.util.Log.d("lol", "typing");
+        mLastTyping = time;
+        StringBuilder args = new StringBuilder();
+        args.append("method=").append("typing")
+            .append("&Contact=").append(Integer.toString(contactId))
+            .append("&no_notify=").append(Integer.toString(1))
+            .append("&message=").append(mMsgBox.getText().toString())
+            .append("&sid=").append(Uri.encode(mSession.sid))
+            .append("&CK=").append(Uri.encode(mSession.ck));
+        Request request = new Request(Uri.parse("http://spaces.ru/neoapi/mail/"));
+        request.setPost(args.toString());
+        request.executeWithListener(new RequestListener() {
+
+                @Override
+                public void onSuccess(JSONObject json) {
+
+
+                }
+
+                @Override
+                public void onError(SpacesException e) {
+                    typing();
+                }
+            });
     }
 
     public void setUser(String text) {
@@ -244,7 +286,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
             if (mSending.size() == 1) sendMessages();
         }
     }
-    
+
     int mRetryCount;
     public void sendMessages() {
         if (mSending.size() == 0) return;
@@ -308,7 +350,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
                 }
             });
     }
-    
+
     private void getMessages(int page) {
         Uri uri = Uri.parse("http://spaces.ru/mail/message_list/?Contact=" + contactId + "&sid=" + mSession.sid);
         Request request = new Request(uri);
@@ -435,13 +477,13 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
 
             });
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
         mPaused = false;
     }
-    
+
     @Override
     public void onPause() {
         super.onPause();
@@ -449,7 +491,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
     }
 
     public void handleMessages(JSONArray messages) throws JSONException {
-        if(getActivity() == null) return;
+        if (getActivity() == null) return;
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getActivity());
         for (int i = messages.length() - 1; i >= 0; i --) {
             JSONObject data = messages.getJSONObject(i);
@@ -510,7 +552,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
                 mLastMsgId = message.nid;
                 mMsgAdapter.appendMessage(message);
                 setDropDownSubtitle(message.text);
-                if(mListener != null) mListener.onNewMessage(contactId);
+                if (mListener != null) mListener.onNewMessage(contactId);
                 if (mPaused) {
                     notificationManager.cancel(2);
                     Intent intent = new Intent(getActivity(), DialogsActivity.class);
@@ -590,7 +632,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
                 mMsgAdapter.notifyDataSetChanged();
 
                 mMsgList.setSelection(mMsgList.getCount() - 1);
-                
+
             }
         }
     }
@@ -608,11 +650,11 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
                 });
         }
     } 
-    
+
     public interface OnNewMessage {
         public void onNewMessage(int contact);
     }
-    
+
     public interface OnDialogCreated {
         public void onDialogCreated(DialogFragment dialog);
     }
