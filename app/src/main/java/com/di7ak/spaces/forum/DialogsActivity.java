@@ -1,6 +1,7 @@
 package com.di7ak.spaces.forum;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.adapters.ContactAdapter;
@@ -46,6 +48,7 @@ DialogFragment.OnDialogCreated {
     Intent mIntent;
     List<Integer> mNewCnt;
     TextView mCurrentTitle;
+    int mNewDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,26 +81,31 @@ DialogFragment.OnDialogCreated {
         
         Authenticator.getSession(this, this);
     }
-    
+
     @Override
     public void onNewMessage(int contact) {
-        for(int i = 0; i < mAdapter.getCount(); i ++) {
+        for (int i = 0; i < mAdapter.getCount(); i ++) {
             DialogFragment dialog = (DialogFragment) mAdapter.getItem(i);
-            if(dialog.contactId == contact) {
+            if (dialog.contactId == contact) {
                 int current = mViewPager.getCurrentItem();
-                if(i != current) {
+                if (i != current) {
                     int n = mNewCnt.get(i);
                     mNewCnt.set(i, n + 1);
-                    
+
                     mCurrentTitle.setVisibility(View.VISIBLE);
                     mCurrentTitle.setText(Integer.toString(getNewMessages()));
-                    
+
                     TextView v = (TextView)dialog.getDropDownTitleView(null, null).findViewById(R.id.new_cnt);
                     v.setVisibility(View.VISIBLE);
                     v.setText(Integer.toString(mNewCnt.get(i)));
                 } else markAsRead(contact);
             }
         }
+    }
+
+    public DialogFragment getActiveFragment() {
+        int current = mViewPager.getCurrentItem();
+        return (DialogFragment)mAdapter.getItem(current);
     }
 
     @Override
@@ -120,41 +128,41 @@ DialogFragment.OnDialogCreated {
     public void onPageScrollStateChanged(int i) {
 
     }
-    
+
     @Override
     public void onDialogCreated(DialogFragment dialog) {
-        android.util.Log.d("lol", "created " + dialog.contactId);
-        
         mNewCnt.add(0);
         mContactAdapter.add(dialog);
         mContactAdapter.notifyDataSetChanged();
         dialog.setOnNewMessageListener(this);
-        setItem(mAdapter.indexOf(dialog.contactId));
+        if (mNewDialog != dialog.contactId) {
+            setItem(mAdapter.indexOf(dialog.contactId));
+        } else dialog.getMessages(1);
     }
-    
+
     public void setItem(int i) {
         mViewPager.setCurrentItem(i);
         mActionBar.setSelectedNavigationItem(i);
-        if(mCurrentTitle != null) {
+        if (mCurrentTitle != null) {
             mCurrentTitle.setVisibility(View.GONE);
         }
         DialogFragment selected = (DialogFragment)mAdapter.getItem(i);
         mCurrentTitle = (TextView) selected.getTitleView(null, null).findViewById(R.id.new_cnt);
-                    
+
         mNewCnt.set(i, 0);
         markAsRead(selected.contactId);
         int newCnt = getNewMessages();
         mCurrentTitle.setText(Integer.toString(newCnt));
         mCurrentTitle.setVisibility(newCnt > 0 ? View.VISIBLE : View.GONE);
-        
+
         TextView v = (TextView) selected.getDropDownTitleView(null, null).findViewById(R.id.new_cnt);
         v.setVisibility(View.GONE);
-        
+
         invalidateOptionsMenu();
-        
-        
+
+
     }
-    
+
     private void markAsRead(final int contact) {
         StringBuilder args = new StringBuilder();
         args.append("method=").append("markContactsAsRead")
@@ -168,7 +176,7 @@ DialogFragment.OnDialogCreated {
                 @Override
                 public void onSuccess(JSONObject json) {
 
-                    
+
                 }
 
                 @Override
@@ -177,39 +185,39 @@ DialogFragment.OnDialogCreated {
                 }
             });
     }
-    
+
     private int getNewMessages() {
         int total = 0;
-        for(int cnt : mNewCnt) total += cnt;
+        for (int cnt : mNewCnt) total += cnt;
         return total;
     }
 
     @Override
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if(mSession == null) {
+        if (mSession == null) {
             mIntent = intent;
             return;
         }
-        android.util.Log.d("lol", "on new intent");
+
         try {
-        Uri uri = intent.getData();
-        int contact = Integer.valueOf(uri.getQueryParameter("Contact"));
-        int idx = mAdapter.indexOf(contact);
-        if (idx == -1) {
-            DialogFragment dialog = new DialogFragment(mSession, contact, mDb, this);
-            mAdapter.appendDialog(dialog);
-            mAdapter.notifyDataSetChanged();
-            android.util.Log.d("lol", "create dialog " + contact);
-        } else setItem(idx);
-        } catch(Exception e) {
+            Uri uri = intent.getData();
+            int contact = Integer.valueOf(uri.getQueryParameter("Contact"));
+            int idx = mAdapter.indexOf(contact);
+            if (idx == -1) {
+                DialogFragment dialog = new DialogFragment(mSession, contact, mDb, this);
+                idx = mAdapter.appendDialog(dialog);
+                mAdapter.notifyDataSetChanged();
+                mViewPager.setCurrentItem(idx);
+            } else setItem(idx);
+        } catch (Exception e) {
             android.util.Log.e("lol", "", e);
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if(mAdapter.getCount() == 0) return false;
+        if (mAdapter.getCount() == 0) return false;
         int idx = mViewPager.getCurrentItem();
         return ((DialogFragment)mAdapter.getItem(idx)).onCreateOptionsMenu(menu);
     }
@@ -217,7 +225,7 @@ DialogFragment.OnDialogCreated {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(mAdapter.getCount() == 0) return false;
+        if (mAdapter.getCount() == 0) return false;
         int idx = mViewPager.getCurrentItem();
         return ((DialogFragment)mAdapter.getItem(idx)).onOptionsItemSelected(item);
     }
@@ -225,19 +233,17 @@ DialogFragment.OnDialogCreated {
     @Override
     public void onPause() {
         super.onPause();
-        android.util.Log.d("lol", "on pause");
         mPaused = true;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        android.util.Log.d("lol", "on resume");
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         notificationManager.cancel(2);
         mPaused = false;
     } 
-    
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -274,7 +280,7 @@ DialogFragment.OnDialogCreated {
                         }
                     }
                     if (act == 1) {//new message
-                        int nid = text.getJSONObject("data").getJSONObject("contact").getInt("nid");
+                        final int nid = text.getJSONObject("data").getJSONObject("contact").getInt("nid");
                         for (int i = 0; i < mAdapter.getCount(); i ++) {
                             DialogFragment dialog = (DialogFragment) mAdapter.getItem(i);
                             if (nid == dialog.contactId) {
@@ -289,7 +295,18 @@ DialogFragment.OnDialogCreated {
                                 );
                                 return true;
                             }
+
                         }
+                        runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    DialogFragment dialog = new DialogFragment(mSession, nid, mDb, DialogsActivity.this);
+                                    mAdapter.appendDialog(dialog);
+                                    mNewDialog = nid;
+                                    mAdapter.notifyDataSetChanged();
+                                }
+                            });
+                        return true;
                     }
                     if (act == 2) {//read
                         int nid = text.getJSONObject("data").getInt("nid");

@@ -139,7 +139,7 @@ public class NotificationService extends Service implements NotificationManager.
         try {
             if(json.has("topCounters")) {
                 JSONObject counters = json.getJSONObject("topCounters");
-                if(counters.has("mail_new")) {
+                /*if(counters.has("mail_new")) {
                     int count = counters.getInt("mail_new");
                     if (count > 0) {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://spaces.ru/mail/"));
@@ -148,7 +148,7 @@ public class NotificationService extends Service implements NotificationManager.
                                                                           PendingIntent.FLAG_CANCEL_CURRENT);
                         showNotification(2, "Почта", "Непрочитанные сообщения: " + count, pintent);
                     }
-                }
+                }*/
                 if(counters.has("journal")) {
                     int count = counters.getInt("journal");
                     if (count > 0) {

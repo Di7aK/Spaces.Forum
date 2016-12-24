@@ -23,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -108,7 +109,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
         mBtnSend = (FloatingActionButton) view.findViewById(R.id.fab_send);
         mBtnSend.setOnClickListener(this);
         mMsgBox.addTextChangedListener(new TextWatcher() {
-                
+
                 public void afterTextChanged(Editable s) {
                     typing();
                 }
@@ -129,6 +130,23 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
             AbsListView.LayoutParams.MATCH_PARENT,
             AbsListView.LayoutParams.WRAP_CONTENT);
         mDropDownTitleView.setLayoutParams(params);
+        final int height = mMsgList.getMeasuredHeight();
+        mMsgList.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+                private int mPreviousHeight = height;
+
+                @Override
+                public void onGlobalLayout() {
+                    int newHeight = mMsgList.getMeasuredHeight();
+                    if (mPreviousHeight != 0) {
+                        int r = mPreviousHeight - newHeight;
+                        if (r > 0) {
+                            onKeyboardShowing();
+                        }
+                    }
+                    mPreviousHeight = newHeight;
+                }
+            });
+
 
         showFromDb();
 
@@ -152,7 +170,6 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
         inflater.inflate(R.menu.menu_dialog, menu);
         mUpdateItem = menu.getItem(0);
         if (!mLoaded) {
-            mLoaded = true;
             refresh();
         }
         return true;
@@ -187,13 +204,23 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
     }
 
     public void stopUpdating() {
-        mUpdateItem.setActionView(null);
+        if (mUpdateItem != null) mUpdateItem.setActionView(null);
         mRefreshing = false;
     }
 
     public void onReceived(int msgId) {
         mLastReceivedMsgs.add(msgId);
         getNewMessages();
+    }
+
+    public void onKeyboardShowing() {
+        mMsgList.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mMsgList.setSelection(mMsgList.getCount());
+                    mMsgList.smoothScrollToPosition(mMsgList.getCount());
+                }
+            }, 100);
     }
 
     public void onRead() {
@@ -216,7 +243,6 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
     public void typing() {
         long time = System.currentTimeMillis();
         if (time - mLastTyping < 4000) return;
-        android.util.Log.d("lol", "typing");
         mLastTyping = time;
         StringBuilder args = new StringBuilder();
         args.append("method=").append("typing")
@@ -351,10 +377,11 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
             });
     }
 
-    private void getMessages(int page) {
+    public void getMessages(int page) {
         Uri uri = Uri.parse("http://spaces.ru/mail/message_list/?Contact=" + contactId + "&sid=" + mSession.sid);
         Request request = new Request(uri);
         request.executeWithListener(this);
+        mLoaded = true;
     }
 
     @Override
@@ -364,7 +391,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
             JSONObject contact = json.getJSONObject("contact_info");
             contactId = contact.getInt("nid");
             mTalk = contact.has("talk");
-            mLastReceivedMsgId = contact.getInt("last_received_msg_id");
+            // mLastReceivedMsgId = contact.getInt("last_received_msg_id");
             if (contact.has("user_id")) mUserId = contact.getInt("user_id");
             if (mTalk) {
                 mMembers = contact.getString("members_cnt");
@@ -497,7 +524,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
             JSONObject data = messages.getJSONObject(i);
             Message message = new Message();
             message.time = data.getString("human_date");
-            message.text = data.getString("text");
+            message.text = data.has("text") ? data.getString("text") : "";
             message.read = !data.has("not_read");
             message.nid = data.getInt("nid");
 
@@ -559,15 +586,16 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
                     intent.setData(Uri.parse("http://spaces.ru/mail/message_list/?Contact=" + contactId));
                     PendingIntent pintent = PendingIntent.getActivity(getActivity(),
                                                                       0, intent,
-                                                                      PendingIntent.FLAG_IMMUTABLE);
+                                                                      PendingIntent.FLAG_UPDATE_CURRENT);
                     NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity());
                     String from = mAddr;
-                    if (mTalk) from += ": " + message.user;
+                    if (mTalk && message.user != null) from += ": " + message.user;
                     builder.setContentIntent(pintent)
                         .setSmallIcon(R.drawable.ic_launcher)
+
                         .setContentTitle(from)
                         .setAutoCancel(true)
-                        .setContentText(message.text);
+                        .setContentText(Html.fromHtml(message.text).toString());
 
                     Notification notification = builder.build();
 
@@ -641,7 +669,9 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
 
         @Override
         public void run() {
-            getActivity().runOnUiThread(new Runnable() {
+            Activity activity = getActivity();
+            if (activity == null) return;
+            activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if (mTalk) setSubtitle(mMembers);
