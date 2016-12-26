@@ -28,6 +28,6 @@ public class AvatarView extends CircleImageView {
         if(url == null) return;
         url = url.replace("41.40", "81.80");
         String hash = ImageDownloader.md5(url);
-        new ImageDownloader(getContext()).downloadImage(url, hash, this, null);
+        new ImageDownloader(getContext()).hash(hash).from(url).into(this).execute();
     }
 }

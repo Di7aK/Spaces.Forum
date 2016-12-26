@@ -204,8 +204,9 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
     }
 
     public void showRecords(final List<JournalRecord> records) {
-        if(getActivity() == null) return;
-        getActivity().runOnUiThread(new Runnable() {
+        Activity activity = getActivity();
+        if(activity == null) return;
+        activity.runOnUiThread(new Runnable() {
 
                 @Override
                 public void run() {

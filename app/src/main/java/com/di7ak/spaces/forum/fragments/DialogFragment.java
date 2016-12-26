@@ -448,8 +448,10 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
 
     @Override
     public void onError(SpacesException e) {
-        Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
-        getMessages(1);
+        if(getActivity() != null) {
+            Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
+            getMessages(1);
+        }
     }
 
     boolean mUpdatingLast;

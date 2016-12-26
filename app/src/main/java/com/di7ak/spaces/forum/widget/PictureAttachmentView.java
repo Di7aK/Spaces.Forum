@@ -37,7 +37,7 @@ public class PictureAttachmentView extends ImageView {
                     url = url.replace(query, "");
 
                     String hash = ImageDownloader.md5(url);
-                    new ImageDownloader(mContext).downloadImage(url, hash, this, null);
+                    new ImageDownloader(mContext).hash(hash).from(url).into(this).execute();
                 }
                 if (preview.has("size")) {
                     JSONObject size = preview.getJSONObject("size");

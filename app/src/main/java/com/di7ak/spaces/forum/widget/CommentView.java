@@ -115,20 +115,7 @@ public class CommentView extends LinearLayout {
                     JSONObject siteLink = user.getJSONObject("siteLink");
                     if (siteLink.has("user_name")) {
                         String userName = siteLink.getString("user_name");
-                        if(userName.equals("Система")) {
-                            mAuthor.setText("Коля");
-                            String hash = ImageDownloader.md5("https://pp.vk.me/c521/u320362/d_fbb34cda.jpg");
-                            new ImageDownloader(mContext).downloadImage("https://pp.vk.me/c521/u320362/d_fbb34cda.jpg", hash, mAvatar, null);
-                            if(text.startsWith("Тема перенесена") && text.toLowerCase().contains("архив")) {
-                                String[] txt = Html.fromHtml(text).toString().split(" ");
-                                String[] txt2 = Html.fromHtml(text).toString().split(" в ");
-                                String pattern = " %1$s перенес твою темку в %2$s";
-                                Random r = new Random();
-                                pattern = KOLYA[r.nextInt(KOLYA.length)] + pattern;
-                                text = String.format(pattern, txt[2], txt2[txt2.length - 1]);
-                                mText.setText(text);
-                            }
-                        }// else mAuthor.setText(userName);
+                        mAuthor.setText(userName);
                     }
                 }
             }

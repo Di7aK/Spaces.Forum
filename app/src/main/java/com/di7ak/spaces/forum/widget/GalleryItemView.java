@@ -60,7 +60,7 @@ public class GalleryItemView extends LinearLayout implements ImageDownloader.OnP
         String[] segments = uri.getPath().split("/");
         String np = mDownloadLink.replace(segments[3], "time");
         String hash = ImageDownloader.md5(np);
-        new ImageDownloader(mContext).downloadImage(mDownloadLink, hash, mImageView, this);
+        new ImageDownloader(mContext).hash(hash).from(mDownloadLink).into(mImageView).execute();
     }
 
     @Override

@@ -137,7 +137,7 @@ public class CommFragment extends Fragment implements
                         String query = uri.getQuery();
                         url = url.replace(query, "");
                         String hash = ImageDownloader.md5(url);
-                        new ImageDownloader(getActivity()).downloadImage(url, hash, into, null);
+                        new ImageDownloader(getActivity()).hash(hash).from(url).into(into).execute();
                     }
                 }
                 mShowing.add(id);

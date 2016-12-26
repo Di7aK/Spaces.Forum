@@ -22,7 +22,9 @@ public class SpImageGetter implements Html.ImageGetter {
         mResult = new BitmapDrawablePlaceHolder();
         String hash = ImageDownloader.md5(source);
         new ImageDownloader(mTextView.getContext())
-            .downloadImage(source, hash, null, new ImageDownloader.OnProgressListener() {
+            .hash(hash)
+            .from(source)
+            .with(new ImageDownloader.OnProgressListener() {
 
                 @Override
                 public void onProgress(int current, int total) {
@@ -54,7 +56,8 @@ public class SpImageGetter implements Html.ImageGetter {
                     } catch (Exception e) {
                     }
                 }
-            });
+            })
+            .execute();
 
         return mResult;
     }

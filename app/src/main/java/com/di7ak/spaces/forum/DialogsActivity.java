@@ -49,11 +49,14 @@ DialogFragment.OnDialogCreated {
     List<Integer> mNewCnt;
     TextView mCurrentTitle;
     int mNewDialog;
+    
+    public DialogsActivity() {
+        super();
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        android.util.Log.d("lol", "on create");
         setContentView(R.layout.dialogs);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         mViewPager = (ViewPager) findViewById(R.id.viewpager);

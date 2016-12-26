@@ -85,7 +85,7 @@ public class VideoAttachmentView extends RelativeLayout implements View.OnClickL
                 if (player.has("showLink")) {
                     String previewUrl = player.getString("showLink");
                     String hash = ImageDownloader.md5(previewUrl);
-                    new ImageDownloader(getContext()).downloadImage(previewUrl, hash, mPreview, null);
+                    new ImageDownloader(getContext()).hash(hash).from(previewUrl).into(mPreview).execute();
                 }
                 if(player.has("player")) {
                     JSONObject player2 = player.getJSONObject("player");
