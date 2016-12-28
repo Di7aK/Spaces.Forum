@@ -252,7 +252,7 @@ MessageService.MessageListener {
 
     @Override
     public void onTyping(int contact, String user) {
-
+        
     }
 
     @Override

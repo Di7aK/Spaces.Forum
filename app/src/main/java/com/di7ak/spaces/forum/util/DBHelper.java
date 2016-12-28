@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBHelper extends SQLiteOpenHelper {
     
     public DBHelper(Context context) {
-        super(context, "myDB", null, 4);
+        super(context, "myDB", null, 5);
     }
 
     @Override
@@ -17,6 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "user_id integer,"
                 + "talk_id integer,"
                 + "contact_id integer,"
+                + "avatar text,"
                 + "name text"
                 + ");");
         db.execSQL("create table users ("
@@ -47,6 +48,7 @@ public class DBHelper extends SQLiteOpenHelper {
                    + "user_id integer,"
                    + "talk_id integer,"
                    + "contact_id integer,"
+                   + "avatar text,"
                    + "name text"
                    + ");");
         db.execSQL("create table users ("

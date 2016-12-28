@@ -312,8 +312,8 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
             message.read = false;
             message.talk = mTalk;
             message.time = System.currentTimeMillis();
-            message.avatar = mSession.avatar;
-            message.user = mSession.login;
+            message.user.avatar = mSession.avatar;
+            message.user.name = mSession.login;
             message.type = Message.TYPE_MY;
             mSending.add(message);
             boolean bottom = mMsgList.getLastVisiblePosition() == mMsgList.getAdapter().getCount() - 1;
@@ -551,16 +551,16 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
             if (message.type != Message.TYPE_SYSTEM) {
                 if (mTalk) {
                     JSONObject contact = data.getJSONObject("contact");
-                    message.avatar = contact.getJSONObject("avatar").getString("previewURL");
-                    message.user = contact.getJSONObject("widget").getJSONObject("siteLink").getString("user_name");
-                    message.userId = contact.getJSONObject("widget").getJSONObject("onlineStatus").getInt("id");
+                    message.user.avatar = contact.getJSONObject("avatar").getString("previewURL");
+                    message.user.name = contact.getJSONObject("widget").getJSONObject("siteLink").getString("user_name");
+                    message.user.id = contact.getJSONObject("widget").getJSONObject("onlineStatus").getInt("id");
                 } else {
                     if (message.type == Message.TYPE_MY) {
-                        message.avatar = mSession.avatar;
-                        message.userId = mSession.nid;
+                        message.user.avatar = mSession.avatar;
+                        message.user.id = mSession.nid;
                     } else {
-                        message.avatar = mAvatar;
-                        message.userId = mUserId;
+                        message.user.avatar = mAvatar;
+                        message.user.id = mUserId;
                     }
                 }
             }
@@ -568,14 +568,14 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
             Cursor cursor;
             ContentValues cv;
             if (mTalk) {
-                cursor = mDb.query("contacts", null, "user_id = ?", new String[]{Integer.toString(message.userId)}, null, null, null);
+                cursor = mDb.query("contacts", null, "user_id = ?", new String[]{Integer.toString(message.user.id)}, null, null, null);
                 if (cursor.getCount() == 0) {
                     cv = new ContentValues();
-                    cv.put("name", message.user);
-                    cv.put("user_id", message.userId);
+                    cv.put("name", message.user.name);
+                    cv.put("user_id", message.user.id);
                     cv.put("talk_id", talkId);
                     cv.put("contact_id", "0");
-                    cv.put("avatar", message.avatar);
+                    cv.put("avatar", message.user.avatar);
                     mDb.insert("contacts", null, cv);
                 }
             }
@@ -587,7 +587,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
                 cv.put("type", message.type);
                 cv.put("date", message.time);
                 cv.put("message", message.text);
-                cv.put("user_id", message.userId);
+                cv.put("user_id", message.user.id);
                 cv.put("talk", mTalk ? 1 : 0);
                 cv.put("not_read", message.read ? 0 : 1);
                 mDb.insert("messages", null, cv);
@@ -658,16 +658,16 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
                     message.type = cursor.getInt(iType);
                     message.time = cursor.getLong(iDate);
                     message.text = cursor.getString(iMessage);
-                    message.userId = cursor.getInt(iUserId);
+                    message.user.id = cursor.getInt(iUserId);
                     message.read = cursor.getInt(iRead) == 0;
                     message.talk = cursor.getInt(iTalk) == 1;
-                    contact = mDb.query("contacts", null, "user_id = ?", new String[]{Integer.toString(message.userId)}, null, null, null);
+                    contact = mDb.query("contacts", null, "user_id = ?", new String[]{Integer.toString(message.user.id)}, null, null, null);
                     if (contact.getCount() != 0) {
                         contact.moveToFirst();
                         int iName = contact.getColumnIndex("name");
                         int iAvatar = contact.getColumnIndex("avatar");
-                        message.user = contact.getString(iName);
-                        message.avatar = contact.getString(iAvatar);
+                        message.user.name = contact.getString(iName);
+                        message.user.avatar = contact.getString(iAvatar);
                     }
                     if (message.nid >= mLastMsgId) mLastMsgId = message.nid;
                     mMsgAdapter.appendMessage(message);

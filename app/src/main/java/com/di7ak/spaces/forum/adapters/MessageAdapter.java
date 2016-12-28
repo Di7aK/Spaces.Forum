@@ -90,7 +90,7 @@ public class MessageAdapter extends BaseAdapter {
         
         if (message.type != Message.TYPE_SYSTEM) {
             AvatarView avatarV = (AvatarView) v.findViewById(R.id.avatar);
-            avatarV.setUrl(message.avatar);
+            avatarV.setUrl(message.user.avatar);
             if(message.talk) {
                 dateV.setText(message.user + ", " + sDate);
             } else dateV.setText(sDate);

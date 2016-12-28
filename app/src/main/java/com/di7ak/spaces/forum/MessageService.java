@@ -16,6 +16,7 @@ import com.di7ak.spaces.forum.api.Request;
 import com.di7ak.spaces.forum.api.RequestListener;
 import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.api.SpacesException;
+import com.di7ak.spaces.forum.models.Contact;
 import com.di7ak.spaces.forum.models.Message;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +28,10 @@ public class MessageService implements NotificationManager.OnNewNotification {
     private Context mContext;
     private List<MessageListener> mListeners;
     private List<Received> mReceived;
+    private List<Message> mSending;
     private SQLiteDatabase mDb;
     private boolean mReceivedProcess;
+    private boolean mSendingProcess;
     private NotificationManagerCompat mNotificationManager;
 
     public MessageService(Context context) {
@@ -37,13 +40,49 @@ public class MessageService implements NotificationManager.OnNewNotification {
         mDb = Application.getDatabase(context);
         mListeners = new ArrayList<MessageListener>();
         mReceived = new ArrayList<Received>();
+        mSending = new ArrayList<Message>();
         mReceivedProcess = false;
         mNotificationManager = NotificationManagerCompat.from(context);
         Application.getNotificationManager().addListener(this);
     }
 
     public void sendMessage(Message message) {
+        mSending.add(message);
+        if (mSendingProcess) sendMessages();
+    }
 
+    private void sendMessages() {
+        mSendingProcess = true;
+        final Message message = mSending.get(0);
+        Request request = Api.sendMessage(message);
+        request.executeWithListener(new RequestListener() {
+
+                @Override
+                public void onSuccess(JSONObject json) {
+
+                    try {
+                        JSONObject data = json.getJSONObject("message");
+                        message.from(data);
+                    } catch (JSONException e) {
+                        for (MessageListener listener : mListeners) {
+                            listener.onError(message, new SpacesException(-2));
+                        }
+                        return;
+                    }
+                    message.put(mDb);
+                    for (MessageListener listener : mListeners) {
+                        listener.onSuccess(message);
+                    }
+                    mSending.remove(message);
+                    mSendingProcess = mSending.size() > 0;
+                    if (mSendingProcess) sendMessages();
+                }
+
+                @Override
+                public void onError(SpacesException e) {
+                    sendMessages();
+                }
+            });
     }
 
     public void addListener(MessageListener listener) {
@@ -54,8 +93,27 @@ public class MessageService implements NotificationManager.OnNewNotification {
         mListeners.remove(listener);
     }
 
-    public List<Message> getHistory(int contact) {
+    public Contact getContact(int id) {
+        Contact contact = new Contact();
+        Cursor cursor = mDb.query("contacts", null, "contact_id = ?", new String[]{Integer.toString(id)}, null, null, null);
+        if (cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            contact.from(cursor);
+        }
+        return contact;
+    }
+
+    public List<Message> getHistory(Contact contact) {
         List<Message> messages = new ArrayList<Message>();
+        Cursor cursor = mDb.query("messages", null, "contact_id = ?", new String[]{Integer.toString(contact.id)}, null, null, null);
+        if (cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            do {
+                Message message = new Message();
+                message.from(cursor, mDb);
+                messages.add(message);
+            } while (cursor.moveToNext());
+        }
         return messages;
     }
 
@@ -73,7 +131,7 @@ public class MessageService implements NotificationManager.OnNewNotification {
                                                           0, intent,
                                                           PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
-        String from = message.user;
+        String from = message.user.name;
         if (message.talk && message.user != null) from += ": " + message.user;
         builder.setContentIntent(pintent)
             .setSmallIcon(R.drawable.ic_launcher)
@@ -103,12 +161,12 @@ public class MessageService implements NotificationManager.OnNewNotification {
                             if (messages.has(Integer.toString(received.id))) {
                                 Message message = new Message();
                                 message.from(messages.getJSONObject(Integer.toString(received.id)));
-                                saveMessage(message);
+                                message.put(mDb);
                                 boolean noNotify = false;
                                 for (MessageListener listener : mListeners) {
-                                    if(listener.onNewMessage(message)) noNotify = true;
+                                    if (listener.onNewMessage(message)) noNotify = true;
                                 }
-                                if(!noNotify) notifyMessage(message);
+                                if (!noNotify) notifyMessage(message);
                             }
                             mReceived.remove(0);
                             mReceivedProcess = mReceived.size() > 0;
@@ -124,34 +182,6 @@ public class MessageService implements NotificationManager.OnNewNotification {
                     getReceived();
                 }
             });
-    }
-
-    private void saveMessage(Message message) {
-        Cursor cursor;
-        ContentValues cv;
-        cursor = mDb.query("messages", null, "msg_id = ?", new String[]{Integer.toString(message.nid)}, null, null, null);
-        if (cursor.getCount() == 0) {
-            cv = new ContentValues();
-            cv.put("msg_id", message.nid);
-            cv.put("contact_id", message.contact);
-            cv.put("type", message.type);
-            cv.put("date", message.time);
-            cv.put("message", message.text);
-            cv.put("user_id", message.userId);
-            cv.put("talk", message.talk ? 1 : 0);
-            cv.put("not_read", message.read ? 0 : 1);
-            mDb.insert("messages", null, cv);
-        }
-        if (message.avatar != null) {
-            cursor = mDb.query("users", null, "user_id = ?", new String[]{Integer.toString(message.userId)}, null, null, null);
-            if (cursor.getCount() == 0) {
-                cv = new ContentValues();
-                cv.put("name", message.user);
-                cv.put("user_id", message.userId);
-                cv.put("avatar", message.avatar);
-                mDb.insert("users", null, cv);
-            }
-        }
     }
 
     @Override
