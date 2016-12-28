@@ -44,6 +44,10 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
     int retryCount = 0;
     int maxRetryCount = 2;
     boolean update = false;
+    
+    public JournalFragment() {
+        super();
+    }
 
     public JournalFragment(Session session, int type) {
         super();

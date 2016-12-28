@@ -65,11 +65,10 @@ public class NotificationService extends Service implements NotificationManager.
                             }
                         }
                         
-                    } else if (act == 1) {
+                    } else if (act == 1) {/*
                         JSONObject contact = text.getJSONObject("data").getJSONObject("contact");
                         if(contact.has("user")) mailUser = contact.getString("user");
                         else {
-                            android.util.Log.d("lol", text.toString());
                             int contactId = contact.getInt("nid");
                             Cursor c = mDb.query("contacts", null, "contact_id = ?", new String[]{Integer.toString(contactId)}, null, null, null);
                             if (c.getCount() != 0) {
@@ -88,7 +87,7 @@ public class NotificationService extends Service implements NotificationManager.
                                     PendingIntent pintent = PendingIntent.getActivity(this,
                                                                                       0, intent,
                                                                                       PendingIntent.FLAG_UPDATE_CURRENT);
-                                    showNotification(2, "Почта", "Новое сообщение" + (mailUser == null ? "" : " от: " + mailUser), pintent);
+                                    showNotification(2, "Почта", "Новое сообщение" + (mailUser == null ? "" : " от: " + mailUser), pintent);*/
                     }
                 }
             }

@@ -42,6 +42,10 @@ public class ForumActivity extends AppCompatActivity implements
     private Bundle args;
     private ViewPagerAdapter adapter;
     String type;
+    
+    public ForumActivity() {
+        super();
+    }
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

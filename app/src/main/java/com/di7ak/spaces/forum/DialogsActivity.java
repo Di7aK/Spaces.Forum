@@ -37,8 +37,6 @@ ViewPager.OnPageChangeListener,
 DialogFragment.OnNewMessage,
 DialogFragment.OnDialogCreated {
     Toolbar toolbar;
-    DBHelper mDBHelper;
-    SQLiteDatabase mDb;
     Session mSession;
     boolean mPaused;
     ViewPager mViewPager;
@@ -72,8 +70,6 @@ DialogFragment.OnDialogCreated {
             });
 
         mNewCnt = new ArrayList<Integer>();
-        mDBHelper = new DBHelper(this);
-        mDb = mDBHelper.getWritableDatabase();
         mAdapter = new DialogAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOnPageChangeListener(this);
@@ -208,7 +204,7 @@ DialogFragment.OnDialogCreated {
             int contact = Integer.valueOf(uri.getQueryParameter("Contact"));
             int idx = mAdapter.indexOf(contact);
             if (idx == -1) {
-                DialogFragment dialog = new DialogFragment(mSession, contact, mDb, this);
+                DialogFragment dialog = new DialogFragment(contact, this);
                 idx = mAdapter.appendDialog(dialog);
                 mAdapter.notifyDataSetChanged();
                 mViewPager.setCurrentItem(idx);
@@ -303,7 +299,7 @@ DialogFragment.OnDialogCreated {
                         runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    DialogFragment dialog = new DialogFragment(mSession, nid, mDb, DialogsActivity.this);
+                                    DialogFragment dialog = new DialogFragment(nid, DialogsActivity.this);
                                     mAdapter.appendDialog(dialog);
                                     mNewDialog = nid;
                                     mAdapter.notifyDataSetChanged();

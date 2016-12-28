@@ -56,7 +56,20 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onPageSelected(int page) {
-        
+        if(page == 1) mMail.paused = false;
+        else mMail.paused = true;
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        mMail.paused = true;
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(viewPager.getCurrentItem() == 1) mMail.paused = false;
     }
 
     @Override

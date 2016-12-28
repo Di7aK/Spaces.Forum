@@ -44,6 +44,10 @@ public class ForumFragment extends Fragment implements NestedScrollView.OnScroll
 	int type;
 	int retryCount = 0;
 	int maxRetryCount = 2;
+    
+    public ForumFragment() {
+        super();
+    }
 
 	public ForumFragment(Session session, CommunityData comm, int type) {
 		super();

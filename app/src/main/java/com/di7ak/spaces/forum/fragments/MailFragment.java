@@ -14,12 +14,16 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.di7ak.spaces.forum.Application;
 import com.di7ak.spaces.forum.DialogsActivity;
+import com.di7ak.spaces.forum.MessageService;
 import com.di7ak.spaces.forum.R;
 import com.di7ak.spaces.forum.api.Request;
 import com.di7ak.spaces.forum.api.RequestListener;
 import com.di7ak.spaces.forum.api.SpacesException;
+import com.di7ak.spaces.forum.models.Message;
 import com.di7ak.spaces.forum.util.SpImageGetter;
+import com.di7ak.spaces.forum.util.Time;
 import com.di7ak.spaces.forum.widget.AvatarView;
 import com.di7ak.spaces.forum.widget.PaginationView;
 import com.di7ak.spaces.forum.widget.ProgressBar;
@@ -32,8 +36,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MailFragment extends Fragment implements 
-        RequestListener, View.OnClickListener,
-        NestedScrollView.OnScrollChangeListener {
+RequestListener, View.OnClickListener,
+NestedScrollView.OnScrollChangeListener,
+MessageService.MessageListener {
     private Uri mData;
     private ProgressBar mBar;
     private LinearLayout mList;
@@ -44,6 +49,7 @@ public class MailFragment extends Fragment implements
     private RelativeLayout mLoadNextIndicator;
     private ProgressView mProgressNext;
     private Button mBtnLoadNext;
+    public boolean paused;
 
     public void setData(Uri uri) {
         mData = uri;
@@ -60,6 +66,7 @@ public class MailFragment extends Fragment implements
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        Application.getMessageService(getActivity()).addListener(this);
     }
 
     @Override
@@ -72,7 +79,7 @@ public class MailFragment extends Fragment implements
         mCard.setVisibility(View.GONE);
         mPagination = new PaginationView(getActivity());
         mScroll.setOnScrollChangeListener(this);
-        
+
         mLoadNextIndicator = (RelativeLayout) inflater.inflate(R.layout.pagination_load, mList, false);
         mLoadNextIndicator.setBackgroundColor(0xffffffff);
         mProgressNext = (ProgressView) mLoadNextIndicator.findViewById(R.id.pagination_load_indicator);
@@ -90,11 +97,11 @@ public class MailFragment extends Fragment implements
                 JSONObject pagination = json.getJSONObject("pagination");
                 mPagination.setupData(pagination);
             }
-            if(json.has("form")) {
+            if (json.has("form")) {
                 JSONArray contacts = json.getJSONObject("form").getJSONArray("contacts");
                 showContacts(contacts);
             }
-            if(mPagination.hasNextPage()) addLoadNextIndicator();
+            if (mPagination.hasNextPage()) addLoadNextIndicator();
         } catch (JSONException e) {}
     }
 
@@ -106,61 +113,63 @@ public class MailFragment extends Fragment implements
     private void showContacts(JSONArray contacts) {
         try {
             LayoutInflater inflater = LayoutInflater.from(getActivity());
-            for(int i = 0; i < contacts.length(); i ++) {
+            for (int i = 0; i < contacts.length(); i ++) {
                 JSONObject contact = contacts.getJSONObject(i);
                 int id = contact.getInt("nid");
-                if(mShowing.indexOf(id) != -1) continue;
+                if (mShowing.indexOf(id) != -1) continue;
                 View v = inflater.inflate(R.layout.mail_item, mList, false);
+                v.setId(id);
                 //name
-                if(contact.has("text_addr")) {
+                if (contact.has("text_addr")) {
                     String name = contact.getString("text_addr");
                     TextView nameView = (TextView) v.findViewById(R.id.name);
                     nameView.setText(name);
                 }
                 //last message
-                if(contact.has("last_message_widget")) {
+                if (contact.has("last_message_widget")) {
                     JSONObject last = contact.getJSONObject("last_message_widget");
-                    if(last.has("text")) {
+                    if (last.has("text")) {
                         String text = last.getString("text");
                         TextView description = (TextView) v.findViewById(R.id.description);
                         description.setText(Html.fromHtml(text, new SpImageGetter(description), null));
+                        if (last.has("not_read")) description.setBackgroundColor(0x44888888);
                     }
-                    if(last.has("human_date")) {
-                        String text = last.getString("human_date");
+                    if (last.has("date")) {
+                        String text = Time.toString(last.getLong("date") * 1000);
                         TextView date = (TextView) v.findViewById(R.id.date);
-                        date.setText(text.toUpperCase());
+                        date.setText(text);
                     }
                 }
                 //avatar
-                if(contact.has("avatar")) {
+                if (contact.has("avatar")) {
                     JSONObject logo = contact.getJSONObject("avatar");
                     AvatarView into = (AvatarView) v.findViewById(R.id.avatar);
                     into.setupData(logo);
                 }
-                if(contact.has("msg_list_link")) {
+                if (contact.has("msg_list_link")) {
                     String link = contact.getString("msg_list_link");
                     v.setTag(link);
                     v.setOnClickListener(this);
                 }
                 //new count
-                if(contact.has("new_cnt")) {
+                if (contact.has("new_cnt")) {
                     String cnt = contact.getString("new_cnt");
                     TextView newCnt = (TextView) v.findViewById(R.id.new_cnt);
                     newCnt.setText(cnt);
-                    if(cnt.equals("0")) newCnt.setVisibility(View.INVISIBLE);
+                    if (cnt.equals("0")) newCnt.setVisibility(View.INVISIBLE);
                 }
                 mShowing.add(id);
-                
+
                 mList.addView(v);
             }
-        } catch(JSONException e) {
-            
+        } catch (JSONException e) {
+
         }
         if (mShowing.size() > 0 && mCard.getVisibility() == View.GONE) {
             mCard.setVisibility(View.VISIBLE);
         }
     }
-    
+
     @Override
     public void onScrollChange(NestedScrollView v, int x, int y, int p4, int p5) {
         if (y + 50 > (v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight())) {
@@ -175,12 +184,12 @@ public class MailFragment extends Fragment implements
 
     @Override
     public void onClick(View v) {
-        if(v.equals(mBtnLoadNext)) {
+        if (v.equals(mBtnLoadNext)) {
             mData = Uri.parse(mPagination.getNextPageUrl());
             mBtnLoadNext.setVisibility(View.INVISIBLE);
             mProgressNext.start();
             new Request(mData).executeWithListener(this);
-        } else if(v.getTag() != null) {
+        } else if (v.getTag() != null) {
             Intent intent = new Intent();
             intent.setData(Uri.parse((String)v.getTag()));
             intent.setAction(Intent.ACTION_VIEW);
@@ -189,14 +198,86 @@ public class MailFragment extends Fragment implements
             getActivity().startActivity(intent);
         } else new Request(mData).executeWithListener(this);
     }
-    
+
     private void addLoadNextIndicator() {
         mList.addView(mLoadNextIndicator);
         mBtnLoadNext.setVisibility(View.VISIBLE);
     }
 
     private void removeLoadNextIndicator() {
-        if(mList.indexOfChild(mLoadNextIndicator) != -1) mList.removeView(mLoadNextIndicator);
+        if (mList.indexOfChild(mLoadNextIndicator) != -1) mList.removeView(mLoadNextIndicator);
         mProgressNext.stop();
+    }
+
+    @Override
+    public boolean onNewMessage(Message message) {
+        View v = mList.findViewById(message.contact);
+        if (v != null) {
+            //text
+            TextView description = (TextView) v.findViewById(R.id.description);
+            description.setText(Html.fromHtml(message.text, new SpImageGetter(description), null)); 
+            //time
+            TextView date = (TextView) v.findViewById(R.id.date);
+            date.setText(Time.toString(message.time));
+            //count
+            TextView newCnt = (TextView) v.findViewById(R.id.new_cnt);
+            int cnt = Integer.valueOf(newCnt.getText().toString());
+            cnt ++;
+            newCnt.setText(Integer.toString(cnt));
+            newCnt.setVisibility(View.VISIBLE);
+            //to top
+            mList.removeView(v);
+            mList.addView(v, 0);
+            return !paused;
+        }
+        return false;
+    }
+
+    @Override
+    public void onSuccess(Message message) {
+        View v = mList.findViewById(message.contact);
+        if (v != null) {
+            //text
+            TextView description = (TextView) v.findViewById(R.id.description);
+            description.setText(Html.fromHtml(message.text, new SpImageGetter(description), null)); 
+            description.setBackgroundColor(0x44888888);
+            //time
+            TextView date = (TextView) v.findViewById(R.id.date);
+            date.setText(Time.toString(message.time));
+            //to top
+            mList.removeView(v);
+            mList.addView(v, 0);
+        }
+    }
+
+    @Override
+    public void onTyping(int contact, String user) {
+
+    }
+
+    @Override
+    public void onRead(final int contact) {
+        Activity activity = getActivity();
+        if(activity == null) return;
+        activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    View v = mList.findViewById(contact);
+                    if (v != null) {
+                        //count
+                        TextView newCnt = (TextView) v.findViewById(R.id.new_cnt);
+                        newCnt.setText(Integer.toString(0));
+                        newCnt.setVisibility(View.GONE);
+                        //background
+                        TextView description = (TextView) v.findViewById(R.id.description);
+                        description.setBackgroundColor(0xffffffff);
+                    }
+                }
+            });
+    }
+
+    @Override
+    public void onError(Message message, SpacesException exception) {
+
     }
 }

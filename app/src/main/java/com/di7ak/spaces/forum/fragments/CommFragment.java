@@ -43,6 +43,10 @@ public class CommFragment extends Fragment implements
     private RelativeLayout mLoadNextIndicator;
     private ProgressView mProgressNext;
     private Button mBtnLoadNext;
+    
+    public CommFragment() {
+        super();
+    }
 
     public void setData(Uri uri) {
         mData = uri;

@@ -10,14 +10,14 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import com.di7ak.spaces.forum.R;
-import com.di7ak.spaces.forum.api.Session;
 import com.di7ak.spaces.forum.models.Message;
 import com.di7ak.spaces.forum.util.SpImageGetter;
 import com.di7ak.spaces.forum.widget.AvatarView;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.di7ak.spaces.forum.util.Time;
 
 public class MessageAdapter extends BaseAdapter {
     private List<Message> mMessages;
@@ -86,14 +86,16 @@ public class MessageAdapter extends BaseAdapter {
         Spanned sText = Html.fromHtml(message.text, new SpImageGetter(textV), null);
         textV.setText(sText);
 
+        String sDate = Time.toString(message.time);
+        
         if (message.type != Message.TYPE_SYSTEM) {
             AvatarView avatarV = (AvatarView) v.findViewById(R.id.avatar);
             avatarV.setUrl(message.avatar);
             if(message.talk) {
-                dateV.setText(message.user + ", " + message.time);
-            } else dateV.setText(message.time);
+                dateV.setText(message.user + ", " + sDate);
+            } else dateV.setText(sDate);
         } else {
-            dateV.setText(message.time);
+            dateV.setText(sDate);
         }
         if (!message.read) {
             v.setBackgroundColor(0x44888888);

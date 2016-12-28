@@ -48,6 +48,10 @@ View.OnClickListener {
     private PaginationView mPagination;
     private boolean mSelected = false;
     private Uri mData;
+    
+    public BlogsFragment() {
+        super();
+    }
 
     public void setData(Uri data, Session session) {
         mData = data;

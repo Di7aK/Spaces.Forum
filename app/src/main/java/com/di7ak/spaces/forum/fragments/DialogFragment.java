@@ -48,6 +48,7 @@ import java.util.TimerTask;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import com.di7ak.spaces.forum.Application;
 
 public class DialogFragment extends Fragment implements RequestListener, View.OnClickListener {
     private EditText mMsgBox;
@@ -76,13 +77,15 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
 
     public int contactId;
     public int talkId;
+    
+    public DialogFragment() {
+        super();
+    }
 
-    public DialogFragment(Session session, int contact, SQLiteDatabase db, OnDialogCreated onCreated) {
+    public DialogFragment(int contact, OnDialogCreated onCreated) {
         super();
 
-        mSession = session;
         contactId = contact;
-        mDb = db;
         mOnDialogCreated = onCreated;
 
         mSending = new ArrayList<Message>();
@@ -99,6 +102,17 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        mSession = Application.getSession();
+        mDb = Application.getDatabase(getActivity());
+        if(bundle != null && bundle.containsKey("contact")) {
+            contactId = bundle.getInt("contact");
+        }
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle bundle) {
+        super.onSaveInstanceState(bundle);
+        bundle.putInt("contact", contactId);
     }
 
     @Override
@@ -297,7 +311,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
             message.text = mMsgBox.getText().toString();
             message.read = false;
             message.talk = mTalk;
-            message.time = "отправка";
+            message.time = System.currentTimeMillis();
             message.avatar = mSession.avatar;
             message.user = mSession.login;
             message.type = Message.TYPE_MY;
@@ -332,7 +346,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
 
                     try {
                         JSONObject data = json.getJSONObject("message");
-                        message.time = data.getString("human_date");
+                        message.time = data.getLong("date") * 1000;
                         message.text = data.getString("text");
                         message.read = !data.has("not_read");
                         message.nid = data.getInt("nid");
@@ -525,7 +539,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
         for (int i = messages.length() - 1; i >= 0; i --) {
             JSONObject data = messages.getJSONObject(i);
             Message message = new Message();
-            message.time = data.getString("human_date");
+            message.time = data.getLong("date") * 1000;
             message.text = data.has("text") ? data.getString("text") : "";
             message.read = !data.has("not_read");
             message.nid = data.getInt("nid");
@@ -642,7 +656,7 @@ public class DialogFragment extends Fragment implements RequestListener, View.On
                     Message message = new Message();
                     message.nid = cursor.getInt(iMsgId);
                     message.type = cursor.getInt(iType);
-                    message.time = cursor.getString(iDate);
+                    message.time = cursor.getLong(iDate);
                     message.text = cursor.getString(iMessage);
                     message.userId = cursor.getInt(iUserId);
                     message.read = cursor.getInt(iRead) == 0;

@@ -127,6 +127,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
                                 return;
                             }
                             session.nid = Integer.valueOf(nid);
+                            Application.setSession(session);
                             onResult.onAuthenticatorResult(session);
                         } catch (Exception e) {
 							onResult.onAuthenticatorResult(null);

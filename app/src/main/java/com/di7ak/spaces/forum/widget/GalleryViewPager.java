@@ -19,9 +19,10 @@ public GalleryViewPager(Context context, AttributeSet attrs) {
 
 @Override
 protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
-    
-    ImageViewTouch imageView = (ImageViewTouch) getChildAt(getCurrentItem()).findViewById(R.id.image);
-    if (imageView != null) {
+    int current = getCurrentItem();
+    if(current < getChildCount()) {
+        View page = getChildAt(current);
+        ImageViewTouch imageView = (ImageViewTouch) page.findViewById(R.id.image);
         return imageView.canScroll();
     } else {
         return super.canScroll(v, checkV, dx, x, y);
