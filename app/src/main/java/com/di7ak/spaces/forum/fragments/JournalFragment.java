@@ -146,7 +146,9 @@ public class JournalFragment extends Fragment implements NestedScrollView.OnScro
     }
 
     public void loadRecords() {
-        bar = Snackbar.make(getActivity().getWindow().getDecorView(), "Получение списка", Snackbar.LENGTH_INDEFINITE);
+        Activity activity = getActivity();
+        if(activity == null) return;
+        bar = Snackbar.make(activity.getWindow().getDecorView(), "Получение списка", Snackbar.LENGTH_INDEFINITE);
 
         Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) bar.getView();
         View snackView = getActivity().getLayoutInflater().inflate(R.layout.progress_snackbar, layout, false);

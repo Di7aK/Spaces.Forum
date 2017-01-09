@@ -17,7 +17,7 @@ public class DialogAdapter extends FragmentPagerAdapter {
     
     public int indexOf(int contact) {
         for(int i = 0; i < mDialogs.size(); i ++) {
-            if(mDialogs.get(i).contactId == contact) {
+            if(mDialogs.get(i).contact.id == contact || mDialogs.get(i).contact.talkId == contact) {
                 return i;
             }
         }

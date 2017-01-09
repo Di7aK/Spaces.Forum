@@ -26,6 +26,8 @@ public class Message {
 
     public void from(JSONObject data) {
         try {
+            if(user == null) user = new User();
+            
             time = data.getLong("date") * 1000;
             text = data.has("text") ? data.getString("text") : "";
             read = !data.has("not_read");
@@ -42,7 +44,6 @@ public class Message {
                 else type = Message.TYPE_MY;
 
                 if (type != Message.TYPE_SYSTEM) {
-                    user = new User();
                     user.from(contact);
                 }
             } else type = TYPE_MY;

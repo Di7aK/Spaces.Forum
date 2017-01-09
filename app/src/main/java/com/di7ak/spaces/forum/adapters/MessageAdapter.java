@@ -28,6 +28,10 @@ public class MessageAdapter extends BaseAdapter {
         mContext = context;
         mMessages = new ArrayList<Message>();
     }
+    
+    public void removeAll() {
+        mMessages = new ArrayList<Message>();
+    }
 
     public void appendMessage(Message message) {
         mMessages.add(message);
@@ -71,7 +75,7 @@ public class MessageAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View v, ViewGroup parent) {
         Message message = (Message) getItem(i);
-        if (message.type == Message.TYPE_MY) {
+        if (message.type == Message.TYPE_MY  || message.type == Message.TYPE_SENDING) {
             v = LayoutInflater.from(mContext).inflate(R.layout.my_message_item, parent, false);
         } else if (message.type == Message.TYPE_RECEIVED) {
             v = LayoutInflater.from(mContext).inflate(R.layout.message_item, parent, false);
@@ -92,7 +96,7 @@ public class MessageAdapter extends BaseAdapter {
             AvatarView avatarV = (AvatarView) v.findViewById(R.id.avatar);
             avatarV.setUrl(message.user.avatar);
             if(message.talk) {
-                dateV.setText(message.user + ", " + sDate);
+                dateV.setText(message.user.name + ", " + sDate);
             } else dateV.setText(sDate);
         } else {
             dateV.setText(sDate);

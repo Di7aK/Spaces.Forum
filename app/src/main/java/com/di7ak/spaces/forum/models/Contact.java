@@ -11,6 +11,7 @@ public class Contact {
     public int talkId;
     public int id;
     public int lastReceivedMsgId;
+    public int lastMsgId;
     public String members;
     public String name;
     public String avatar;

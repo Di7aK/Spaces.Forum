@@ -43,6 +43,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("drop table messages");
         db.execSQL("drop table contacts");
+        db.execSQL("drop table users");
         db.execSQL("create table contacts ("
                    + "id integer primary key autoincrement,"
                    + "user_id integer,"

@@ -48,7 +48,7 @@ public class MessageService implements NotificationManager.OnNewNotification {
 
     public void sendMessage(Message message) {
         mSending.add(message);
-        if (mSendingProcess) sendMessages();
+        if (!mSendingProcess) sendMessages();
     }
 
     private void sendMessages() {
@@ -59,16 +59,16 @@ public class MessageService implements NotificationManager.OnNewNotification {
 
                 @Override
                 public void onSuccess(JSONObject json) {
-
                     try {
                         JSONObject data = json.getJSONObject("message");
                         message.from(data);
                     } catch (JSONException e) {
-                        for (MessageListener listener : mListeners) {
+                         for (MessageListener listener : mListeners) {
                             listener.onError(message, new SpacesException(-2));
                         }
                         return;
                     }
+                    message.type = Message.TYPE_MY;
                     message.put(mDb);
                     for (MessageListener listener : mListeners) {
                         listener.onSuccess(message);
@@ -95,6 +95,7 @@ public class MessageService implements NotificationManager.OnNewNotification {
 
     public Contact getContact(int id) {
         Contact contact = new Contact();
+        contact.id = id;
         Cursor cursor = mDb.query("contacts", null, "contact_id = ?", new String[]{Integer.toString(id)}, null, null, null);
         if (cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -105,7 +106,7 @@ public class MessageService implements NotificationManager.OnNewNotification {
 
     public List<Message> getHistory(Contact contact) {
         List<Message> messages = new ArrayList<Message>();
-        Cursor cursor = mDb.query("messages", null, "contact_id = ?", new String[]{Integer.toString(contact.id)}, null, null, null);
+        Cursor cursor = mDb.query("messages", null, "contact_id = ?", new String[]{Integer.toString(contact.id)}, null, null, "date", "30");
         if (cursor.getCount() != 0) {
             cursor.moveToFirst();
             do {
@@ -117,7 +118,7 @@ public class MessageService implements NotificationManager.OnNewNotification {
         return messages;
     }
 
-    private void markAsRead(int contact) {
+    public void markAsRead(int contact) {
         ContentValues cv = new ContentValues();
         cv.put("not_read", 0);
         mDb.update("messages", cv, "contact_id=" + contact, null);
@@ -132,7 +133,7 @@ public class MessageService implements NotificationManager.OnNewNotification {
                                                           PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
         String from = message.user.name;
-        if (message.talk && message.user != null) from += ": " + message.user;
+        if (message.talk && message.user != null) from += ": " + message.user.name;
         builder.setContentIntent(pintent)
             .setSmallIcon(R.drawable.ic_launcher)
 

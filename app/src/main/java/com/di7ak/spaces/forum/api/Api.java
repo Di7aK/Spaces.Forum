@@ -24,6 +24,18 @@ public class Api {
             .append("&sid=").append(Uri.encode(Application.getSession().sid))
             .append("&CK=").append(Uri.encode(Application.getSession().ck))
             .append("&texttT=").append(Uri.encode(message.text));
+            
+        Request request = new Request(Uri.parse("http://spaces.ru/neoapi/mail/"));
+        request.setPost(args.toString());
+        return request;
+    }
+    
+    public static Request markAsRead(int contact) {
+        StringBuilder args = new StringBuilder();
+        args.append("method=").append("markContactsAsRead")
+            .append("&CoNtacts=").append(Integer.toString(contact))
+            .append("&sid=").append(Uri.encode(Application.getSession().sid))
+            .append("&CK=").append(Uri.encode(Application.getSession().ck));
         Request request = new Request(Uri.parse("http://spaces.ru/neoapi/mail/"));
         request.setPost(args.toString());
         return request;

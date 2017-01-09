@@ -146,8 +146,13 @@ MessageService.MessageListener {
                     AvatarView into = (AvatarView) v.findViewById(R.id.avatar);
                     into.setupData(logo);
                 }
+                //link
                 if (contact.has("msg_list_link")) {
                     String link = contact.getString("msg_list_link");
+                    if (contact.has("last_message_id")) {
+                        int lastMsgId = contact.getInt("last_message_id");
+                        link += "&last_msg_id=" + lastMsgId;
+                    }
                     v.setTag(link);
                     v.setOnClickListener(this);
                 }
@@ -156,7 +161,7 @@ MessageService.MessageListener {
                     String cnt = contact.getString("new_cnt");
                     TextView newCnt = (TextView) v.findViewById(R.id.new_cnt);
                     newCnt.setText(cnt);
-                    if (cnt.equals("0")) newCnt.setVisibility(View.INVISIBLE);
+                    if (cnt.equals("0")) newCnt.setVisibility(View.GONE);
                 }
                 mShowing.add(id);
 
@@ -196,6 +201,7 @@ MessageService.MessageListener {
             intent.setClass(getContext(), DialogsActivity.class);
             //intent.setFlags(Intent.FLAG_FROM_BACKGROUND);
             getActivity().startActivity(intent);
+            
         } else new Request(mData).executeWithListener(this);
     }
 
@@ -270,7 +276,7 @@ MessageService.MessageListener {
                         newCnt.setVisibility(View.GONE);
                         //background
                         TextView description = (TextView) v.findViewById(R.id.description);
-                        description.setBackgroundColor(0xffffffff);
+                        description.setBackgroundColor(0x00ffffff);
                     }
                 }
             });
